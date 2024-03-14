@@ -6,8 +6,7 @@ import { Footer } from "@/components/layout/Footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
-const imageUrl =
-  "https://images.pexels.com/photos/2280148/pexels-photo-2280148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+const imageUrl = "https://images.pexels.com/photos/2280148/pexels-photo-2280148.jpeg"
 
 export const metadata: Metadata = {
   title: "Garage Booking | Gala Point",
@@ -21,7 +20,7 @@ export const metadata: Metadata = {
     description: "Sitio web para reservar estacionamiento en Gala Point",
     images: [
       {
-        url: imageUrl,
+        url: `${imageUrl}?auto=compress&cs=tinysrgb&w=640&h=425&dpr=1`,
         width: 800,
         height: 600,
         alt: "Garage Booking | Gala Point"
@@ -48,7 +47,7 @@ export default function RootLayout({
         <div
           className={"flex flex-col h-full w-full mx-auto my-0 overflow-hidden max-w-[800px]"}
           style={{
-            background: `url(${imageUrl}) no-repeat center center/cover`
+            background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
           }}>
           <Navbar />
           <main
