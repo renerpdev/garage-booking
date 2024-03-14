@@ -9,6 +9,11 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "license": "MIT",
+  "author": {
+    "name": "Rene Ricardo",
+    "url": "https://renerp.dev"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "^5.11.0",
