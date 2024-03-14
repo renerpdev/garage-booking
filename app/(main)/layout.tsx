@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es",
-    url: "https://garage-booking.vercel.app",
+    url: "https://garage-booking.renerp.dev",
     siteName: "Garage Booking | Gala Point",
     title: "Garage Booking | Gala Point",
     description: "Sitio web para reservar estacionamiento en Gala Point",
