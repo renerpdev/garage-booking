@@ -1,15 +1,21 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "../globals.css"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
-import Head from "next/head"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Garage Booking | Gala Point",
   description: "Sitio web para reservar estacionamiento en Gala Point"
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
 }
 
 export default function RootLayout({
@@ -19,9 +25,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
-      </Head>
       <body className={`${inter.className} h-dvh min-h-dvh w-dvw max-h-dvh`}>
         <div
           className={"flex flex-col h-full w-full mx-auto my-0 overflow-hidden max-w-[800px]"}
