@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
+import { createBooking, getActiveBooking } from "@/lib/actions"
 
 const OPTIONS = [
   {
@@ -34,7 +35,7 @@ const OPTIONS = [
 ]
 
 const FormSchema = z.object({
-  name: z.string().min(2, {
+  nickname: z.string().min(2, {
     message: "El nombre debe tener al menos 2 caracteres."
   }),
   time: z.string().min(1, {
@@ -42,51 +43,80 @@ const FormSchema = z.object({
   })
 })
 
+const DATETIME_FORMAT = "hh:mmaa"
+
 export const BookingCard = () => {
   const { toast } = useToast()
   const [expirationTime, setExpirationTime] = useState<Date | null>(null)
+  const [nickname, setNickname] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: "",
+      nickname: "",
       time: ""
     }
   })
 
   useEffect(() => {
-    setIsLoading(true)
-    const timeout = setTimeout(() => {
-      setIsLoading(false)
-    }, 200)
+    async function fetchActiveBooking() {
+      try {
+        const activeBooking = await getActiveBooking()
 
-    return () => clearTimeout(timeout)
-  }, [])
+        if (activeBooking) {
+          setExpirationTime(activeBooking.dueDate)
+          setNickname(activeBooking.nickname)
+        }
+      } catch (e) {
+        toast({
+          title: "Error",
+          description: "Ocurrió un error al obtener la reserva activa. Por favor, intenta nuevamente.",
+          className: "text-red-500"
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchActiveBooking().then()
+  }, [toast])
 
   const onExpiry = () => {
     setExpirationTime(null)
     form.reset()
   }
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
-    setTimeout(() => {
-      const time = new Date()
-      time.setMinutes(time.getMinutes() + parseInt(data.time))
-      setExpirationTime(time)
+
+    try {
+      const dueDate = new Date()
+      dueDate.setMinutes(dueDate.getMinutes() + parseInt(data.time))
+
+      await createBooking(data.nickname, dueDate)
+
+      setExpirationTime(dueDate)
 
       toast({
         title: "Reserva Confirmada",
         description: (
           <p>
-            {data.name}, tienes estacionamiento reservado hasta las <time>{format(time, "hh:mm:aa")}</time> horas.
+            {data.nickname}, tienes estacionamiento reservado hasta las <time>{format(dueDate, DATETIME_FORMAT)}</time>{" "}
+            horas.
           </p>
         )
       })
+    } catch (e) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al reservar el estacionamiento. Por favor, intenta nuevamente.",
+        className: "text-red-500"
+      })
+    } finally {
       setIsSubmitting(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -114,7 +144,7 @@ export const BookingCard = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-100 space-y-6">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="nickname"
                   render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Nombre</FormLabel>
@@ -171,8 +201,8 @@ export const BookingCard = () => {
       {expirationTime && (
         <CardFooter className={"flex justify-center text-sm"}>
           <code>
-            por <span className={"underline"}>{form.getValues("name")}</span> hasta{" "}
-            <span className={"underline"}>{expirationTime && format(expirationTime, "hh:mm:aa")}</span>
+            por <span className={"underline"}>{form.getValues("nickname") || nickname}</span> hasta{" "}
+            <span className={"underline"}>{expirationTime && format(expirationTime, DATETIME_FORMAT)}</span>
           </code>
         </CardFooter>
       )}

@@ -26,7 +26,13 @@ export default function RootLayout({
               "url('https://images.pexels.com/photos/2280148/pexels-photo-2280148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2') no-repeat center center/cover"
           }}>
           <Navbar />
-          {children}
+          <main
+            className={"h-full w-full"}
+            style={{
+              backdropFilter: "blur(3px) brightness(0.5) saturate(1.5) contrast(0.9)"
+            }}>
+            {children}
+          </main>
           <Footer />
         </div>
       </body>
