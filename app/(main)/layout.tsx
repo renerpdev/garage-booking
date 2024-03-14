@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "../globals.css"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
+import Head from "next/head"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,6 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
+      </Head>
       <body className={`${inter.className}`}>
         <div
           className={"flex flex-col h-dvh w-dvw max-h-dvh mx-auto my-0 overflow-hidden max-w-[800px]"}
