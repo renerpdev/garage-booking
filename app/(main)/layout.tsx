@@ -22,16 +22,16 @@ export default function RootLayout({
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
       </Head>
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className} h-dvh min-h-dvh w-dvw max-h-dvh`}>
         <div
-          className={"flex flex-col h-dvh w-dvw max-h-dvh mx-auto my-0 overflow-hidden max-w-[800px]"}
+          className={"flex flex-col h-full w-full mx-auto my-0 overflow-hidden max-w-[800px]"}
           style={{
             background:
               "url('https://images.pexels.com/photos/2280148/pexels-photo-2280148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2') no-repeat center center/cover"
           }}>
           <Navbar />
           <main
-            className={"h-full w-full"}
+            className={"h-full w-full flex-grow"}
             style={{
               backdropFilter: "blur(3px) brightness(0.5) saturate(1.5) contrast(0.9)"
             }}>
