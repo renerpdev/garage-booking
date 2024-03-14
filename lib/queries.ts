@@ -1,7 +1,6 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { sendWhatsappMsg } from "@/lib/whatsapp"
 import { logger } from "@/logger"
 
 const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
@@ -27,7 +26,8 @@ export async function createBooking(nickname: string, dueDate: Date) {
       }
     })
 
-    await sendWhatsappMsg(dueDate, nickname)
+    // TODO: Uncomment this line when the whatsapp integration is ready
+    // await sendWhatsappMsg(dueDate, nickname)
 
     logger.info(`Booking created for "${nickname}" with due date "${dueDate}"`)
 

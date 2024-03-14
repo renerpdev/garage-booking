@@ -12,7 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
 import { useEffect, useState } from "react"
-import { createBooking, getActiveBooking } from "@/lib/actions"
+import { createBooking, getActiveBooking } from "@/lib/queries"
 import { formatInTimeZone } from "@/lib/utils"
 
 const OPTIONS = [
