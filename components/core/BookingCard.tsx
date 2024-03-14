@@ -12,8 +12,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
 import { useEffect, useState } from "react"
-import { format } from "date-fns"
 import { createBooking, getActiveBooking } from "@/lib/actions"
+import { formatInTimeZone } from "@/lib/utils"
 
 const OPTIONS = [
   {
@@ -43,11 +43,9 @@ const FormSchema = z.object({
   })
 })
 
-const DATETIME_FORMAT = "hh:mmaa"
-
 export const BookingCard = () => {
   const { toast } = useToast()
-  const [expirationTime, setExpirationTime] = useState<Date | null>(null)
+  const [expirationDate, setExpirationDate] = useState<Date | null>(null)
   const [nickname, setNickname] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -66,7 +64,7 @@ export const BookingCard = () => {
         const activeBooking = await getActiveBooking()
 
         if (activeBooking) {
-          setExpirationTime(activeBooking.dueDate)
+          setExpirationDate(activeBooking.dueDate)
           setNickname(activeBooking.nickname)
         }
       } catch (e) {
@@ -84,7 +82,7 @@ export const BookingCard = () => {
   }, [toast])
 
   const onExpiry = () => {
-    setExpirationTime(null)
+    setExpirationDate(null)
     form.reset()
   }
 
@@ -97,14 +95,13 @@ export const BookingCard = () => {
 
       await createBooking(data.nickname, dueDate)
 
-      setExpirationTime(dueDate)
+      setExpirationDate(dueDate)
 
       toast({
         title: "Reserva Confirmada",
         description: (
           <p>
-            {data.nickname}, tienes estacionamiento reservado hasta las <time>{format(dueDate, DATETIME_FORMAT)}</time>{" "}
-            horas.
+            {data.nickname}, tienes estacionamiento reservado hasta las <time>{formatInTimeZone(dueDate)}</time> horas.
           </p>
         )
       })
@@ -122,9 +119,9 @@ export const BookingCard = () => {
   return (
     <Card className={"p-2 sm:p-6"}>
       {!isLoading && (
-        <CardHeader className={`text-center ${expirationTime ? "pb-0 text-primary" : ""}`}>
-          <CardTitle>{!expirationTime ? "Reservar Estacionamiento" : "Reservado"}</CardTitle>
-          {!expirationTime && (
+        <CardHeader className={`text-center ${expirationDate ? "pb-0 text-primary" : ""}`}>
+          <CardTitle>{!expirationDate ? "Reservar Estacionamiento" : "Reservado"}</CardTitle>
+          {!expirationDate && (
             <CardDescription>
               <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
             </CardDescription>
@@ -138,8 +135,8 @@ export const BookingCard = () => {
       )}
       {!isLoading && (
         <CardContent>
-          {expirationTime && <Timer expiryTimestamp={expirationTime} onExpire={onExpiry} />}
-          {!expirationTime && (
+          {expirationDate && <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />}
+          {!expirationDate && (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-100 space-y-6">
                 <FormField
@@ -198,11 +195,11 @@ export const BookingCard = () => {
           )}
         </CardContent>
       )}
-      {expirationTime && (
+      {expirationDate && (
         <CardFooter className={"flex justify-center text-sm"}>
           <code>
             por <span className={"underline"}>{form.getValues("nickname") || nickname}</span> hasta{" "}
-            <span className={"underline"}>{expirationTime && format(expirationTime, DATETIME_FORMAT)}</span>
+            <span className={"underline"}>{expirationDate && formatInTimeZone(expirationDate)}</span>
           </code>
         </CardFooter>
       )}

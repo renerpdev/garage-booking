@@ -1,7 +1,7 @@
 "use server"
 
-import { format } from "date-fns"
 import { logger } from "@/logger"
+import { formatInTimeZone } from "@/lib/utils"
 
 const whatsappAccountNumber = process.env.WHATSAPP_API_ACCOUNT_NUMBER
 const whatsappApiUrl = process.env.WHATSAPP_API_BASE_URL
@@ -10,7 +10,6 @@ const whatsappAuthToken = process.env.WHATSAPP_API_AUTH_TOKEN
 const phoneNumber = process.env.TEST_PHONE_NUMBER
 
 const GARAGE_NUMBER = 15 // this is hardcoded for now since we just have one garage available
-const DATETIME_FORMAT = "hh:mmaa"
 
 export async function sendWhatsappMsg(dueDate: Date, nickname: string) {
   logger.info(
@@ -45,7 +44,7 @@ export async function sendWhatsappMsg(dueDate: Date, nickname: string) {
               },
               {
                 type: "text",
-                text: `${format(dueDate, DATETIME_FORMAT)}`
+                text: `${formatInTimeZone(dueDate)}`
               }
             ]
           }
