@@ -6,6 +6,11 @@ export const Footer = () => (
         <a href="https://renerp.dev" target="_blank" rel="noopener">
           renerp.dev
         </a>
+        <a
+          className="text-xs block text-gray-500"
+          href="https://www.pexels.com/es-es/foto/foto-de-estacionamiento-subterraneo-vacio-2280148">
+          Foto de Carl Newton
+        </a>
       </div>
     </div>
   </div>
