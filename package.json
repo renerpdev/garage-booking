@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "postinstall": "prisma generate && prisma migrate deploy && echo '' > app.log",
+    "postinstall": "prisma generate && prisma migrate deploy",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
