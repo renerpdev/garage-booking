@@ -10,7 +10,7 @@ const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
  *****************************************************/
 
 export async function createBooking(nickname: string, dueDate: Date) {
-  logger.info(`Trying to create booking for "${nickname}" with due date "${dueDate}"`)
+  logger.info(`Creating booking for "${nickname}" with due date "${dueDate}"`)
   try {
     await clearActiveBookings()
     await prisma.booking.create({
@@ -61,7 +61,7 @@ export async function getActiveBooking() {
 }
 
 export async function clearActiveBookings() {
-  logger.info("Trying to clear ACTIVE bookings")
+  logger.info("Setting current ACTIVE bookings to INACTIVE")
   try {
     const data = await prisma.booking.updateMany({
       where: {
@@ -72,11 +72,14 @@ export async function clearActiveBookings() {
       }
     })
 
-    logger.info(`${data?.count} Bookings ${data?.count > 1 ? "were" : "was"} set to INACTIVE`)
+    const deactivatedBookings = data.count
+    if (deactivatedBookings > 0) {
+      logger.info(`${deactivatedBookings} Bookings ${deactivatedBookings > 1 ? "were" : "was"} set to INACTIVE`)
+    }
 
     return { success: true }
   } catch (error) {
-    logger.error(`Error clearing ACTIVE bookings: ${error}`)
+    logger.error(`Error deactivating ACTIVE bookings: ${error}`)
     throw new Error(error as any)
   }
 }
