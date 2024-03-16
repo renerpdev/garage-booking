@@ -19,8 +19,9 @@ enum BookingStatus {
 
 model Booking {
   id        Int           @id @default(autoincrement())
-  dueDate   DateTime
-  nickname  String?
+  startDate DateTime      @default(now())
+  endDate   DateTime
+  nickName  String?
   owner     User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId   Int
   status    BookingStatus @default(ACTIVE)

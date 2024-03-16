@@ -4,8 +4,9 @@ CREATE TYPE "BookingStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'CANCELLED');
 -- CreateTable
 CREATE TABLE "Booking" (
     "id" SERIAL NOT NULL,
-    "dueDate" TIMESTAMP(3) NOT NULL,
-    "nickname" TEXT,
+    "startDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "endDate" TIMESTAMP(3) NOT NULL,
+    "nickName" TEXT,
     "ownerId" INTEGER NOT NULL,
     "status" "BookingStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
