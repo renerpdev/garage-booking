@@ -9,14 +9,14 @@ const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
                 Booking Actions
  *****************************************************/
 
-export async function createBooking(nickname: string, dueDate: Date) {
-  logger.info(`Creating booking for "${nickname}" with due date "${dueDate}"`)
+export async function createBooking(startDate: Date, endDate: Date, nickName: string = "<UNKNOWN>") {
+  logger.info(`Creating booking for "${nickName}" from "${startDate}" to "${endDate}"`)
   try {
-    await clearActiveBookings()
     await prisma.booking.create({
       data: {
-        dueDate,
-        nickname,
+        startDate,
+        endDate,
+        nickName,
         owner: {
           connect: {
             // TODO: get the user from the session. Right now we are using a default user
@@ -29,30 +29,36 @@ export async function createBooking(nickname: string, dueDate: Date) {
     // TODO: Uncomment this line when the whatsapp integration is ready
     // await sendWhatsappMsg(dueDate, nickname)
 
-    logger.info(`Booking created for "${nickname}" with due date "${dueDate}"`)
+    logger.info(`Booking created for "${nickName}" from "${startDate}" to "${endDate}"`)
 
     return { success: true }
   } catch (error) {
-    logger.error(`Error creating booking for "${nickname}" with due date "${dueDate}": ${error}`)
+    logger.error(`Error creating booking for "${nickName}" from "${startDate}" to "${endDate}": ${error}`)
     throw new Error(error as any)
   }
 }
 
 export async function getActiveBooking() {
+  await clearActiveBookings()
   try {
     const data = await prisma.booking.findFirst({
       where: {
         status: "ACTIVE",
-        dueDate: {
+        startDate: {
+          gte: new Date()
+        },
+        endDate: {
           gt: new Date()
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "asc" }
     })
 
-    let dueDate = data?.dueDate || null
+    let startDate = data?.startDate || null
+    let endDate = data?.endDate || null
+    let nickName = data?.nickName || null
 
-    return { dueDate, nickname: data?.nickname || null }
+    return { startDate, endDate, nickName }
   } catch (error) {
     logger.error(`Error getting active booking: ${error}`)
     throw new Error(error as any)
@@ -60,11 +66,14 @@ export async function getActiveBooking() {
 }
 
 export async function clearActiveBookings() {
-  logger.info("Setting current ACTIVE bookings to INACTIVE")
+  logger.info("Setting old ACTIVE bookings to INACTIVE")
   try {
     const data = await prisma.booking.updateMany({
       where: {
-        status: "ACTIVE"
+        status: "ACTIVE",
+        endDate: {
+          lt: new Date()
+        }
       },
       data: {
         status: "INACTIVE"
@@ -78,7 +87,7 @@ export async function clearActiveBookings() {
 
     return { success: true }
   } catch (error) {
-    logger.error(`Error deactivating ACTIVE bookings: ${error}`)
+    logger.error(`Error deactivating previous ACTIVE bookings: ${error}`)
     throw new Error(error as any)
   }
 }

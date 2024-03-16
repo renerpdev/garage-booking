@@ -35,7 +35,7 @@ const OPTIONS = [
 ]
 
 const FormSchema = z.object({
-  nickname: z.string().min(2, {
+  nickName: z.string().min(2, {
     message: "El nombre debe tener al menos 2 caracteres."
   }),
   time: z.string().min(1, {
@@ -46,14 +46,14 @@ const FormSchema = z.object({
 export const BookingCard = () => {
   const { toast } = useToast()
   const [expirationDate, setExpirationDate] = useState<Date | null>(null)
-  const [nickname, setNickname] = useState<string | null>(null)
+  const [nickName, setNickName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      nickname: "",
+      nickName: "",
       time: ""
     }
   })
@@ -64,8 +64,8 @@ export const BookingCard = () => {
         const activeBooking = await getActiveBooking()
 
         if (activeBooking) {
-          setExpirationDate(activeBooking.dueDate)
-          setNickname(activeBooking.nickname)
+          setExpirationDate(activeBooking.endDate)
+          setNickName(activeBooking.nickName)
         }
       } catch (e) {
         toast({
@@ -90,18 +90,19 @@ export const BookingCard = () => {
     setIsSubmitting(true)
 
     try {
-      const dueDate = new Date()
-      dueDate.setMinutes(dueDate.getMinutes() + parseInt(data.time))
+      const startDate = new Date()
+      const endDate = new Date()
+      endDate.setMinutes(endDate.getMinutes() + parseInt(data.time))
 
-      await createBooking(data.nickname, dueDate)
+      await createBooking(startDate, endDate, data.nickName)
 
-      setExpirationDate(dueDate)
+      setExpirationDate(endDate)
 
       toast({
         title: "Reserva Confirmada",
         description: (
           <p>
-            {data.nickname}, tienes estacionamiento reservado hasta las <time>{formatInTimeZone(dueDate)}</time> horas.
+            {data.nickName}, tienes estacionamiento reservado hasta las <time>{formatInTimeZone(endDate)}</time> horas.
           </p>
         )
       })
@@ -141,7 +142,7 @@ export const BookingCard = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-100 space-y-6">
                 <FormField
                   control={form.control}
-                  name="nickname"
+                  name="nickName"
                   render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Nombre</FormLabel>
@@ -198,7 +199,7 @@ export const BookingCard = () => {
       {expirationDate && (
         <CardFooter className={"flex justify-center text-sm"}>
           <code>
-            por <span className={"underline"}>{form.getValues("nickname") || nickname}</span> hasta{" "}
+            por <span className={"underline"}>{form.getValues("nickName") || nickName}</span> hasta{" "}
             <span className={"underline"}>{expirationDate && formatInTimeZone(expirationDate)}</span>
           </code>
         </CardFooter>
