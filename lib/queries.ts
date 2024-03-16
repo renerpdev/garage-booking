@@ -42,16 +42,15 @@ export async function getActiveBooking() {
   try {
     const data = await prisma.booking.findFirst({
       where: {
-        status: "ACTIVE"
+        status: "ACTIVE",
+        dueDate: {
+          gt: new Date()
+        }
       },
       orderBy: { createdAt: "desc" }
     })
 
     let dueDate = data?.dueDate || null
-
-    if (dueDate && (data?.dueDate || new Date()).getTime() <= new Date().getTime()) {
-      dueDate = null
-    }
 
     return { dueDate, nickname: data?.nickname || null }
   } catch (error) {
