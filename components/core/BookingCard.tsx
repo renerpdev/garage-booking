@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CalendarCheck, Loader } from "lucide-react"
+import { CalendarCheck, Loader, Calendar } from "lucide-react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -15,24 +15,7 @@ import { useEffect, useState } from "react"
 import { createBooking, getActiveBooking } from "@/lib/queries"
 import { formatInTimeZone } from "@/lib/utils"
 
-const OPTIONS = [
-  {
-    value: "15",
-    label: "15 Minutos"
-  },
-  {
-    value: "30",
-    label: "30 Minutos"
-  },
-  {
-    value: "45",
-    label: "45 Minutos"
-  },
-  {
-    value: "60",
-    label: "60 Minutos"
-  }
-]
+const OPTIONS = [15, 30, 45, 60]
 
 const FormSchema = z.object({
   nickName: z.string().min(2, {
@@ -118,12 +101,14 @@ export const BookingCard = () => {
   }
 
   return (
-    <Card className={"p-2 sm:p-6"}>
+    <Card className={"p-2 sm:p-6 shadow-md"}>
       {!isLoading && (
         <CardHeader className={`text-center ${expirationDate ? "pb-0 text-primary" : ""}`}>
-          <CardTitle>{!expirationDate ? "Reservar Estacionamiento" : "Reservado"}</CardTitle>
+          <CardTitle className={"text-xl md:text-2xl xl:text-3xl mb-[-5px] md:mb-0"}>
+            {!expirationDate ? "Reservar Estacionamiento" : "Reservado"}
+          </CardTitle>
           {!expirationDate && (
-            <CardDescription>
+            <CardDescription className={"space-y-0 md:space-y-1"}>
               <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
             </CardDescription>
           )}
@@ -150,9 +135,11 @@ export const BookingCard = () => {
                         <Input placeholder="Escribe tu nombre aquí" {...field} />
                       </FormControl>
                       {!fieldState.invalid && (
-                        <FormDescription>El nombre se usará para la confirmación.</FormDescription>
+                        <FormDescription className={"text-xs md:text-sm"}>
+                          El nombre se usará para la confirmación.
+                        </FormDescription>
                       )}
-                      <FormMessage />
+                      <FormMessage className={"text-xs md:text-sm"} />
                     </FormItem>
                   )}
                 />
@@ -160,33 +147,43 @@ export const BookingCard = () => {
                   render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Duración</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Elije una opción" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {OPTIONS.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className={"flex"}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
+                              <SelectValue placeholder="Elije una opción" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {OPTIONS.map((option) => (
+                              <SelectItem key={option} value={`${option}`}>
+                                {`${option} minutos`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button type="button" variant="outline" className="border-l-0 rounded-l-none px-[12px]">
+                          <Calendar size={16} />
+                        </Button>
+                      </div>
                       {!fieldState.invalid && (
-                        <FormDescription>Define el tiempo que durará la reserva.</FormDescription>
+                        <FormDescription className={"text-xs md:text-sm"}>
+                          Para más opciones haga click en el ícono calendario
+                        </FormDescription>
                       )}
-                      <FormMessage />
+                      <FormMessage className={"text-xs md:text-sm"} />
                     </FormItem>
                   )}
                   name="time"
                   control={form.control}
                 />
-                <Button type="submit" className={"w-full"} disabled={!form.formState.isValid || isSubmitting}>
-                  {(isSubmitting && <Loader size={18} className={"animate-spin"} />) || (
+                <Button
+                  type="submit"
+                  className={"w-full flex items-center"}
+                  disabled={!form.formState.isValid || isSubmitting}>
+                  {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
                     <>
-                      <CalendarCheck size={18} />
+                      <CalendarCheck size={16} />
                       &nbsp;Reservar
                     </>
                   )}
@@ -200,7 +197,9 @@ export const BookingCard = () => {
         <CardFooter className={"flex justify-center text-sm"}>
           <code>
             por <span className={"underline"}>{form.getValues("nickName") || nickName}</span> hasta{" "}
-            <span className={"underline"}>{expirationDate && formatInTimeZone(expirationDate)}</span>
+            <time dateTime={formatInTimeZone(expirationDate)} className={"underline"}>
+              {expirationDate && formatInTimeZone(expirationDate)}
+            </time>
           </code>
         </CardFooter>
       )}

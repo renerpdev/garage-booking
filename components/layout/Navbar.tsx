@@ -1,22 +1,25 @@
-import { Button } from "@/components/ui/button"
-import { LogInIcon } from "lucide-react"
-import { LoginSheet } from "@/components/core/LoginSheet"
+import { CalendarDays } from "lucide-react"
+import Link from "next/link"
 
 export const Navbar = () => (
-  <div className={"bg-gray-50 w-100 h-auto mb-auto py-3 sm:py-5 px-5 border-b-2 border-b-gray-50"}>
+  <div className={"bg-gray-50 w-100 h-auto mb-auto py-2 md:py-3 px-5 md:px-8 border-b-2 border-b-gray-50"}>
     <div className={"flex justify-between items-center"}>
       <div className={"flex flex-col"}>
-        <div className={"text-xl md:text-2xl font-bold"}>
+        <Link href={"/"} className={"text-xl md:text-2xl font-bold"}>
           Garage<span className={"text-primary"}>Booking</span>
-        </div>
+        </Link>
         <div className={"text-xs text-black font-light mt-[-5px]"}>GalaPoint</div>
       </div>
-      <div className={"flex space-x-4"}>
-        <LoginSheet>
-          <Button variant={"ghost"} className={"p-2 hover:text-primary"}>
-            <LogInIcon />
-          </Button>
-        </LoginSheet>
+      <div className={"flex gap-4 items-center"}>
+        <Link href={"/calendar"} className={"hover:text-primary"}>
+          <CalendarDays />
+        </Link>
+        {/*TODO: bring back once we support login*/}
+        {/*<LoginSheet>*/}
+        {/*  <Link href={"/calendar"}>*/}
+        {/*    <LogInIcon />*/}
+        {/*  </Link>*/}
+        {/*</LoginSheet>*/}
       </div>
     </div>
   </div>

@@ -43,22 +43,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} h-dvh min-h-dvh w-dvw max-h-dvh`}>
-        <div
-          className={"flex flex-col h-full w-full mx-auto my-0 overflow-hidden max-w-[800px]"}
-          style={{
-            background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
-          }}>
-          <Navbar />
-          <main
-            className={"h-full w-full flex-grow"}
-            style={{
-              backdropFilter: "blur(3px) brightness(0.5) saturate(1.5) contrast(0.9)"
-            }}>
-            {children}
-          </main>
-          <Footer />
-        </div>
+      <body
+        className={`${inter.className} flex flex-col h-full min-h-screen w-full mx-auto my-0`}
+        style={{
+          background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
+        }}>
+        <Navbar />
+        <main className={"h-full w-full"}>{children}</main>
+        <Footer />
       </body>
     </html>
   )
