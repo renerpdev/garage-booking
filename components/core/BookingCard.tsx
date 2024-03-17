@@ -21,9 +21,9 @@ const FormSchema = z.object({
   nickName: z.string().min(2, {
     message: "El nombre debe tener al menos 2 caracteres."
   }),
-  time: z.string().min(1, {
-    message: "Debe seleccionar un cantidad válida."
-  })
+  time: z.string().optional(),
+  startDate: z.date(),
+  endDate: z.date()
 })
 
 export const BookingCard = () => {
@@ -71,13 +71,10 @@ export const BookingCard = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
+    const { startDate, endDate, nickName } = data
 
     try {
-      const startDate = new Date()
-      const endDate = new Date()
-      endDate.setMinutes(endDate.getMinutes() + parseInt(data.time))
-
-      await createBooking(startDate, endDate, data.nickName)
+      await createBooking(startDate, endDate, nickName)
 
       setExpirationDate(endDate)
 
@@ -98,6 +95,17 @@ export const BookingCard = () => {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleTimeSelectionChange = (time: string, callback: any) => {
+    const startDate = new Date()
+    const endDate = new Date()
+
+    endDate.setMinutes(endDate.getMinutes() + parseInt(time))
+    form.setValue("startDate", startDate)
+    form.setValue("endDate", endDate)
+
+    callback(time)
   }
 
   return (
@@ -148,7 +156,9 @@ export const BookingCard = () => {
                     <FormItem>
                       <FormLabel>Duración</FormLabel>
                       <div className={"flex"}>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={(value) => handleTimeSelectionChange(value, field.onChange)}
+                          defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
                               <SelectValue placeholder="Elije una opción" />

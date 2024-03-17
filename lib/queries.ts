@@ -45,13 +45,13 @@ export async function getActiveBooking() {
       where: {
         status: "ACTIVE",
         startDate: {
-          gte: new Date()
+          lte: new Date()
         },
         endDate: {
           gt: new Date()
         }
       },
-      orderBy: { createdAt: "asc" }
+      orderBy: { startDate: "asc" }
     })
 
     let startDate = data?.startDate || null

@@ -56,7 +56,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} flex flex-col h-full min-h-screen w-full mx-auto my-0`}
+        className={`${inter.className} flex flex-col h-screen w-screen mx-auto my-0 antialiased`}
         style={{
           background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
         }}>
