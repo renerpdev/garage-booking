@@ -3,6 +3,11 @@ import { Inter } from "next/font/google"
 import "../globals.css"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
+import { Toolbar } from "@/components/layout/Toolbar"
+import { Suspense } from "react"
+import { encrypt, type FlagValuesType } from "@vercel/flags"
+import { FlagValues } from "@vercel/flags/react"
+import { getFlags } from "@/lib/flags"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -36,11 +41,18 @@ export const viewport: Viewport = {
   userScalable: false
 }
 
-export default function RootLayout({
+async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
+  const encryptedFlagValues = await encrypt(values)
+  return <FlagValues values={encryptedFlagValues} />
+}
+
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const values = await getFlags()
+
   return (
     <html lang="en">
       <body
@@ -51,6 +63,12 @@ export default function RootLayout({
         <Navbar />
         <main className={"h-full w-full"}>{children}</main>
         <Footer />
+        <Suspense>
+          <Toolbar />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ConfidentialFlagValues values={values} />
+        </Suspense>
       </body>
     </html>
   )
