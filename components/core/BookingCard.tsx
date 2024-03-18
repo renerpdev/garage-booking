@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
 import { useEffect, useState } from "react"
 import { createBooking, getActiveBooking } from "@/lib/queries"
-import { formatInTimeZone } from "@/lib/utils"
+import { formatInTimeZone, LONG_FORMAT } from "@/lib/utils"
+import DateRangePicker from "@/components/ui/date-range-picker"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -32,6 +33,7 @@ export const BookingCard = () => {
   const [nickName, setNickName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -76,15 +78,29 @@ export const BookingCard = () => {
     try {
       await createBooking(startDate, endDate, nickName)
 
-      setExpirationDate(endDate)
+      if (startDate <= new Date()) setExpirationDate(endDate)
+
+      const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
+      const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
+      const shortFormattedEndDate = formatInTimeZone(endDate)
+
+      form.reset()
 
       toast({
         title: "Reserva Confirmada",
-        description: (
-          <p>
-            {data.nickName}, tienes estacionamiento reservado hasta las <time>{formatInTimeZone(endDate)}</time> horas.
-          </p>
-        )
+        description:
+          startDate <= new Date() ? (
+            <p>
+              {data.nickName}, tienes estacionamiento reservado hasta las{" "}
+              <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
+            </p>
+          ) : (
+            <p>
+              {data.nickName}, tienes estacionamiento reservado desde el{" "}
+              <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
+              <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
+            </p>
+          )
       })
     } catch (e) {
       toast({
@@ -158,10 +174,11 @@ export const BookingCard = () => {
                       <div className={"flex"}>
                         <Select
                           onValueChange={(value) => handleTimeSelectionChange(value, field.onChange)}
-                          defaultValue={field.value}>
+                          defaultValue={field.value}
+                          disabled={showDatePicker}>
                           <FormControl>
                             <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
-                              <SelectValue placeholder="Elije una opción" />
+                              <SelectValue placeholder="Opciones rápidas" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -172,7 +189,11 @@ export const BookingCard = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                        <Button type="button" variant="outline" className="border-l-0 rounded-l-none px-[12px]">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={`border-l-0 rounded-l-none px-[12px] ${showDatePicker ? "bg-gray-100 hover:bg-gray-100" : ""}`}
+                          onClick={() => setShowDatePicker(!showDatePicker)}>
                           <Calendar size={16} />
                         </Button>
                       </div>
@@ -187,6 +208,7 @@ export const BookingCard = () => {
                   name="time"
                   control={form.control}
                 />
+                {showDatePicker && <DateRangePicker />}
                 <Button
                   type="submit"
                   className={"w-full flex items-center"}

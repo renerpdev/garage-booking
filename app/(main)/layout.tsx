@@ -54,14 +54,14 @@ export default async function RootLayout({
   const values = await getFlags()
 
   return (
-    <html lang="en">
+    <html lang="es">
       <body
-        className={`${inter.className} flex flex-col h-screen w-screen mx-auto my-0 antialiased`}
+        className={`${inter.className} flex flex-col min-h-screen w-screen mx-auto my-0 antialiased`}
         style={{
           background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
         }}>
         <Navbar />
-        <main className={"h-full w-full"}>{children}</main>
+        <main className={"min-h-full"}>{children}</main>
         <Footer />
         <Suspense>
           <Toolbar />

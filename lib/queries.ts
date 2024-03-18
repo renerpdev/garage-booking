@@ -12,6 +12,14 @@ const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
 export async function createBooking(startDate: Date, endDate: Date, nickName: string = "<UNKNOWN>") {
   logger.info(`Creating booking for "${nickName}" from "${startDate}" to "${endDate}"`)
   try {
+    const activeBooking = await getActiveBooking(startDate)
+
+    if (activeBooking.startDate) {
+      return new Error(
+        `There is already an active booking from "${activeBooking.startDate}" to "${activeBooking.endDate}"`
+      )
+    }
+
     await prisma.booking.create({
       data: {
         startDate,
@@ -38,17 +46,17 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
   }
 }
 
-export async function getActiveBooking() {
+export async function getActiveBooking(targetDate: Date = new Date()) {
   await clearActiveBookings()
   try {
     const data = await prisma.booking.findFirst({
       where: {
         status: "ACTIVE",
         startDate: {
-          lte: new Date()
+          lte: targetDate
         },
         endDate: {
-          gt: new Date()
+          gte: targetDate
         }
       },
       orderBy: { startDate: "asc" }
