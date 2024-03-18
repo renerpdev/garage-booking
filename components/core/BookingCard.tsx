@@ -15,6 +15,7 @@ import { useEffect, useState } from "react"
 import { createBooking, getActiveBooking } from "@/lib/queries"
 import { formatInTimeZone, LONG_FORMAT } from "@/lib/utils"
 import DateRangePicker from "@/components/ui/date-range-picker"
+import { getFlags } from "@/lib/flags"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -34,6 +35,7 @@ export const BookingCard = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [flags, setFlags] = useState<any>({})
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -65,6 +67,12 @@ export const BookingCard = () => {
 
     fetchActiveBooking().then()
   }, [toast])
+
+  useEffect(() => {
+    getFlags().then((flags) => {
+      setFlags(flags)
+    })
+  }, [])
 
   const onExpiry = () => {
     setExpirationDate(null)
@@ -189,13 +197,15 @@ export const BookingCard = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className={`border-l-0 rounded-l-none px-[12px] ${showDatePicker ? "bg-gray-100 hover:bg-gray-100" : ""}`}
-                          onClick={() => setShowDatePicker(!showDatePicker)}>
-                          <Calendar size={16} />
-                        </Button>
+                        {flags?.calendarFeature && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={`border-l-0 rounded-l-none px-[12px] ${showDatePicker ? "bg-gray-100 hover:bg-gray-100" : ""}`}
+                            onClick={() => setShowDatePicker(!showDatePicker)}>
+                            <Calendar size={16} />
+                          </Button>
+                        )}
                       </div>
                       {!fieldState.invalid && (
                         <FormDescription className={"text-xs md:text-sm"}>
