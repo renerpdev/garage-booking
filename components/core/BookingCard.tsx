@@ -14,8 +14,11 @@ import { Timer } from "@/components/core/Timer"
 import { useEffect, useState } from "react"
 import { createBooking, getActiveBooking } from "@/lib/queries"
 import { formatInTimeZone, LONG_FORMAT } from "@/lib/utils"
-import DateRangePicker from "@/components/ui/date-range-picker"
 import { getFlags } from "@/lib/flags"
+import { RangeCalendar } from "@/components/ui/date-range-picker"
+import { DEFAULT_END_TIME, DEFAULT_START_TIME, RangeTime } from "@/components/ui/time-range-picker"
+import { RangeValue } from "@react-types/shared"
+import { DateValue, getLocalTimeZone, Time } from "@internationalized/date"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -36,6 +39,8 @@ export const BookingCard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [flags, setFlags] = useState<any>({})
+  const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
+  const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -82,6 +87,9 @@ export const BookingCard = () => {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
     const { startDate, endDate, nickName } = data
+    console.log(data)
+    console.log(startTime)
+    console.log(endTime)
 
     try {
       await createBooking(startDate, endDate, nickName)
@@ -93,6 +101,9 @@ export const BookingCard = () => {
       const shortFormattedEndDate = formatInTimeZone(endDate)
 
       form.reset()
+      setShowDatePicker(false)
+      setStartTime(DEFAULT_START_TIME)
+      setEndTime(DEFAULT_END_TIME)
 
       toast({
         title: "Reserva Confirmada",
@@ -121,7 +132,7 @@ export const BookingCard = () => {
     }
   }
 
-  const handleTimeSelectionChange = (time: string, callback: any) => {
+  const handleQuickOptionsSelectionChange = (time: string, callback: any) => {
     const startDate = new Date()
     const endDate = new Date()
 
@@ -132,8 +143,36 @@ export const BookingCard = () => {
     callback(time)
   }
 
+  const handleDateRangeChange = (rangeValue: RangeValue<DateValue>) => {
+    const timezone = getLocalTimeZone()
+
+    const startDate = rangeValue.start.toDate(timezone)
+    startDate.setHours(startTime.hour, startTime.minute)
+
+    const endDate = rangeValue.end.toDate(timezone)
+    endDate.setHours(endTime.hour, endTime.minute)
+
+    form.setValue("startDate", startDate)
+    form.setValue("endDate", endDate)
+  }
+
+  const handleTimeRangeChange = (rangeTime: Time[]) => {
+    const [startTime, endTime] = rangeTime
+    setStartTime(startTime)
+    setEndTime(endTime)
+
+    const startDate = form.getValues("startDate")
+    startDate?.setHours(startTime.hour, startTime.minute)
+
+    const endDate = form.getValues("endDate")
+    endDate?.setHours(endTime.hour, endTime.minute)
+
+    form.setValue("startDate", startDate)
+    form.setValue("endDate", endDate)
+  }
+
   return (
-    <Card className={"p-2 sm:p-6 shadow-md"}>
+    <Card className={"sm:80 p-2 sm:p-6 shadow-md"}>
       {!isLoading && (
         <CardHeader className={`text-center ${expirationDate ? "pb-0 text-primary" : ""}`}>
           <CardTitle className={"text-xl md:text-2xl xl:text-3xl mb-[-5px] md:mb-0"}>
@@ -156,7 +195,7 @@ export const BookingCard = () => {
           {expirationDate && <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />}
           {!expirationDate && (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-100 space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
                 <FormField
                   control={form.control}
                   name="nickName"
@@ -181,7 +220,7 @@ export const BookingCard = () => {
                       <FormLabel>Duración</FormLabel>
                       <div className={"flex"}>
                         <Select
-                          onValueChange={(value) => handleTimeSelectionChange(value, field.onChange)}
+                          onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}
                           defaultValue={field.value}
                           disabled={showDatePicker}>
                           <FormControl>
@@ -218,7 +257,13 @@ export const BookingCard = () => {
                   name="time"
                   control={form.control}
                 />
-                {showDatePicker && <DateRangePicker />}
+
+                {showDatePicker && (
+                  <div className={"flex flex-col items-center"}>
+                    <RangeCalendar onChange={handleDateRangeChange} />
+                    <RangeTime onChange={handleTimeRangeChange} />
+                  </div>
+                )}
                 <Button
                   type="submit"
                   className={"w-full flex items-center"}

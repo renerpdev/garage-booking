@@ -33,7 +33,7 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => i).map((value) => ({
 
 const MERIDIAN = ["AM", "PM"]
 
-function DateRangePicker() {
+export function DateRangePicker() {
   return (
     <>
       {/* Datepicker */}
@@ -1017,5 +1017,3 @@ function DateRangePicker() {
     </>
   )
 }
-
-export default DateRangePicker
