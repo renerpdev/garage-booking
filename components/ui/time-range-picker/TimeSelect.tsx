@@ -3,13 +3,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FormControl } from "@/components/ui/form"
 
 interface TimeSelectProps {
-  defaultValue: string
-  options: { label: string; value: string }[]
+  options: { label: string; value: number }[]
+  value?: number
   onChange?: (_value: string) => void
+  disabledOptions?: number[]
 }
-export function TimeSelect({ options, defaultValue, onChange }: TimeSelectProps) {
+export function TimeSelect({ options, value, onChange, disabledOptions = [] }: TimeSelectProps) {
   return (
-    <Select onValueChange={onChange} defaultValue={defaultValue}>
+    <Select onValueChange={onChange} value={`${value}`}>
       <FormControl>
         <SelectTrigger className="w-[65px] text-black text-sm">
           <SelectValue />
@@ -17,7 +18,7 @@ export function TimeSelect({ options, defaultValue, onChange }: TimeSelectProps)
       </FormControl>
       <SelectContent>
         {options.map((option) => (
-          <SelectItem key={option.value} value={`${option.value}`}>
+          <SelectItem key={option.value} value={`${option.value}`} disabled={disabledOptions?.includes(option.value)}>
             {option.label}
           </SelectItem>
         ))}

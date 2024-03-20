@@ -61,7 +61,7 @@ export default async function RootLayout({
           background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
         }}>
         <Navbar />
-        <main className={"min-h-full"}>{children}</main>
+        <main className={"min-h-full m-auto"}>{children}</main>
         <Footer />
         <Suspense>
           <Toolbar />

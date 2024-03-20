@@ -14,7 +14,7 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
   try {
     const activeBooking = await getActiveBooking(startDate)
 
-    if (activeBooking.startDate) {
+    if (activeBooking?.startDate) {
       return new Error(
         `There is already an active booking from "${activeBooking.startDate}" to "${activeBooking.endDate}"`
       )
@@ -49,7 +49,12 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
 export async function getActiveBooking(targetDate: Date = new Date()) {
   await clearActiveBookings()
   try {
-    const data = await prisma.booking.findFirst({
+    return await prisma.booking.findFirst({
+      select: {
+        startDate: true,
+        endDate: true,
+        nickName: true
+      },
       where: {
         status: "ACTIVE",
         startDate: {
@@ -61,14 +66,29 @@ export async function getActiveBooking(targetDate: Date = new Date()) {
       },
       orderBy: { startDate: "asc" }
     })
-
-    let startDate = data?.startDate || null
-    let endDate = data?.endDate || null
-    let nickName = data?.nickName || null
-
-    return { startDate, endDate, nickName }
   } catch (error) {
     logger.error(`Error getting active booking: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+export async function getScheduledBookings() {
+  try {
+    return await prisma.booking.findMany({
+      select: {
+        startDate: true,
+        endDate: true
+      },
+      where: {
+        status: "ACTIVE",
+        startDate: {
+          gte: new Date()
+        }
+      },
+      orderBy: { startDate: "asc" }
+    })
+  } catch (error) {
+    logger.error(`Error getting scheduled bookings: ${error}`)
     throw new Error(error as any)
   }
 }

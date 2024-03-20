@@ -11,14 +11,15 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
-import { useEffect, useState } from "react"
-import { createBooking, getActiveBooking } from "@/lib/queries"
-import { formatInTimeZone, LONG_FORMAT } from "@/lib/utils"
+import React, { useEffect, useState } from "react"
+import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
+import { formatInTimeZone, formatToCalendarDate, LONG_FORMAT } from "@/lib/utils"
 import { getFlags } from "@/lib/flags"
 import { RangeCalendar } from "@/components/ui/date-range-picker"
-import { DEFAULT_END_TIME, DEFAULT_START_TIME, RangeTime } from "@/components/ui/time-range-picker"
+import { RangeTime, RangeTimeValue } from "@/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
-import { DateValue, getLocalTimeZone, Time } from "@internationalized/date"
+import { DateValue, getLocalTimeZone } from "@internationalized/date"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -35,12 +36,16 @@ export const BookingCard = () => {
   const { toast } = useToast()
   const [expirationDate, setExpirationDate] = useState<Date | null>(null)
   const [nickName, setNickName] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [flags, setFlags] = useState<any>({})
-  const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
-  const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date())
+  const [dateRangeStart, setDateRangeStart] = useState<DateValue>(formatToCalendarDate(new Date()))
+  const [dateRangeEnd, setDateRangeEnd] = useState<DateValue>(formatToCalendarDate(new Date()))
+  const [disabledDates, setDisabledDates] = useState<Date[]>([])
+  const [, setTime] = useState(0)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -53,12 +58,23 @@ export const BookingCard = () => {
   useEffect(() => {
     async function fetchActiveBooking() {
       try {
+        setIsLoading(true)
         const activeBooking = await getActiveBooking()
 
         if (activeBooking) {
           setExpirationDate(activeBooking.endDate)
           setNickName(activeBooking.nickName)
         }
+
+        const scheduledDates = await getScheduledBookings()
+
+        const scheduledDatesMap = new Map<string, Date>()
+        scheduledDates.forEach((booking) => {
+          scheduledDatesMap.set(booking.startDate.toISOString(), booking.startDate)
+          scheduledDatesMap.set(booking.endDate.toISOString(), booking.endDate)
+        })
+
+        setDisabledDates(Array.from(scheduledDatesMap.values()))
       } catch (e) {
         toast({
           title: "Error",
@@ -77,19 +93,24 @@ export const BookingCard = () => {
     getFlags().then((flags) => {
       setFlags(flags)
     })
-  }, [])
+  }, [form])
 
   const onExpiry = () => {
     setExpirationDate(null)
     form.reset()
   }
 
+  const resetForm = () => {
+    form.reset()
+    setStartDate(new Date())
+    setEndDate(new Date())
+    setDateRangeEnd(formatToCalendarDate(new Date()))
+    setDateRangeStart(formatToCalendarDate(new Date()))
+  }
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
     const { startDate, endDate, nickName } = data
-    console.log(data)
-    console.log(startTime)
-    console.log(endTime)
 
     try {
       await createBooking(startDate, endDate, nickName)
@@ -100,10 +121,7 @@ export const BookingCard = () => {
       const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
       const shortFormattedEndDate = formatInTimeZone(endDate)
 
-      form.reset()
-      setShowDatePicker(false)
-      setStartTime(DEFAULT_START_TIME)
-      setEndTime(DEFAULT_END_TIME)
+      resetForm()
 
       toast({
         title: "Reserva Confirmada",
@@ -140,49 +158,65 @@ export const BookingCard = () => {
     form.setValue("startDate", startDate)
     form.setValue("endDate", endDate)
 
+    setTime(Date.now()) // force re-render
+
     callback(time)
   }
 
   const handleDateRangeChange = (rangeValue: RangeValue<DateValue>) => {
+    const { start, end } = rangeValue
     const timezone = getLocalTimeZone()
 
-    const startDate = rangeValue.start.toDate(timezone)
-    startDate.setHours(startTime.hour, startTime.minute)
+    setDateRangeStart(start)
+    setDateRangeEnd(end)
 
-    const endDate = rangeValue.end.toDate(timezone)
-    endDate.setHours(endTime.hour, endTime.minute)
+    const _startDate = start.toDate(timezone)
+    setStartDate(_startDate)
 
-    form.setValue("startDate", startDate)
-    form.setValue("endDate", endDate)
+    const _endDate = end.toDate(timezone)
+    setEndDate(_endDate)
   }
 
-  const handleTimeRangeChange = (rangeTime: Time[]) => {
-    const [startTime, endTime] = rangeTime
-    setStartTime(startTime)
-    setEndTime(endTime)
+  const handleTimeRangeChange = (rangeTime: RangeTimeValue) => {
+    const { startTime, endTime } = rangeTime
 
-    const startDate = form.getValues("startDate")
-    startDate?.setHours(startTime.hour, startTime.minute)
+    setStartDate(startTime)
+    setEndDate(endTime)
+  }
 
-    const endDate = form.getValues("endDate")
-    endDate?.setHours(endTime.hour, endTime.minute)
+  const handleOnDatePickerCancel = () => {
+    setIsPopoverOpen(false)
+  }
 
+  const handleOnDatePickerApply = () => {
     form.setValue("startDate", startDate)
     form.setValue("endDate", endDate)
+
+    setIsPopoverOpen(false)
+  }
+
+  const isDisabledDate = (date: Date, dates: Date[]) => {
+    return !!dates.find((d) => {
+      const dateA = new Date(date)
+      const dateB = new Date(d)
+      dateA.setSeconds(0)
+      dateB.setSeconds(0)
+
+      return dateA.getTime() === dateB.getTime()
+    })
   }
 
   return (
-    <Card className={"sm:80 p-2 sm:p-6 shadow-md"}>
+    <Card className={"p-2 sm:p-6 shadow-md"}>
       {!isLoading && (
         <CardHeader className={`text-center ${expirationDate ? "pb-0 text-primary" : ""}`}>
-          <CardTitle className={"text-xl md:text-2xl xl:text-3xl mb-[-5px] md:mb-0"}>
+          <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>
             {!expirationDate ? "Reservar Estacionamiento" : "Reservado"}
           </CardTitle>
-          {!expirationDate && (
-            <CardDescription className={"space-y-0 md:space-y-1"}>
-              <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
-            </CardDescription>
-          )}
+          <CardDescription className={"space-y-0 md:space-y-1"}>
+            {!expirationDate && <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>}
+            {expirationDate && <span className={"text-md md:text-lg"}>Faltan</span>}
+          </CardDescription>
         </CardHeader>
       )}
       {isLoading && (
@@ -195,7 +229,7 @@ export const BookingCard = () => {
           {expirationDate && <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />}
           {!expirationDate && (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 sm:80">
                 <FormField
                   control={form.control}
                   name="nickName"
@@ -221,8 +255,7 @@ export const BookingCard = () => {
                       <div className={"flex"}>
                         <Select
                           onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}
-                          defaultValue={field.value}
-                          disabled={showDatePicker}>
+                          defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
                               <SelectValue placeholder="Opciones rápidas" />
@@ -237,13 +270,53 @@ export const BookingCard = () => {
                           </SelectContent>
                         </Select>
                         {flags?.calendarFeature && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className={`border-l-0 rounded-l-none px-[12px] ${showDatePicker ? "bg-gray-100 hover:bg-gray-100" : ""}`}
-                            onClick={() => setShowDatePicker(!showDatePicker)}>
-                            <Calendar size={16} />
-                          </Button>
+                          <Popover onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
+                                <Calendar size={16} />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-80 translate-y-1/2 translate-x-[20px] origin-bottom-right"
+                              align={"end"}>
+                              <div className={"flex flex-col items-center px-4"}>
+                                <RangeCalendar
+                                  onChange={handleDateRangeChange}
+                                  value={{
+                                    start: dateRangeStart,
+                                    end: dateRangeEnd
+                                  }}
+                                />
+                                <RangeTime
+                                  onChange={handleTimeRangeChange}
+                                  value={{
+                                    startTime: startDate,
+                                    endTime: endDate
+                                  }}
+                                  disabledDates={disabledDates}
+                                />
+                                <div className={"flex gap-2 items-center mt-4 w-full"}>
+                                  <Button className={"flex-1"} variant={"outline"} onClick={handleOnDatePickerCancel}>
+                                    Cancelar
+                                  </Button>
+                                  <Button
+                                    className={"flex-1"}
+                                    variant={"default"}
+                                    onClick={handleOnDatePickerApply}
+                                    disabled={
+                                      isDisabledDate(startDate, disabledDates) ||
+                                      isDisabledDate(endDate, disabledDates) ||
+                                      startDate >= endDate
+                                    }>
+                                    Aplicar
+                                  </Button>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         )}
                       </div>
                       {!fieldState.invalid && (
@@ -257,11 +330,15 @@ export const BookingCard = () => {
                   name="time"
                   control={form.control}
                 />
-
-                {showDatePicker && (
-                  <div className={"flex flex-col items-center"}>
-                    <RangeCalendar onChange={handleDateRangeChange} />
-                    <RangeTime onChange={handleTimeRangeChange} />
+                {form.getValues("startDate") && form.getValues("endDate") && (
+                  <div className={"flex justify-center items-center text-xs md:text-sm w-full text-violet-800"}>
+                    <time dateTime={formatInTimeZone(form.getValues("startDate"))}>
+                      {formatInTimeZone(form.getValues("startDate"), LONG_FORMAT)}
+                    </time>
+                    <span>&nbsp;-&nbsp;</span>
+                    <time dateTime={formatInTimeZone(form.getValues("endDate"))}>
+                      {formatInTimeZone(form.getValues("endDate"), LONG_FORMAT)}
+                    </time>
                   </div>
                 )}
                 <Button

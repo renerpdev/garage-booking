@@ -1,42 +1,57 @@
-import React, { useState } from "react"
+import React from "react"
 import { TimePicker } from "./TimePicker"
-import { Time } from "@internationalized/date"
 
-export const DEFAULT_START_TIME = new Time(0, 0)
-export const DEFAULT_END_TIME = new Time(23, 59)
+export type RangeTimeValue = {
+  startTime: Date
+  endTime: Date
+}
 
 interface RangeTimeProps {
-  defaultStartTime?: Time
-  defaultEndTime?: Time
-  onChange?: (_value: Time[]) => void
+  value?: RangeTimeValue
+  onChange?: (_value: RangeTimeValue) => void
+  disabledDates?: Date[]
 }
-export function RangeTime({
-  defaultStartTime = DEFAULT_START_TIME,
-  defaultEndTime = DEFAULT_END_TIME,
-  onChange
-}: RangeTimeProps) {
-  const [currentStartTime, setCurrentStartTime] = useState(defaultStartTime)
-  const [currentEndTime, setCurrentEndTime] = useState(defaultEndTime)
-
-  const handleStartTimeChange = (value: Time) => {
-    setCurrentStartTime(value)
-    onChange?.([value, currentEndTime])
+export function RangeTime({ onChange, value, disabledDates = [] }: RangeTimeProps) {
+  const handleStartTimeChange = (start: Date) => {
+    onChange?.({
+      startTime: start,
+      endTime: value?.endTime || new Date()
+    })
   }
 
-  const handleEndTimeChange = (value: Time) => {
-    setCurrentEndTime(value)
-    onChange?.([currentStartTime, value])
+  const handleEndTimeChange = (end: Date) => {
+    onChange?.({
+      startTime: value?.startTime || new Date(),
+      endTime: end
+    })
+  }
+
+  const isStartTimeInvalid = (date: Date) => {
+    return !!disabledDates?.find((dDate) => {
+      const cDate = new Date()
+      return (
+        dDate.getTime() === date.getTime() ||
+        cDate.getHours() > date.getHours() ||
+        (cDate.getHours() === date.getHours() && cDate.getMinutes() > date.getMinutes())
+      )
+    })
+  }
+
+  const isEndTimeInvalid = (date: Date) => {
+    return !!disabledDates?.find((dDate) => {
+      return dDate.getTime() === date.getTime() || (value?.startTime?.getTime() || 0) >= date.getTime()
+    })
   }
 
   return (
     <div className={"flex flex-col gap-2 mt-2"}>
       <div className={"flex items-center justify-center gap-2"}>
         <span className={"text-xs"}>Desde:</span>
-        <TimePicker defaultValue={defaultStartTime} onChange={handleStartTimeChange} />
+        <TimePicker value={value?.startTime} onChange={handleStartTimeChange} isInvalid={isStartTimeInvalid} />
       </div>
       <div className={"flex items-center justify-center gap-2"}>
         <span className={"text-xs"}>Hasta:</span>
-        <TimePicker defaultValue={defaultEndTime} onChange={handleEndTimeChange} />
+        <TimePicker value={value?.endTime} onChange={handleEndTimeChange} isInvalid={isEndTimeInvalid} />
       </div>
     </div>
   )

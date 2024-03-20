@@ -7,7 +7,7 @@ export async function Navbar() {
   const flags = await getFlags()
 
   return (
-    <div className={"bg-gray-50 w-100 h-auto mb-auto py-2 md:py-3 px-5 md:px-8 border-b-2 border-b-gray-50"}>
+    <div className={"bg-gray-50 w-screen h-auto py-2 md:py-3 px-5 md:px-8 border-b-2 border-b-gray-50"}>
       <div className={"flex justify-between items-center"}>
         <div className={"flex flex-col"}>
           <Link href={"/"} className={"text-xl md:text-2xl font-bold"}>
