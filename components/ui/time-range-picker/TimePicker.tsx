@@ -15,9 +15,10 @@ interface TimePickerProps {
   onChange?: (_value: Date) => void
   value?: Date
   isInvalid?: (_time: Date) => boolean
+  minValue?: Date
 }
 
-export function TimePicker({ onChange, value, isInvalid }: TimePickerProps) {
+export function TimePicker({ onChange, value, isInvalid, minValue }: TimePickerProps) {
   const handleHourChange = (hour: string) => {
     const date = new Date(value || 0)
     date.setHours(parseInt(hour))
@@ -32,31 +33,38 @@ export function TimePicker({ onChange, value, isInvalid }: TimePickerProps) {
 
   const disabledHours = HOURS.filter((hour) => {
     const date = new Date(value || 0)
+    const cDate = new Date()
     date.setHours(hour.value)
-    return isInvalid?.(date)
+    return isInvalid?.(date) || ((minValue?.getTime() || 0) > date.getTime() && cDate.getHours() > date.getHours())
   }).map((hour) => hour.value)
 
   const disabledMinutes = MINUTES.filter((minute) => {
     const date = new Date(value || 0)
     date.setMinutes(minute.value)
-    return isInvalid?.(date)
+    return isInvalid?.(date) || (minValue?.getTime() || 0) >= date.getTime()
   }).map((minute) => minute.value)
 
+  const isInvalidTime =
+    disabledHours.includes(value?.getHours() || 0) || disabledMinutes.includes(value?.getMinutes() || 0)
+
   return (
-    <div className={"flex justify-center items-center gap-x-2"}>
-      <TimeSelect
-        options={HOURS}
-        onChange={handleHourChange}
-        value={value?.getHours()}
-        disabledOptions={disabledHours}
-      />
-      <span className="text-gray-800 dark:text-white">:</span>
-      <TimeSelect
-        options={MINUTES}
-        onChange={handleMinutesChange}
-        value={value?.getMinutes()}
-        disabledOptions={disabledMinutes}
-      />
+    <div>
+      <div className={`flex justify-center items-center gap-x-2 ${isInvalidTime ? "*:text-red-600" : ""}`}>
+        <TimeSelect
+          options={HOURS}
+          onChange={handleHourChange}
+          value={value?.getHours()}
+          disabledOptions={disabledHours}
+        />
+        <span className="text-gray-800 dark:text-white">:</span>
+        <TimeSelect
+          options={MINUTES}
+          onChange={handleMinutesChange}
+          value={value?.getMinutes()}
+          disabledOptions={disabledMinutes}
+        />
+      </div>
+      {isInvalidTime && <div className={"text-red-500 text-xs mt-1 text-center"}>Hora inválida</div>}
     </div>
   )
 }

@@ -197,12 +197,19 @@ export const BookingCard = () => {
 
   const isDisabledDate = (date: Date, dates: Date[]) => {
     return !!dates.find((d) => {
+      const current = new Date()
       const dateA = new Date(date)
       const dateB = new Date(d)
+
+      current.setSeconds(0)
       dateA.setSeconds(0)
       dateB.setSeconds(0)
 
-      return dateA.getTime() === dateB.getTime()
+      return (
+        dateA.getTime() === dateB.getTime() ||
+        current.getTime() >= dateA.getTime() ||
+        current.getTime() >= dateB.getTime()
+      )
     })
   }
 

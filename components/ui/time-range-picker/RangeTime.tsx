@@ -26,20 +26,9 @@ export function RangeTime({ onChange, value, disabledDates = [] }: RangeTimeProp
     })
   }
 
-  const isStartTimeInvalid = (date: Date) => {
+  const isTimeInvalid = (date: Date) => {
     return !!disabledDates?.find((dDate) => {
-      const cDate = new Date()
-      return (
-        dDate.getTime() === date.getTime() ||
-        cDate.getHours() > date.getHours() ||
-        (cDate.getHours() === date.getHours() && cDate.getMinutes() > date.getMinutes())
-      )
-    })
-  }
-
-  const isEndTimeInvalid = (date: Date) => {
-    return !!disabledDates?.find((dDate) => {
-      return dDate.getTime() === date.getTime() || (value?.startTime?.getTime() || 0) >= date.getTime()
+      return dDate.getTime() === date.getTime()
     })
   }
 
@@ -47,11 +36,21 @@ export function RangeTime({ onChange, value, disabledDates = [] }: RangeTimeProp
     <div className={"flex flex-col gap-2 mt-2"}>
       <div className={"flex items-center justify-center gap-2"}>
         <span className={"text-xs"}>Desde:</span>
-        <TimePicker value={value?.startTime} onChange={handleStartTimeChange} isInvalid={isStartTimeInvalid} />
+        <TimePicker
+          value={value?.startTime}
+          onChange={handleStartTimeChange}
+          isInvalid={isTimeInvalid}
+          minValue={new Date()}
+        />
       </div>
       <div className={"flex items-center justify-center gap-2"}>
         <span className={"text-xs"}>Hasta:</span>
-        <TimePicker value={value?.endTime} onChange={handleEndTimeChange} isInvalid={isEndTimeInvalid} />
+        <TimePicker
+          value={value?.endTime}
+          onChange={handleEndTimeChange}
+          isInvalid={isTimeInvalid}
+          minValue={value?.startTime}
+        />
       </div>
     </div>
   )
