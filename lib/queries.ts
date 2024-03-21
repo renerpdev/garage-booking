@@ -12,12 +12,11 @@ const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
 export async function createBooking(startDate: Date, endDate: Date, nickName: string = "<UNKNOWN>") {
   logger.info(`Creating booking for "${nickName}" from "${startDate}" to "${endDate}"`)
   try {
-    const activeBooking = await getActiveBooking(startDate)
+    const activeBooking = await getActiveBooking(startDate, endDate)
 
     if (activeBooking?.startDate) {
-      return new Error(
-        `There is already an active booking from "${activeBooking.startDate}" to "${activeBooking.endDate}"`
-      )
+      logger.error(`There is already an active booking from "${activeBooking.startDate}" to "${activeBooking.endDate}"`)
+      throw new Error("Ya existe una reserva activa en ese rango de fechas")
     }
 
     await prisma.booking.create({
@@ -46,7 +45,7 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
   }
 }
 
-export async function getActiveBooking(targetDate: Date = new Date()) {
+export async function getActiveBooking(startDate: Date = new Date(), endDate: Date = new Date()) {
   await clearActiveBookings()
   try {
     return await prisma.booking.findFirst({
@@ -58,10 +57,10 @@ export async function getActiveBooking(targetDate: Date = new Date()) {
       where: {
         status: "ACTIVE",
         startDate: {
-          lte: targetDate
+          lte: endDate
         },
         endDate: {
-          gte: targetDate
+          gte: startDate
         }
       },
       orderBy: { startDate: "asc" }

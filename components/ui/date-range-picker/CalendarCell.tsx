@@ -7,7 +7,7 @@ interface CalendarCellProps {
   state: RangeCalendarState
   date: CalendarDate
 }
-export function CalendarCell({ state, date }: CalendarCellProps) {
+export const CalendarCell = ({ state, date }: CalendarCellProps) => {
   let ref = useRef<HTMLDivElement>(null)
   let {
     cellProps,

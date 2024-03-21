@@ -9,7 +9,7 @@ import { RangeCalendarStateOptions } from "@react-stately/calendar"
 
 const currentDate = new Date()
 
-export function RangeCalendar(props: Partial<RangeCalendarStateOptions>) {
+export const RangeCalendar = (props: Partial<RangeCalendarStateOptions>) => {
   let { locale } = useLocale()
   let state = useRangeCalendarState({
     allowsNonContiguousRanges: false,

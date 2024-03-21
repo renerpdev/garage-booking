@@ -13,13 +13,14 @@ import { Input } from "@/components/ui/input"
 import { Timer } from "@/components/core/Timer"
 import React, { useEffect, useState } from "react"
 import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
-import { formatInTimeZone, formatToCalendarDate, LONG_FORMAT } from "@/lib/utils"
+import { formatInTimeZone, formatToCalendarDate, TIME_FORMAT, getDaysInRange, LONG_FORMAT } from "@/lib/utils"
 import { getFlags } from "@/lib/flags"
 import { RangeCalendar } from "@/components/ui/date-range-picker"
 import { RangeTime, RangeTimeValue } from "@/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
 import { DateValue, getLocalTimeZone } from "@internationalized/date"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { isToday } from "date-fns"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -44,7 +45,8 @@ export const BookingCard = () => {
   const [endDate, setEndDate] = useState(new Date())
   const [dateRangeStart, setDateRangeStart] = useState<DateValue>(formatToCalendarDate(new Date()))
   const [dateRangeEnd, setDateRangeEnd] = useState<DateValue>(formatToCalendarDate(new Date()))
-  const [disabledDates, setDisabledDates] = useState<Date[]>([])
+  const [disabledDateTimes, setDisabledDateTimes] = useState<Map<string, Date>>(new Map())
+  const [disabledDays, setDisabledDays] = useState<Map<string, Date>>(new Map())
   const [, setTime] = useState(0)
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -65,16 +67,25 @@ export const BookingCard = () => {
           setExpirationDate(activeBooking.endDate)
           setNickName(activeBooking.nickName)
         }
+        // we end loading here to not block the UI with background requests
+        setIsLoading(false)
 
         const scheduledDates = await getScheduledBookings()
 
-        const scheduledDatesMap = new Map<string, Date>()
-        scheduledDates.forEach((booking) => {
-          scheduledDatesMap.set(booking.startDate.toISOString(), booking.startDate)
-          scheduledDatesMap.set(booking.endDate.toISOString(), booking.endDate)
-        })
+        const disabledDateTimesMap = new Map<string, Date>()
+        const disabledDaysMap = new Map<string, Date>()
+        scheduledDates.forEach(({ startDate, endDate }) => {
+          disabledDateTimesMap.set(startDate.toISOString(), startDate)
+          disabledDateTimesMap.set(endDate.toISOString(), endDate)
 
-        setDisabledDates(Array.from(scheduledDatesMap.values()))
+          getDaysInRange(startDate, endDate).forEach((date) => {
+            const d = new Date(date)
+            d.setHours(0, 0)
+            disabledDaysMap.set(date.toISOString(), d)
+          })
+        })
+        setDisabledDateTimes(disabledDateTimesMap)
+        setDisabledDays(disabledDaysMap)
       } catch (e) {
         toast({
           title: "Error",
@@ -115,34 +126,33 @@ export const BookingCard = () => {
     try {
       await createBooking(startDate, endDate, nickName)
 
-      if (startDate <= new Date()) setExpirationDate(endDate)
+      if (isToday(endDate)) setExpirationDate(endDate)
 
       const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
       const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
-      const shortFormattedEndDate = formatInTimeZone(endDate)
+      const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
 
       resetForm()
 
       toast({
         title: "Reserva Confirmada",
-        description:
-          startDate <= new Date() ? (
-            <p>
-              {data.nickName}, tienes estacionamiento reservado hasta las{" "}
-              <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
-            </p>
-          ) : (
-            <p>
-              {data.nickName}, tienes estacionamiento reservado desde el{" "}
-              <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
-              <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
-            </p>
-          )
+        description: isToday(endDate) ? (
+          <p>
+            {data.nickName}, tienes estacionamiento reservado hasta las{" "}
+            <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
+          </p>
+        ) : (
+          <p>
+            {data.nickName}, tienes estacionamiento reservado desde el{" "}
+            <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
+            <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
+          </p>
+        )
       })
-    } catch (e) {
+    } catch (e: any) {
       toast({
         title: "Error",
-        description: "Ocurrió un error al reservar el estacionamiento. Por favor, intenta nuevamente.",
+        description: e.message,
         className: "text-red-500"
       })
     } finally {
@@ -154,7 +164,7 @@ export const BookingCard = () => {
     const startDate = new Date()
     const endDate = new Date()
 
-    endDate.setMinutes(endDate.getMinutes() + parseInt(time))
+    endDate.setMinutes(endDate.getMinutes() + parseInt(time), endDate.getSeconds())
     form.setValue("startDate", startDate)
     form.setValue("endDate", endDate)
 
@@ -166,6 +176,7 @@ export const BookingCard = () => {
   const handleDateRangeChange = (rangeValue: RangeValue<DateValue>) => {
     const { start, end } = rangeValue
     const timezone = getLocalTimeZone()
+    form.resetField("time")
 
     setDateRangeStart(start)
     setDateRangeEnd(end)
@@ -195,23 +206,7 @@ export const BookingCard = () => {
     setIsPopoverOpen(false)
   }
 
-  const isDisabledDate = (date: Date, dates: Date[]) => {
-    return !!dates.find((d) => {
-      const current = new Date()
-      const dateA = new Date(date)
-      const dateB = new Date(d)
-
-      current.setSeconds(0)
-      dateA.setSeconds(0)
-      dateB.setSeconds(0)
-
-      return (
-        dateA.getTime() === dateB.getTime() ||
-        current.getTime() >= dateA.getTime() ||
-        current.getTime() >= dateB.getTime()
-      )
-    })
-  }
+  const isDisabledDate = (date: Date) => disabledDateTimes.has(date.toISOString())
 
   return (
     <Card className={"p-2 sm:p-6 shadow-md"}>
@@ -261,8 +256,8 @@ export const BookingCard = () => {
                       <FormLabel>Duración</FormLabel>
                       <div className={"flex"}>
                         <Select
-                          onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}
-                          defaultValue={field.value}>
+                          {...field}
+                          onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}>
                           <FormControl>
                             <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
                               <SelectValue placeholder="Opciones rápidas" />
@@ -296,6 +291,9 @@ export const BookingCard = () => {
                                     start: dateRangeStart,
                                     end: dateRangeEnd
                                   }}
+                                  isDateUnavailable={(date) =>
+                                    disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())
+                                  }
                                 />
                                 <RangeTime
                                   onChange={handleTimeRangeChange}
@@ -303,7 +301,7 @@ export const BookingCard = () => {
                                     startTime: startDate,
                                     endTime: endDate
                                   }}
-                                  disabledDates={disabledDates}
+                                  disabledDates={disabledDateTimes}
                                 />
                                 <div className={"flex gap-2 items-center mt-4 w-full"}>
                                   <Button className={"flex-1"} variant={"outline"} onClick={handleOnDatePickerCancel}>
@@ -314,9 +312,7 @@ export const BookingCard = () => {
                                     variant={"default"}
                                     onClick={handleOnDatePickerApply}
                                     disabled={
-                                      isDisabledDate(startDate, disabledDates) ||
-                                      isDisabledDate(endDate, disabledDates) ||
-                                      startDate >= endDate
+                                      isDisabledDate(startDate) || isDisabledDate(endDate) || startDate >= endDate
                                     }>
                                     Aplicar
                                   </Button>
@@ -368,8 +364,10 @@ export const BookingCard = () => {
         <CardFooter className={"flex justify-center text-sm"}>
           <code>
             por <span className={"underline"}>{form.getValues("nickName") || nickName}</span> hasta{" "}
-            <time dateTime={formatInTimeZone(expirationDate)} className={"underline"}>
-              {expirationDate && formatInTimeZone(expirationDate)}
+            <time
+              dateTime={formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
+              className={"underline"}>
+              {expirationDate && formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
             </time>
           </code>
         </CardFooter>

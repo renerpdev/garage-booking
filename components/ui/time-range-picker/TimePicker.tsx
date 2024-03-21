@@ -18,7 +18,7 @@ interface TimePickerProps {
   minValue?: Date
 }
 
-export function TimePicker({ onChange, value, isInvalid, minValue }: TimePickerProps) {
+export const TimePicker = ({ onChange, value, isInvalid, minValue }: TimePickerProps) => {
   const handleHourChange = (hour: string) => {
     const date = new Date(value || 0)
     date.setHours(parseInt(hour))
@@ -33,9 +33,8 @@ export function TimePicker({ onChange, value, isInvalid, minValue }: TimePickerP
 
   const disabledHours = HOURS.filter((hour) => {
     const date = new Date(value || 0)
-    const cDate = new Date()
     date.setHours(hour.value)
-    return isInvalid?.(date) || ((minValue?.getTime() || 0) > date.getTime() && cDate.getHours() > date.getHours())
+    return date.getTime() < (minValue?.getTime() || 0) && hour.value < (minValue?.getHours() || 0)
   }).map((hour) => hour.value)
 
   const disabledMinutes = MINUTES.filter((minute) => {

@@ -7,7 +7,7 @@ import { AriaCalendarGridProps } from "@react-aria/calendar"
 interface CalendarGridProps extends AriaCalendarGridProps {
   state: RangeCalendarState
 }
-export function CalendarGrid({ state, ...props }: CalendarGridProps) {
+export const CalendarGrid = ({ state, ...props }: CalendarGridProps) => {
   const { locale } = useLocale()
   const { gridProps, headerProps, weekDays } = useCalendarGrid(props, state)
 

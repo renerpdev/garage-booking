@@ -5,7 +5,7 @@ interface CalendarButtonProps extends AriaButtonOptions<ElementType> {
   isDisabled?: boolean
   children: React.ReactNode
 }
-export function CalendarButton(props: CalendarButtonProps & React.HTMLAttributes<HTMLButtonElement>) {
+export const CalendarButton = (props: CalendarButtonProps & React.HTMLAttributes<HTMLButtonElement>) => {
   let ref = useRef<HTMLButtonElement>(null)
   let { buttonProps } = useButton(props, ref)
   let { focusProps, isFocusVisible } = useFocusRing()

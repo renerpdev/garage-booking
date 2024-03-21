@@ -8,7 +8,7 @@ interface TimeSelectProps {
   onChange?: (_value: string) => void
   disabledOptions?: number[]
 }
-export function TimeSelect({ options, value, onChange, disabledOptions = [] }: TimeSelectProps) {
+export const TimeSelect = ({ options, value, onChange, disabledOptions = [] }: TimeSelectProps) => {
   return (
     <Select onValueChange={onChange} value={`${value}`}>
       <FormControl>

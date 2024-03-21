@@ -9,9 +9,9 @@ export type RangeTimeValue = {
 interface RangeTimeProps {
   value?: RangeTimeValue
   onChange?: (_value: RangeTimeValue) => void
-  disabledDates?: Date[]
+  disabledDates?: Map<string, Date>
 }
-export function RangeTime({ onChange, value, disabledDates = [] }: RangeTimeProps) {
+export const RangeTime = ({ onChange, value, disabledDates = new Map() }: RangeTimeProps) => {
   const handleStartTimeChange = (start: Date) => {
     onChange?.({
       startTime: start,
@@ -26,11 +26,7 @@ export function RangeTime({ onChange, value, disabledDates = [] }: RangeTimeProp
     })
   }
 
-  const isTimeInvalid = (date: Date) => {
-    return !!disabledDates?.find((dDate) => {
-      return dDate.getTime() === date.getTime()
-    })
-  }
+  const isTimeInvalid = (date: Date) => disabledDates.has(date.toISOString())
 
   return (
     <div className={"flex flex-col gap-2 mt-2"}>
