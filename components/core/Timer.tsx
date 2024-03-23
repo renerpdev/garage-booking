@@ -11,7 +11,7 @@ export function Timer({ expiryTimestamp, onExpire, autoStart }: TimerProps) {
   return (
     <div className={"flex flex-col justify-center items-center p-2 sm:p-4 md:p-6 !pb-0 min-w-[250px]"}>
       <div
-        className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black grid grid-cols-5 ${days > 0 ? "grid-cols-7" : ""} gap-0 text-center w-full ${days === 0 && hours === 0 && minutes <= 5 && seconds === 0 ? "text-orange-500" : ""} ${days === 0 && hours === 0 && minutes <= 1 && seconds === 0 ? "text-red-500" : ""}`}>
+        className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black grid grid-cols-5 ${days > 0 ? "grid-cols-7" : ""} gap-0 text-center w-full ${days === 0 && hours === 0 && minutes < 5 ? "text-orange-500" : ""} ${days === 0 && hours === 0 && minutes < 1 ? "text-red-500" : ""}`}>
         {days > 0 && (
           <>
             <span>
