@@ -377,7 +377,7 @@ export const BookingCard = () => {
                                   startDate >= endDate ||
                                   startDate < new Date()
                                 }>
-                                Applicar
+                                Aplicar
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

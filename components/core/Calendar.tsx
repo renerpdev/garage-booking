@@ -1,10 +1,11 @@
 "use client"
 import React from "react"
-import { CalendarCheck, CalendarFold, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { CalendarCheck, CalendarFold, ChevronLeft, ChevronRight, Circle, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import BookingInfo from "@/components/core/BookingInfo"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 // TODO: get more inspiration from https://tailwindui.com/components/application-ui/application-shells/calendar
 const Calendar = () => {
@@ -28,7 +29,12 @@ const Calendar = () => {
               className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 hover:text-primary focus:relative md:block">
               Hoy
             </button>
-            <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden"></span>
+            <button
+              type="button"
+              className="flex h-9 w-4 items-center justify-center border-gray-300 border-y fill-gray-400 hover:fill-gray-500 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50 md:hidden">
+              <span className="sr-only">Current day</span>
+              <Circle size={16} className="md:hidden" fill={""} />
+            </button>
             <button
               type="button"
               className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50">
@@ -46,44 +52,39 @@ const Calendar = () => {
               </Button>
             </Link>
           </div>
-          <div className="relative ml-6 md:hidden">
-            <button
-              type="button"
-              className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500"
-              id="menu-0-button"
-              aria-expanded="false"
-              aria-haspopup="true">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal size={18} />
-            </button>
-
-            <div
-              className="absolute right-0 z-10 mt-3 w-36 origin-top-right divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-              role="menu"
-              aria-orientation="vertical"
-              aria-labelledby="menu-0-button"
-              tabIndex={-1}>
-              <div className="py-1" role="none">
-                <Link
-                  href="/"
-                  className="text-gray-700 px-4 py-2 text-sm gap-2 flex items-center hover:text-primary"
-                  role="menuitem"
-                  tabIndex={-1}
-                  id="menu-0-item-0">
-                  <CalendarCheck size={14} /> Reservar
-                </Link>
-              </div>
-              <div className="py-1" role="none">
+          <div className="ml-6 md:hidden">
+            <Popover>
+              <PopoverTrigger asChild>
                 <button
-                  onClick={() => {}}
-                  className="text-gray-700 px-4 py-2 text-sm gap-2 flex items-center hover:text-primary"
-                  role="menuitem"
-                  tabIndex={-1}
-                  id="menu-0-item-0">
-                  <CalendarFold size={14} /> Fecha hoy
+                  type="button"
+                  className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500"
+                  id="menu-0-button"
+                  aria-expanded="false"
+                  aria-haspopup="true">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal size={18} />
                 </button>
-              </div>
-            </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-40 p-0" align={"end"}>
+                <ul className={"flex flex-col"}>
+                  <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
+                    <Link
+                      href={"/"}
+                      className="text-gray-700 px-4 py-4 text-sm gap-2 flex items-center hover:text-primary">
+                      <CalendarCheck size={14} /> Ir a reservar
+                    </Link>
+                  </li>
+                  <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
+                    <button
+                      type={"button"}
+                      className="px-4 py-4 text-sm gap-2 flex items-center hover:text-primary"
+                      role="menuitem">
+                      <CalendarFold size={14} /> Fecha actual
+                    </button>
+                  </li>
+                </ul>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </header>
