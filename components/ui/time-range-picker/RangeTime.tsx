@@ -1,5 +1,6 @@
 import React from "react"
 import { TimePicker } from "./TimePicker"
+import { Separator } from "@/components/ui/separator"
 
 export type RangeTimeValue = {
   start: Date
@@ -39,7 +40,8 @@ export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeT
           minValue={new Date()}
         />
       </div>
-      <span className={"hidden sm:block self-center"}>-</span>
+      <Separator orientation={"horizontal"} className={"sm:hidden self-center"} />
+      <Separator orientation={"vertical"} className={"hidden sm:block self-center min-h-14"} />
       <div className={"flex items-center justify-center sm:flex-col gap-2"}>
         <span className={"text-xs self-center"}>Hasta:</span>
         <TimePicker
