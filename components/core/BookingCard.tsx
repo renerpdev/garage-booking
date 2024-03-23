@@ -63,6 +63,7 @@ export const BookingCard = () => {
     start: formatToCalendarDate(new Date()),
     end: formatToCalendarDate(new Date())
   })
+  const [ownerName, setOwnerName] = useState<string>("")
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -108,6 +109,7 @@ export const BookingCard = () => {
   const onExpiry = () => {
     setExpirationDate(null)
     form.reset()
+    setOwnerName("")
   }
 
   const resetForm = () => {
@@ -131,6 +133,7 @@ export const BookingCard = () => {
         throw new Error(message)
       }
 
+      setOwnerName(nickName)
       const isStarted = startDate <= new Date()
 
       if (isStarted) setExpirationDate(endDate)
@@ -244,162 +247,170 @@ export const BookingCard = () => {
   }
 
   return (
-    <Card className={"p-2 sm:p-6 shadow-md"}>
-      {!isLoading && (
-        <CardHeader className={`text-center ${expirationDate ? "pb-0 text-primary" : ""}`}>
-          <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>
-            {!expirationDate ? "Reservar Estacionamiento" : "Reservado"}
-          </CardTitle>
-          <CardDescription className={"space-y-0 md:space-y-1"}>
-            {!expirationDate && <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>}
-            {expirationDate && <span className={"text-md md:text-lg"}>Faltan</span>}
-          </CardDescription>
-        </CardHeader>
-      )}
+    <>
       {isLoading && (
-        <div className={"p-6"}>
+        <div
+          className={
+            "flex flex-col items-center justify-center w-full h-full z-30 fixed top-0 left-0 bg-opacity-50 bg-black"
+          }>
           <Loader size={50} className={"animate-spin"} />
         </div>
       )}
-      {!isLoading && (
-        <CardContent>
-          {expirationDate && <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />}
-          {!expirationDate && (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 sm:80">
-                <FormField
-                  control={form.control}
-                  name="nickName"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>Nombre</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Escribe tu nombre aquí" {...field} />
-                      </FormControl>
-                      {!fieldState.invalid && (
-                        <FormDescription className={"text-xs md:text-sm"}>
-                          El nombre se usará para la confirmación.
-                        </FormDescription>
-                      )}
-                      <FormMessage className={"text-xs md:text-sm"} />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>Duración</FormLabel>
-                      <div className={"flex"}>
-                        <Select
-                          {...field}
-                          onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}>
-                          <FormControl>
-                            <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
-                              <SelectValue placeholder="Opciones rápidas" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {OPTIONS.map((option) => (
-                              <SelectItem key={option} value={`${option}`}>
-                                {`${option} minutos`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {
-                          <AlertDialog onOpenChange={handleOnDialogOpen} open={isPopoverOpen}>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
-                                <Calendar size={16} />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogDescription>
-                                  <div className={"flex flex-col items-center px-4"}>
-                                    <RangeCalendar
-                                      onChange={handleDateRangeChange}
-                                      value={dateRangeValue}
-                                      isDateUnavailable={(date) =>
-                                        disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())
-                                      }
-                                    />
-                                    <RangeTime
-                                      onChange={handleTimeRangeChange}
-                                      value={{
-                                        start: startDate,
-                                        end: endDate
-                                      }}
-                                      disabledDates={disabledDateTimes}
-                                    />
-                                  </div>
-                                  <br />
-                                  <DateRangeSelected start={startDate} end={endDate} />
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter className={"flex"}>
-                                <AlertDialogCancel className={"sm:w-[50%]"} onClick={handleOnDatePickerCancel}>
-                                  Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  className={"sm:w-[50%]"}
-                                  onClick={handleOnDatePickerApply}
-                                  disabled={
-                                    isDisabledDate(startDate) ||
-                                    isDisabledDate(endDate) ||
-                                    startDate >= endDate ||
-                                    startDate < new Date()
-                                  }>
-                                  Applicar
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        }
-                      </div>
-                      {!fieldState.invalid && (
-                        <FormDescription className={"text-xs md:text-sm"}>
-                          Para más opciones haga click en el ícono calendario
-                        </FormDescription>
-                      )}
-                      <FormMessage className={"text-xs md:text-sm"} />
-                    </FormItem>
-                  )}
-                  name="time"
-                  control={form.control}
-                />
-                <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
-                <Button
-                  type="submit"
-                  className={"w-full flex items-center"}
-                  disabled={!form.formState.isValid || isSubmitting}>
-                  {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
-                    <>
-                      <CalendarCheck size={16} />
-                      &nbsp;Reservar
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-      )}
       {expirationDate && (
-        <CardFooter className={"flex justify-center text-sm"}>
-          <code>
-            por <span className={"underline"}>{form.getValues("nickName") || nickName}</span> hasta{" "}
-            <time
-              dateTime={formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
-              className={"underline"}>
-              {expirationDate && formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
-            </time>
-          </code>
-        </CardFooter>
+        <Card className={"mb-4"}>
+          <CardHeader className={"text-center pb-0 text-primary"}>
+            <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>Reservado</CardTitle>
+            <CardDescription className={"space-y-0 md:space-y-1"}>
+              <span className={"text-md md:text-lg"}>Faltan</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />
+          </CardContent>
+          <CardFooter className={"flex justify-center text-sm"}>
+            <code>
+              por <span className={"text-primary"}>{ownerName || nickName}</span> hasta{" "}
+              <time
+                dateTime={formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
+                className={"text-primary"}>
+                {expirationDate && formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
+              </time>
+            </code>
+          </CardFooter>
+        </Card>
       )}
-    </Card>
+      <Card className={"p-2 sm:p-6 shadow-md"}>
+        <CardHeader className={"text-center"}>
+          <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>
+            Reservar Estacionamiento
+          </CardTitle>
+          <CardDescription className={"space-y-0 md:space-y-1"}>
+            <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 sm:80">
+              <FormField
+                control={form.control}
+                name="nickName"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Nombre</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Escribe tu nombre aquí" {...field} />
+                    </FormControl>
+                    {!fieldState.invalid && (
+                      <FormDescription className={"text-xs md:text-sm"}>
+                        El nombre se usará para la confirmación.
+                      </FormDescription>
+                    )}
+                    <FormMessage className={"text-xs md:text-sm"} />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Duración</FormLabel>
+                    <div className={"flex"}>
+                      <Select
+                        {...field}
+                        onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}>
+                        <FormControl>
+                          <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
+                            <SelectValue placeholder="Opciones rápidas" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {OPTIONS.map((option) => (
+                            <SelectItem key={option} value={`${option}`}>
+                              {`${option} minutos`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {
+                        <AlertDialog onOpenChange={handleOnDialogOpen} open={isPopoverOpen}>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
+                              <Calendar size={16} />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogDescription>
+                                <div className={"flex flex-col items-center px-4"}>
+                                  <RangeCalendar
+                                    onChange={handleDateRangeChange}
+                                    value={dateRangeValue}
+                                    isDateUnavailable={(date) =>
+                                      disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())
+                                    }
+                                  />
+                                  <RangeTime
+                                    onChange={handleTimeRangeChange}
+                                    value={{
+                                      start: startDate,
+                                      end: endDate
+                                    }}
+                                    disabledDates={disabledDateTimes}
+                                  />
+                                </div>
+                                <br />
+                                <DateRangeSelected start={startDate} end={endDate} />
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className={"flex"}>
+                              <AlertDialogCancel className={"sm:w-[50%]"} onClick={handleOnDatePickerCancel}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                className={"sm:w-[50%]"}
+                                onClick={handleOnDatePickerApply}
+                                disabled={
+                                  isDisabledDate(startDate) ||
+                                  isDisabledDate(endDate) ||
+                                  startDate >= endDate ||
+                                  startDate < new Date()
+                                }>
+                                Applicar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      }
+                    </div>
+                    {!fieldState.invalid && (
+                      <FormDescription className={"text-xs md:text-sm"}>
+                        Para más opciones haga click en el ícono calendario
+                      </FormDescription>
+                    )}
+                    <FormMessage className={"text-xs md:text-sm"} />
+                  </FormItem>
+                )}
+                name="time"
+                control={form.control}
+              />
+              <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
+              <Button
+                type="submit"
+                className={"w-full flex items-center"}
+                disabled={!form.formState.isValid || isSubmitting}>
+                {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
+                  <>
+                    <CalendarCheck size={16} />
+                    &nbsp;Reservar
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </>
   )
 }

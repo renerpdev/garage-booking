@@ -69,24 +69,31 @@ export function getDisabledDates(dates: { startDate: Date; endDate: Date }[]) {
 
   dates.forEach(({ startDate, endDate }) => {
     if (differenceInDays(endDate, startDate) > 1) {
-      const startFrom = new Date(startDate)
-      const startTo = addDays(startDate, 1)
-      startTo.setHours(0, 0)
+      const daysToAdd = startDate.getHours() === 0 && startDate.getMinutes() === 0 ? 0 : 1
+      const daysToSubtract = endDate.getHours() === 23 && endDate.getMinutes() === 59 ? 0 : 1
 
-      const minutesBeforeStart = getMinutesInRange(startFrom, startTo)
-      minutesBeforeStart.forEach((date) => {
-        disabledTimesSet.add(date.toISOString())
-      })
+      if (daysToAdd > 0) {
+        const startFrom = new Date(startDate)
+        const startTo = addDays(startDate, 1)
+        startTo.setHours(0, 0)
 
-      const endFrom = new Date(endDate)
-      endFrom.setHours(0, 0)
+        const minutesBeforeStart = getMinutesInRange(startFrom, startTo)
+        minutesBeforeStart.forEach((date) => {
+          disabledTimesSet.add(date.toISOString())
+        })
+      }
 
-      const minutesAfterEnd = getMinutesInRange(endFrom, endDate)
-      minutesAfterEnd.forEach((date) => {
-        disabledTimesSet.add(date.toISOString())
-      })
+      if (daysToSubtract > 0) {
+        const endFrom = new Date(endDate)
+        endFrom.setHours(0, 0)
 
-      const daysBetweenDates = getDaysInRange(addDays(startDate, 1), subDays(endDate, 1))
+        const minutesAfterEnd = getMinutesInRange(endFrom, endDate)
+        minutesAfterEnd.forEach((date) => {
+          disabledTimesSet.add(date.toISOString())
+        })
+      }
+
+      const daysBetweenDates = getDaysInRange(addDays(startDate, daysToAdd), subDays(endDate, daysToSubtract))
       daysBetweenDates.forEach((date) => {
         disabledDaysSet.add(date.toISOString())
       })
