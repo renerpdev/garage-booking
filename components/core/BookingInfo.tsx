@@ -37,7 +37,7 @@ const BookingInfo = () => (
           </li>
           <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
             <AlertDialog>
-              <AlertDialogTrigger>
+              <AlertDialogTrigger asChild>
                 <button
                   type={"button"}
                   className="px-4 py-4 text-sm gap-2 flex items-center hover:text-red-500 text-red-400"

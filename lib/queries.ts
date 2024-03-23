@@ -16,7 +16,10 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
 
     if (activeBooking?.startDate) {
       logger.error(`There is already an active booking from "${activeBooking.startDate}" to "${activeBooking.endDate}"`)
-      throw new Error("Ya existe una reserva activa en ese rango de fechas")
+      return {
+        error: true,
+        message: "Ya existe una reserva activa en ese rango de fechas. Por favor intente con uno diferente."
+      }
     }
 
     await prisma.booking.create({

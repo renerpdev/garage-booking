@@ -42,15 +42,20 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
       <div
         {...mergeProps(buttonProps, focusProps)}
         ref={ref}
-        className={`w-10 h-10 outline-none group text-sm size-10 ${
+        className={`w-10 h-10 outline-none group text-sm size-10 text-gray-900 ${
           isRoundedLeft ? "rounded-l-full" : ""
         } ${isRoundedRight ? "rounded-r-full" : ""} ${
           isSelected ? (isInvalid ? "bg-red-100" : "bg-gray-100") : ""
-        } ${isDisabled || isUnavailable || isOutsideVisibleRange ? "disabled text-gray-400 pointer-events-none opacity-45" : ""}`}>
+        } ${isDisabled || isUnavailable || isOutsideVisibleRange ? `disabled pointer-events-none ${isOutsideVisibleRange ? "opacity-10" : "opacity-25"}` : ""} ${
+          // Hover state for cells in the middle of the range.
+          isSelected && !isDisabled && !(isSelectionStart || isSelectionEnd)
+            ? isInvalid
+              ? "hover:bg-red-200"
+              : "hover:bg-violet-200"
+            : ""
+        }`}>
         <div
-          className={`w-full h-full rounded-full flex items-center justify-center ${
-            isDisabled && !isInvalid ? "text-gray-400" : ""
-          } ${isToday(date, getLocalTimeZone()) ? "ring-1 ring-black" : ""} ${
+          className={`w-full h-full rounded-full flex items-center justify-center ${isToday(date, getLocalTimeZone()) ? "ring-1 ring-black" : ""} ${
             // Focus ring, visible while the cell has keyboard focus.
             isFocusVisible ? "ring-2 group-focus:z-2 ring-violet-600 ring-offset-2" : ""
           } ${
@@ -59,13 +64,6 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
               ? isInvalid
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "bg-primary text-white hover:bg-violet-700 opacity-100"
-              : ""
-          } ${
-            // Hover state for cells in the middle of the range.
-            isSelected && !isDisabled && !(isSelectionStart || isSelectionEnd)
-              ? isInvalid
-                ? "hover:bg-red-200"
-                : "hover:bg-violet-200"
               : ""
           } ${
             // Hover state for non-selected cells.
