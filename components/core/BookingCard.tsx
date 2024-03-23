@@ -26,16 +26,15 @@ import { RangeTime, RangeTimeValue } from "@/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
 import { DateValue, getLocalTimeZone } from "@internationalized/date"
 import { isToday } from "date-fns"
+
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger
+} from "@/components/ui/dialog"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -331,18 +330,18 @@ export const BookingCard = () => {
                         </SelectContent>
                       </Select>
                       {
-                        <AlertDialog onOpenChange={handleOnDialogOpen} open={isPopoverOpen}>
-                          <AlertDialogTrigger asChild>
+                        <Dialog onOpenChange={handleOnDialogOpen} open={isPopoverOpen}>
+                          <DialogTrigger asChild>
                             <Button
                               type="button"
                               variant="outline"
                               className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
                               <Calendar size={16} />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogDescription>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogDescription>
                                 <div className={"flex flex-col items-center px-4"}>
                                   <RangeCalendar
                                     onChange={handleDateRangeChange}
@@ -362,14 +361,14 @@ export const BookingCard = () => {
                                 </div>
                                 <br />
                                 <DateRangeSelected start={startDate} end={endDate} />
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className={"flex"}>
-                              <AlertDialogCancel className={"sm:w-[50%]"} onClick={handleOnDatePickerCancel}>
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4"}>
+                              <Button variant={"outline"} className={"min-w-28"} onClick={handleOnDatePickerCancel}>
                                 Cancel
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                className={"sm:w-[50%]"}
+                              </Button>
+                              <Button
+                                className={"min-w-28"}
                                 onClick={handleOnDatePickerApply}
                                 disabled={
                                   isDisabledDate(startDate) ||
@@ -378,10 +377,10 @@ export const BookingCard = () => {
                                   startDate < new Date()
                                 }>
                                 Aplicar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       }
                     </div>
                     {!fieldState.invalid && (

@@ -20,7 +20,7 @@ const Calendar = () => {
           <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
             <button
               type="button"
-              className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50">
+              className="flex h-9 w-9 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50">
               <span className="sr-only">Previous month</span>
               <ChevronLeft size={18} />
             </button>
@@ -31,13 +31,13 @@ const Calendar = () => {
             </button>
             <button
               type="button"
-              className="flex h-9 w-4 items-center justify-center border-gray-300 border-y fill-gray-400 hover:fill-gray-500 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50 md:hidden">
+              className="flex h-9 w-8 items-center justify-center border-gray-300 border-y fill-gray-400 hover:fill-gray-500 text-gray-400 hover:text-gray-500 focus:relative md:hidden">
               <span className="sr-only">Current day</span>
-              <Circle size={16} className="md:hidden" fill={""} />
+              <Circle size={10} className="md:hidden" fill={""} />
             </button>
             <button
               type="button"
-              className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50">
+              className="flex h-9 w-9 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50">
               <span className="sr-only">Next month</span>
               <ChevronRight size={18} />
             </button>

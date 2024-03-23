@@ -1,10 +1,10 @@
-import { useRef } from "react"
+import React, { useRef } from "react"
 import { useRangeCalendarState } from "react-stately"
 import { useRangeCalendar, useLocale } from "react-aria"
 import { CalendarDate, createCalendar } from "@internationalized/date"
 import { CalendarButton } from "./CalendarButton"
 import { CalendarGrid } from "./CalendarGrid"
-import { ChevronLeftIcon, ChevronRightIcon, DotIcon } from "lucide-react"
+import { ChevronLeftIcon, ChevronRightIcon, Circle } from "lucide-react"
 import { RangeCalendarStateOptions } from "@react-stately/calendar"
 
 const currentDate = new Date()
@@ -34,8 +34,11 @@ export const RangeCalendar = (props: Partial<RangeCalendarStateOptions>) => {
           <CalendarButton {...prevButtonProps}>
             <ChevronLeftIcon className="h-6 w-6" />
           </CalendarButton>
-          <CalendarButton onClick={goToToday}>
-            <DotIcon className="h-6 w-6" />
+          <CalendarButton
+            onClick={goToToday}
+            className="flex items-center justify-center border-gray-300 border-y group focus:relative">
+            <span className="sr-only">Current day</span>
+            <Circle size={10} fill={""} className={"fill-gray-500 group-hover:fill-gray-600 m-1.5"} />
           </CalendarButton>
           <CalendarButton {...nextButtonProps}>
             <ChevronRightIcon className="h-6 w-6" />
