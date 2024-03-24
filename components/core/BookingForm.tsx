@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { useBookingContext } from "@/context/booking-context"
 import { Booking } from "@/lib/models"
+import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -38,7 +39,7 @@ const FormSchema = z.object({
   endDate: z.date()
 })
 
-export const BookingCard = () => {
+export const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [startDate, setStartDate] = useState(new Date())
@@ -47,7 +48,7 @@ export const BookingCard = () => {
     start: formatToCalendarDate(new Date()),
     end: formatToCalendarDate(new Date())
   })
-  const { createNewBooking, isLoading, disabledHours, disabledDays } = useBookingContext()
+  const { createNewBooking, disabledHours, disabledDays } = useBookingContext()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -158,14 +159,7 @@ export const BookingCard = () => {
 
   return (
     <>
-      {isLoading && (
-        <div
-          className={
-            "flex flex-col items-center justify-center w-full h-full z-30 fixed top-0 left-0 bg-opacity-50 bg-black"
-          }>
-          <Loader size={50} className={"animate-spin"} />
-        </div>
-      )}
+      <ActiveBookingAlert className={"mb-4"} />
       <Card className={"p-2 sm:p-6 shadow-md max-w-md w-full"}>
         <CardHeader className={"text-center"}>
           <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>

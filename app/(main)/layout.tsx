@@ -4,12 +4,13 @@ import "../globals.css"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { Toolbar } from "@/components/layout/Toolbar"
-import { Suspense } from "react"
+import React, { Suspense } from "react"
 import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
 import { getFlags } from "@/lib/flags"
-import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 import { BookingProvider } from "@/context/booking-context"
+import Spinner from "@/components/core/Spinner"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -64,8 +65,9 @@ export default async function RootLayout({
         }}>
         <Navbar />
         <BookingProvider>
-          <ActiveBookingAlert />
-          <main className={"min-h-full m-auto w-full"}>{children}</main>
+          <Spinner />
+          <main className={"min-h-full my-auto w-full"}>{children}</main>
+          <Toaster />
         </BookingProvider>
         <Footer />
         <Suspense>
