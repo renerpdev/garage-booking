@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { logger } from "@/logger"
+import { Booking } from "@/lib/models"
 
 const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
 
@@ -9,7 +10,9 @@ const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
                 Booking Actions
  *****************************************************/
 
-export async function createBooking(startDate: Date, endDate: Date, nickName: string = "<UNKNOWN>") {
+export async function createBooking(booking: Booking) {
+  const { nickName, startDate, endDate } = booking
+
   logger.info(`Creating booking for "${nickName}" from "${startDate}" to "${endDate}"`)
   try {
     const activeBooking = await getActiveBooking(startDate, endDate)
@@ -48,10 +51,10 @@ export async function createBooking(startDate: Date, endDate: Date, nickName: st
   }
 }
 
-export async function getActiveBooking(startDate: Date = new Date(), endDate: Date = new Date()) {
+export async function getActiveBooking(startDate: Date = new Date(), endDate: Date = new Date()): Promise<Booking> {
   await clearActiveBookings()
   try {
-    return await prisma.booking.findFirst({
+    return (await prisma.booking.findFirst({
       select: {
         startDate: true,
         endDate: true,
@@ -67,16 +70,16 @@ export async function getActiveBooking(startDate: Date = new Date(), endDate: Da
         }
       },
       orderBy: { startDate: "asc" }
-    })
+    })) as Booking
   } catch (error) {
     logger.error(`Error getting active booking: ${error}`)
     throw new Error(error as any)
   }
 }
 
-export async function getScheduledBookings() {
+export async function getScheduledBookings(): Promise<Booking[]> {
   try {
-    return await prisma.booking.findMany({
+    return (await prisma.booking.findMany({
       select: {
         startDate: true,
         endDate: true
@@ -88,7 +91,7 @@ export async function getScheduledBookings() {
         }
       },
       orderBy: { startDate: "asc" }
-    })
+    })) as Booking[]
   } catch (error) {
     logger.error(`Error getting scheduled bookings: ${error}`)
     throw new Error(error as any)

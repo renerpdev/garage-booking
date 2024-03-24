@@ -8,6 +8,8 @@ import { Suspense } from "react"
 import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
 import { getFlags } from "@/lib/flags"
+import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
+import { BookingProvider } from "@/context/booking-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -61,7 +63,10 @@ export default async function RootLayout({
           background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
         }}>
         <Navbar />
-        <main className={"min-h-full m-auto w-full"}>{children}</main>
+        <BookingProvider>
+          <ActiveBookingAlert />
+          <main className={"min-h-full m-auto w-full"}>{children}</main>
+        </BookingProvider>
         <Footer />
         <Suspense>
           <Toolbar />

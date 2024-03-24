@@ -1,8 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CalendarCheck, Loader, Calendar } from "lucide-react"
 import { z } from "zod"
@@ -10,22 +9,12 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Timer } from "@/components/core/Timer"
-import React, { useEffect, useState } from "react"
-import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
-import {
-  formatInTimeZone,
-  formatToCalendarDate,
-  TIME_FORMAT,
-  LONG_FORMAT,
-  formatCalendarToDate,
-  getDisabledDates
-} from "@/lib/utils"
+import React, { useState } from "react"
+import { formatInTimeZone, formatToCalendarDate, LONG_FORMAT, formatCalendarToDate } from "@/lib/utils"
 import { RangeCalendar } from "@/components/ui/date-range-picker"
 import { RangeTime, RangeTimeValue } from "@/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
 import { DateValue, getLocalTimeZone } from "@internationalized/date"
-import { isToday } from "date-fns"
 
 import {
   Dialog,
@@ -35,6 +24,8 @@ import {
   DialogHeader,
   DialogTrigger
 } from "@/components/ui/dialog"
+import { useBookingContext } from "@/context/booking-context"
+import { Booking } from "@/lib/models"
 
 const OPTIONS = [15, 30, 45, 60]
 
@@ -48,21 +39,15 @@ const FormSchema = z.object({
 })
 
 export const BookingCard = () => {
-  const { toast } = useToast()
-  const [expirationDate, setExpirationDate] = useState<Date | null>(null)
-  const [nickName, setNickName] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [startDate, setStartDate] = useState(new Date())
   const [endDate, setEndDate] = useState(new Date())
-  const [disabledDateTimes, setDisabledDateTimes] = useState<Set<string>>(new Set())
-  const [disabledDays, setDisabledDays] = useState<Set<string>>(new Set())
   const [dateRangeValue, setDateRangeValue] = useState<RangeValue<DateValue>>({
     start: formatToCalendarDate(new Date()),
     end: formatToCalendarDate(new Date())
   })
-  const [ownerName, setOwnerName] = useState<string>("")
+  const { createNewBooking, isLoading, disabledHours, disabledDays } = useBookingContext()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -71,45 +56,6 @@ export const BookingCard = () => {
       time: ""
     }
   })
-
-  useEffect(() => {
-    async function fetchActiveBooking() {
-      try {
-        setIsLoading(true)
-        const activeBooking = await getActiveBooking()
-
-        if (activeBooking) {
-          setExpirationDate(activeBooking.endDate)
-          setNickName(activeBooking.nickName)
-        }
-        // we end loading here to not block the UI with background requests
-        setIsLoading(false)
-
-        const scheduledDates = await getScheduledBookings()
-
-        const [disabledTimesMap, disabledDaysMap] = getDisabledDates(scheduledDates)
-
-        setDisabledDateTimes(disabledTimesMap)
-        setDisabledDays(disabledDaysMap)
-      } catch (e) {
-        toast({
-          title: "Error",
-          description: "Ocurrió un error al obtener la reserva activa. Por favor, intenta nuevamente.",
-          className: "text-red-500"
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchActiveBooking().then()
-  }, [toast])
-
-  const onExpiry = () => {
-    setExpirationDate(null)
-    form.reset()
-    setOwnerName("")
-  }
 
   const resetForm = () => {
     const date = new Date()
@@ -124,49 +70,14 @@ export const BookingCard = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
-    const { startDate, endDate, nickName } = data
-
-    try {
-      const { error, message } = await createBooking(startDate, endDate, nickName)
-      if (error) {
-        throw new Error(message)
-      }
-
-      setOwnerName(nickName)
-      const isStarted = startDate <= new Date()
-
-      if (isStarted) setExpirationDate(endDate)
-
-      const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
-      const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
-      const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
-
-      resetForm()
-
-      toast({
-        title: "Reserva Confirmada",
-        description: isStarted ? (
-          <p>
-            {data.nickName}, tienes estacionamiento reservado hasta las{" "}
-            <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
-          </p>
-        ) : (
-          <p>
-            {data.nickName}, tienes estacionamiento reservado desde el{" "}
-            <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
-            <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
-          </p>
-        )
+    createNewBooking(data as Booking)
+      .then(() => {
+        resetForm()
       })
-    } catch (e: any) {
-      toast({
-        title: "Reserva Inválida",
-        description: e.message,
-        className: "text-red-500"
+      .catch(console.error)
+      .finally(() => {
+        setIsSubmitting(false)
       })
-    } finally {
-      setIsSubmitting(false)
-    }
   }
 
   const handleQuickOptionsSelectionChange = (time: string, callback: any) => {
@@ -228,7 +139,7 @@ export const BookingCard = () => {
     setIsPopoverOpen(false)
   }
 
-  const isDisabledDate = (date: Date) => disabledDateTimes.has(date.toISOString())
+  const isDisabledDate = (date: Date) => disabledHours.has(date.toISOString())
 
   const DateRangeSelected = ({ start, end }: Record<"start" | "end", Date>) => {
     if (!start || !end) return null
@@ -255,30 +166,7 @@ export const BookingCard = () => {
           <Loader size={50} className={"animate-spin"} />
         </div>
       )}
-      {expirationDate && (
-        <Card className={"mb-4"}>
-          <CardHeader className={"text-center pb-0 text-primary"}>
-            <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>Reservado</CardTitle>
-            <CardDescription className={"space-y-0 md:space-y-1"}>
-              <span className={"text-md md:text-lg"}>Faltan</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Timer expiryTimestamp={expirationDate} onExpire={onExpiry} />
-          </CardContent>
-          <CardFooter className={"flex justify-center text-sm"}>
-            <code>
-              por <span className={"text-primary"}>{ownerName || nickName}</span> hasta{" "}
-              <time
-                dateTime={formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
-                className={"text-primary"}>
-                {expirationDate && formatInTimeZone(expirationDate, isToday(expirationDate) ? TIME_FORMAT : undefined)}
-              </time>
-            </code>
-          </CardFooter>
-        </Card>
-      )}
-      <Card className={"p-2 sm:p-6 shadow-md"}>
+      <Card className={"p-2 sm:p-6 shadow-md max-w-md w-full"}>
         <CardHeader className={"text-center"}>
           <CardTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0"}>
             Reservar Estacionamiento
@@ -356,7 +244,7 @@ export const BookingCard = () => {
                                       start: startDate,
                                       end: endDate
                                     }}
-                                    disabledDates={disabledDateTimes}
+                                    disabledDates={disabledHours}
                                   />
                                 </div>
                                 <br />

@@ -12,6 +12,8 @@ export const DEFAULT_FORMAT = "dd/MMM hh:mmaa"
 export const TIME_FORMAT = "hh:mm:ssaa"
 export const LONG_FORMAT = "dd/MM/yyyy hh:mmaa"
 
+export const FULL_FORMAT = "dd/MMM/yyyy hh:mmaa"
+
 export const LOCAL_TIME_ZONE = getLocalTimeZone()
 
 export function formatInTimeZone(date: Date, format: string = DEFAULT_FORMAT, timeZone: string = LOCAL_TIME_ZONE) {

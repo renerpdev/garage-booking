@@ -9,7 +9,7 @@ async function CalendarPage() {
     return null
   }
   return (
-    <div className={"h-full w-full p-4 md:p-8"}>
+    <div className={"h-full w-full p-2 sm:px-4"}>
       <Calendar />
     </div>
   )

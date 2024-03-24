@@ -1,6 +1,7 @@
 import React from "react"
 import { TimePicker } from "./TimePicker"
 import { Separator } from "@/components/ui/separator"
+import { useBookingContext } from "@/context/booking-context"
 
 export type RangeTimeValue = {
   start: Date
@@ -13,6 +14,7 @@ interface RangeTimeProps {
   disabledDates?: Set<string>
 }
 export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeTimeProps) => {
+  const { activeBooking } = useBookingContext()
   const handleStartTimeChange = (start: Date) => {
     onChange?.({
       start: start,
@@ -37,7 +39,7 @@ export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeT
           value={value?.start}
           onChange={handleStartTimeChange}
           isInvalid={isTimeInvalid}
-          minValue={new Date()}
+          minValue={activeBooking?.endDate || new Date()}
         />
       </div>
       <Separator orientation={"horizontal"} className={"sm:hidden self-center"} />
