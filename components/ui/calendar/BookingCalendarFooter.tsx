@@ -39,7 +39,9 @@ export const CalendarFooter = ({ state }: CalendarFooterProps) => {
           ))}
         </ul>
       ) : (
-        <p className={"text-center text-muted-foreground"}>No hay reservas activas para esta fecha</p>
+        <p className={"text-sm md:text-base text-center text-muted-foreground"}>
+          No hay reservas activas para esta fecha
+        </p>
       )}
     </div>
   )

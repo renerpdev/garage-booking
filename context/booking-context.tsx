@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react"
+import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
 import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/lib/utils"
 import { toast } from "@/components/ui/use-toast"
@@ -11,9 +11,7 @@ type ContextType = {
   setActiveBooking: (_booking: Booking | null) => void
   isLoading: boolean
   disabledHours: Set<string>
-  setDisabledHours: (_disabledHours: Set<string>) => void
   disabledDays: Set<string>
-  setDisabledDays: (_disabledDays: Set<string>) => void
   createNewBooking: (_booking: Booking) => Promise<void>
   scheduledBookings: Booking[]
   setScheduledBookings: (_bookings: Booking[]) => void
@@ -24,9 +22,7 @@ const defaultValue = {
   setActiveBooking: () => {},
   isLoading: false,
   disabledHours: new Set<string>(),
-  setDisabledHours: (_: Set<string>) => {},
   disabledDays: new Set<string>(),
-  setDisabledDays: (_: Set<string>) => {},
   createNewBooking: (_: Booking) => Promise.resolve(),
   scheduledBookings: [],
   setScheduledBookings: (_: Booking[]) => {}
@@ -37,8 +33,6 @@ const BookingContext = createContext<ContextType>(defaultValue)
 export function BookingProvider({ children }: PropsWithChildren) {
   const [activeBooking, setActiveBooking] = useState<ActiveBooking>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [disabledHours, setDisabledHours] = useState<Set<string>>(new Set())
-  const [disabledDays, setDisabledDays] = useState<Set<string>>(new Set())
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
 
   const createNewBooking = useCallback(async (booking: Booking) => {
@@ -98,21 +92,16 @@ export function BookingProvider({ children }: PropsWithChildren) {
     async function fetchActiveBooking() {
       try {
         setIsLoading(true)
-        const _activeBooking: Booking | null = await getActiveBooking()
 
+        const _activeBooking: Booking | null = await getActiveBooking()
         if (_activeBooking) {
           setActiveBooking(_activeBooking)
         }
 
         const scheduledDates = await getScheduledBookings()
-
         setScheduledBookings(scheduledDates)
+
         setIsLoading(false)
-
-        const [disabledTimesMap, disabledDaysMap] = getDisabledDates(scheduledDates)
-
-        setDisabledHours(disabledTimesMap)
-        setDisabledDays(disabledDaysMap)
       } catch (e) {
         toast({
           title: "Error",
@@ -128,12 +117,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
     fetchActiveBooking().then()
   }, [])
 
-  useEffect(() => {
-    const [disabledTimesMap, disabledDaysMap] = getDisabledDates(scheduledBookings)
-
-    setDisabledHours(disabledTimesMap)
-    setDisabledDays(disabledDaysMap)
-  }, [scheduledBookings])
+  const [disabledDays, disabledHours] = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
 
   return (
     <BookingContext.Provider
@@ -142,9 +126,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         setActiveBooking,
         isLoading,
         disabledDays,
-        setDisabledDays,
         disabledHours,
-        setDisabledHours,
         createNewBooking,
         scheduledBookings,
         setScheduledBookings
