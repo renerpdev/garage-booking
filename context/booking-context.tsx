@@ -4,10 +4,10 @@ import React, { createContext, PropsWithChildren, useCallback, useContext, useEf
 import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
 import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/lib/utils"
 import { toast } from "@/components/ui/use-toast"
-import { Booking } from "@/lib/models"
+import { ActiveBooking, Booking } from "@/lib/models"
 
 type ContextType = {
-  activeBooking: Omit<Booking, "createdAt"> | null
+  activeBooking: ActiveBooking
   setActiveBooking: (_booking: Booking | null) => void
   isLoading: boolean
   disabledHours: Set<string>
@@ -35,7 +35,7 @@ const defaultValue = {
 const BookingContext = createContext<ContextType>(defaultValue)
 
 export function BookingProvider({ children }: PropsWithChildren) {
-  const [activeBooking, setActiveBooking] = useState<Omit<Booking, "createdAt"> | null>(null)
+  const [activeBooking, setActiveBooking] = useState<ActiveBooking>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [disabledHours, setDisabledHours] = useState<Set<string>>(new Set())
   const [disabledDays, setDisabledDays] = useState<Set<string>>(new Set())
