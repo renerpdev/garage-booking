@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarDays, Clock, MoreVertical, StopCircle, Trash } from "lucide-react"
+import { CalendarDays, Clock, MoreHorizontal, StopCircle, Trash } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,13 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import React, { useEffect, useState } from "react"
 import { Booking, FeatureFlag } from "@/lib/models"
-import { formatInTimeZone } from "@/lib/utils"
+import { formatInTimeZone, FULL_FORMAT } from "@/lib/utils"
 import { getFlags } from "@/lib/flags"
 
-interface BookingInfoProps extends Booking {}
+interface BookingInfoProps extends Omit<Booking, "id"> {}
 const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoProps) => {
   const [flags, setFlags] = useState<FeatureFlag>({})
 
@@ -29,22 +29,22 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoPro
 
   const start = formatInTimeZone(startDate)
   const end = formatInTimeZone(endDate)
-  const created = formatInTimeZone(createdAt)
+  const created = formatInTimeZone(createdAt, FULL_FORMAT)
 
   return (
-    <div className="flex gap-4 relative w-full group">
+    <div className="flex gap-4 relative w-full group z-30 relative">
       <Popover>
         <PopoverTrigger asChild>
           {flags.loginFeature ? (
             <button
               type="button"
-              className="flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500 absolute right-0 top-0 transform  translate-x-1/4">
+              className="flex items-center rounded-full border border-transparent text-gray-400 hover:text-gray-500 absolute right-0">
               <span className="sr-only">Open menu</span>
-              <MoreVertical size={18} />
+              <MoreHorizontal size={18} />
             </button>
           ) : null}
         </PopoverTrigger>
-        <PopoverContent className="w-32 p-0" align={"end"}>
+        <PopoverContent className="w-auto p-0" align={"end"}>
           <ul className={"flex flex-col"}>
             <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
               <button
@@ -83,19 +83,20 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoPro
         </PopoverContent>
       </Popover>
 
-      <Avatar>
-        {/*TODO: bring back when we support user accounts*/}
-        {/*<AvatarImage src="https://github.com/vercel.png" />*/}
-        <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
-      </Avatar>
+      {flags.loginFeature && (
+        <Avatar>
+          <AvatarImage src="https://github.com/vercel.png" />
+          <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      )}
       <div className="space-y-2">
         <h4 className="text-sm font-semibold">{nickName}</h4>
-        <div className="flex items-center gap-1 text-sm text-gray-600">
+        <div className="flex items-center gap-1 text-sm text-gray-600 lg:text-nowrap">
           <Clock size={16} />{" "}
           <time className="font-light" dateTime={start}>
             {start}
-          </time>{" "}
-          -{" "}
+          </time>
+          <span> - </span>
           <time className="font-light" dateTime={end}>
             {end}
           </time>

@@ -82,6 +82,7 @@ export async function getScheduledBookings(): Promise<Booking[]> {
   try {
     return (await prisma.booking.findMany({
       select: {
+        id: true,
         startDate: true,
         endDate: true,
         nickName: true,

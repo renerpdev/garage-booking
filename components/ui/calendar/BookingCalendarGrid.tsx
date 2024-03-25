@@ -59,7 +59,18 @@ export const CalendarGrid = ({ state, ...props }: CalendarGridProps) => {
           {daysInMonth.map((weekIndex) =>
             state
               .getDatesInWeek(weekIndex)
-              .map((date, i) => (date ? <CalendarCell key={i} state={state} date={date} /> : <span key={i} />))
+              .map((date, i) =>
+                date ? <CalendarCell key={i} state={state} date={date} mode="button" /> : <span key={i} />
+              )
+          )}
+        </div>
+        <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-5 lg:gap-px">
+          {daysInMonth.map((weekIndex) =>
+            state
+              .getDatesInWeek(weekIndex)
+              .map((date, i) =>
+                date ? <CalendarCell key={i} state={state} date={date} mode="div" /> : <span key={i} />
+              )
           )}
         </div>
       </div>

@@ -6,12 +6,15 @@ import { formatInTimeZone, LOCAL_TIME_ZONE } from "@/lib/utils"
 import { useBookingContext } from "@/context/booking-context"
 import { isSameDay } from "date-fns"
 import { Booking } from "@/lib/models"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import BookingInfo from "@/components/core/BookingInfo"
 
 interface CalendarCellProps {
   state: CalendarState
   date: CalendarDate
+  mode?: "button" | "div"
 }
-export const CalendarCell = ({ state, date }: CalendarCellProps) => {
+export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps) => {
   let ref = useRef<HTMLDivElement>(null)
   let { cellProps, buttonProps, isSelected, isOutsideVisibleRange, isDisabled, formattedDate } = useCalendarCell(
     { date },
@@ -27,10 +30,11 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
     return booking.startDate < currentDate && booking.endDate > currentDate
   }
 
-  const events = useMemo(
+  const bookings = useMemo(
     () =>
       scheduledBookings.filter((booking) => {
         const currentDate = date.toDate(LOCAL_TIME_ZONE)
+
         return (
           isSameDay(booking.startDate, currentDate) ||
           isSameDay(booking.endDate, currentDate) ||
@@ -39,6 +43,45 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
       }),
     [date, scheduledBookings]
   )
+
+  if (mode === "div") {
+    return (
+      <div
+        className={`relative focus:z-10${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? "opacity-70" : ""}`}
+        {...mergeProps(buttonProps, focusProps)}
+        ref={ref}
+        {...cellProps}>
+        <div className={"px-3 py-2 min-h-32"}>
+          <time
+            dateTime="2022-01-03"
+            className={`${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>
+            {formattedDate}
+          </time>
+          <ol className="mt-2">
+            {bookings.map(({ id, ...booking }) => (
+              <li key={id}>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="group flex cursor-pointer">
+                      <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-primary">
+                        {booking.nickName}
+                      </p>
+                      <time
+                        dateTime={booking.startDate.toISOString()}
+                        className="ml-3 hidden flex-none text-gray-500 group-hover:text-primary xl:block">
+                        {formatInTimeZone(booking.startDate, "HH:mm")}
+                      </time>
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent className={"w-100"}>{<BookingInfo {...booking} />}</HoverCardContent>
+                </HoverCard>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <button
@@ -51,10 +94,10 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
           className={`ml-auto ${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>
           {formattedDate}
         </time>
-        <span className="sr-only">{events.length} reservas</span>
+        <span className="sr-only">{bookings.length} reservas</span>
 
         <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-          {events.map((event, index) => (
+          {bookings.map((_, index) => (
             <span key={index} className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
           ))}
         </span>
