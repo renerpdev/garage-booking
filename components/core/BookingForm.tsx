@@ -28,7 +28,7 @@ import { useBookingContext } from "@/context/booking-context"
 import { Booking } from "@/lib/models"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 
-const OPTIONS = [15, 30, 45, 60]
+const QUICK_OPTIONS = [15, 30, 45, 60]
 
 const FormSchema = z.object({
   nickName: z.string().min(2, {
@@ -204,7 +204,7 @@ export const BookingForm = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {OPTIONS.map((option) => (
+                          {QUICK_OPTIONS.map((option) => (
                             <SelectItem key={option} value={`${option}`}>
                               {`${option} minutos`}
                             </SelectItem>

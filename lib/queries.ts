@@ -58,7 +58,8 @@ export async function getActiveBooking(startDate: Date = new Date(), endDate: Da
       select: {
         startDate: true,
         endDate: true,
-        nickName: true
+        nickName: true,
+        createdAt: true
       },
       where: {
         status: "ACTIVE",
@@ -82,13 +83,28 @@ export async function getScheduledBookings(): Promise<Booking[]> {
     return (await prisma.booking.findMany({
       select: {
         startDate: true,
-        endDate: true
+        endDate: true,
+        nickName: true,
+        createdAt: true
       },
       where: {
-        status: "ACTIVE",
-        startDate: {
-          gte: new Date()
-        }
+        OR: [
+          {
+            status: "ACTIVE",
+            startDate: {
+              gte: new Date()
+            }
+          },
+          {
+            status: "ACTIVE",
+            startDate: {
+              lte: new Date()
+            },
+            endDate: {
+              gte: new Date()
+            }
+          }
+        ]
       },
       orderBy: { startDate: "asc" }
     })) as Booking[]

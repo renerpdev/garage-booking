@@ -24,9 +24,9 @@ export function formatInTimeZone(date: Date, format: string = DEFAULT_FORMAT, ti
 
 export function formatToCalendarDate(date: Date = new Date()) {
   const day = date.getDate()
-  const month = date.getMonth()
+  const month = date.getMonth() + 1
   const year = date.getFullYear()
-  return new CalendarDate(day, month + 1, year)
+  return new CalendarDate(year, month, day)
 }
 
 export function formatCalendarToDate(date: DateValue) {

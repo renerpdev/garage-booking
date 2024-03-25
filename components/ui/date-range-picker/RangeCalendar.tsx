@@ -34,9 +34,7 @@ export const RangeCalendar = (props: Partial<RangeCalendarStateOptions>) => {
           <CalendarButton {...prevButtonProps}>
             <ChevronLeftIcon className="h-6 w-6" />
           </CalendarButton>
-          <CalendarButton
-            onClick={goToToday}
-            className="flex items-center justify-center border-gray-300 border-y group focus:relative">
+          <CalendarButton onClick={goToToday}>
             <span className="sr-only">Current day</span>
             <Circle size={10} fill={""} className={"fill-gray-500 group-hover:fill-gray-600 m-1.5"} />
           </CalendarButton>

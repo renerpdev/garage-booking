@@ -1,5 +1,5 @@
 import React from "react"
-import Calendar from "@/components/core/Calendar"
+import { BookingCalendar } from "@/components/ui/calendar"
 import { getFlags } from "@/lib/flags"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 
@@ -12,7 +12,7 @@ async function CalendarPage() {
   return (
     <div className={"h-full w-full p-4"}>
       <ActiveBookingAlert className={"mb-4"} />
-      <Calendar />
+      <BookingCalendar />
     </div>
   )
 }

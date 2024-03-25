@@ -57,7 +57,7 @@ export const CalendarCell = ({ state, date }: CalendarCellProps) => {
         <div
           className={`w-full h-full rounded-full flex items-center justify-center ${isToday(date, getLocalTimeZone()) ? "ring-1 ring-black" : ""} ${
             // Focus ring, visible while the cell has keyboard focus.
-            isFocusVisible ? "ring-2 group-focus:z-2 ring-violet-600 ring-offset-2" : ""
+            isFocusVisible ? "ring-2 group-focus:z-2 ring-indigo-600 ring-offset-2" : ""
           } ${
             // Darker selection background for the start and end.
             isSelectionStart || isSelectionEnd

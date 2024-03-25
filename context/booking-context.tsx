@@ -7,7 +7,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Booking } from "@/lib/models"
 
 type ContextType = {
-  activeBooking: Booking | null
+  activeBooking: Omit<Booking, "createdAt"> | null
   setActiveBooking: (_booking: Booking | null) => void
   isLoading: boolean
   disabledHours: Set<string>
@@ -15,6 +15,8 @@ type ContextType = {
   disabledDays: Set<string>
   setDisabledDays: (_disabledDays: Set<string>) => void
   createNewBooking: (_booking: Booking) => Promise<void>
+  scheduledBookings: Booking[]
+  setScheduledBookings: (_bookings: Booking[]) => void
 }
 
 const defaultValue = {
@@ -25,16 +27,19 @@ const defaultValue = {
   setDisabledHours: (_: Set<string>) => {},
   disabledDays: new Set<string>(),
   setDisabledDays: (_: Set<string>) => {},
-  createNewBooking: (_: Booking) => Promise.resolve()
+  createNewBooking: (_: Booking) => Promise.resolve(),
+  scheduledBookings: [],
+  setScheduledBookings: (_: Booking[]) => {}
 }
 
 const BookingContext = createContext<ContextType>(defaultValue)
 
 export function BookingProvider({ children }: PropsWithChildren) {
-  const [activeBooking, setActiveBooking] = useState<Booking | null>(null)
+  const [activeBooking, setActiveBooking] = useState<Omit<Booking, "createdAt"> | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [disabledHours, setDisabledHours] = useState<Set<string>>(new Set())
   const [disabledDays, setDisabledDays] = useState<Set<string>>(new Set())
+  const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
 
   const createNewBooking = useCallback(async (booking: Booking) => {
     const { startDate, endDate, nickName } = booking
@@ -46,13 +51,15 @@ export function BookingProvider({ children }: PropsWithChildren) {
         throw new Error(message)
       }
 
-      setActiveBooking({
-        startDate,
-        endDate,
-        nickName
-      })
-
       const isStarted = startDate <= new Date()
+
+      if (isStarted) {
+        setActiveBooking({
+          startDate,
+          endDate,
+          nickName
+        })
+      }
 
       const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
       const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
@@ -92,10 +99,11 @@ export function BookingProvider({ children }: PropsWithChildren) {
         if (_activeBooking) {
           setActiveBooking(_activeBooking)
         }
-        // we end loading here to not block the UI with background requests
-        setIsLoading(false)
 
         const scheduledDates = await getScheduledBookings()
+
+        setScheduledBookings(scheduledDates)
+        setIsLoading(false)
 
         const [disabledTimesMap, disabledDaysMap] = getDisabledDates(scheduledDates)
 
@@ -126,7 +134,9 @@ export function BookingProvider({ children }: PropsWithChildren) {
         setDisabledDays,
         disabledHours,
         setDisabledHours,
-        createNewBooking
+        createNewBooking,
+        scheduledBookings,
+        setScheduledBookings
       }}>
       {children}
     </BookingContext.Provider>
