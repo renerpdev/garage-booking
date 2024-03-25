@@ -48,7 +48,7 @@ export const CalendarGrid = ({ state, ...props }: CalendarGridProps) => {
           return (
             <div className="flex justify-center bg-white py-2" key={index}>
               <span className={"uppercase sm:sr-only"}>{day}</span>
-              <span className="sr-only sm:not-sr-only lg:sr-only">{weekDay.substring(0, 3)}</span>
+              <span className="sr-only sm:not-sr-only lg:sr-only">{weekDay?.substring(0, 3) || day}</span>
               <span className="sr-only lg:not-sr-only">{weekDay}</span>
             </div>
           )
