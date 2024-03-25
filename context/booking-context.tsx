@@ -51,8 +51,12 @@ export function BookingProvider({ children }: PropsWithChildren) {
         throw new Error(message)
       }
 
+      // Update the scheduled bookings
+      setScheduledBookings((prev) => [...prev, { ...booking, createdAt: new Date() }])
+
       const isStarted = startDate <= new Date()
 
+      // If the booking is started, set the active booking and display the alert banner
       if (isStarted) {
         setActiveBooking({
           startDate,
@@ -123,6 +127,13 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
     fetchActiveBooking().then()
   }, [])
+
+  useEffect(() => {
+    const [disabledTimesMap, disabledDaysMap] = getDisabledDates(scheduledBookings)
+
+    setDisabledHours(disabledTimesMap)
+    setDisabledDays(disabledDaysMap)
+  }, [scheduledBookings])
 
   return (
     <BookingContext.Provider

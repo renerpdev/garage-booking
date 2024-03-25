@@ -32,7 +32,7 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoPro
   const created = formatInTimeZone(createdAt, FULL_FORMAT)
 
   return (
-    <div className="flex gap-4 relative w-full group z-30 relative">
+    <div className="flex gap-4 relative w-full group z-30">
       <Popover>
         <PopoverTrigger asChild>
           {flags.loginFeature ? (
