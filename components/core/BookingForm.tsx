@@ -10,23 +10,15 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import React, { useState } from "react"
-import { formatInTimeZone, formatToCalendarDate, LONG_FORMAT, formatCalendarToDate } from "@/lib/utils"
-import { RangeCalendar } from "@/components/ui/date-range-picker"
-import { RangeTime, RangeTimeValue } from "@/components/ui/time-range-picker"
+import { formatToCalendarDate, formatCalendarToDate } from "@/lib/utils"
+import { RangeTimeValue } from "@/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
-import { DateValue, getLocalTimeZone } from "@internationalized/date"
+import { DateValue } from "@internationalized/date"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTrigger
-} from "@/components/ui/dialog"
 import { useBookingContext } from "@/context/booking-context"
 import { Booking } from "@/lib/models"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
+import DateTimeRangePicker, { DateRangeSelected } from "@/components/ui/DateTimeRangePicker"
 
 const QUICK_OPTIONS = [15, 30, 45, 60]
 
@@ -42,13 +34,13 @@ const FormSchema = z.object({
 export const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
+  const [startDateTime, setStartDateTime] = useState(new Date())
+  const [endDateTime, setEndDateTime] = useState(new Date())
   const [dateRangeValue, setDateRangeValue] = useState<RangeValue<DateValue>>({
     start: formatToCalendarDate(new Date()),
     end: formatToCalendarDate(new Date())
   })
-  const { createNewBooking, disabledHours, disabledDays } = useBookingContext()
+  const { createNewBooking } = useBookingContext()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -60,8 +52,8 @@ export const BookingForm = () => {
 
   const resetForm = () => {
     const date = new Date()
-    setStartDate(date)
-    setEndDate(date)
+    setStartDateTime(date)
+    setEndDateTime(date)
     setDateRangeValue({
       start: formatToCalendarDate(date),
       end: formatToCalendarDate(date)
@@ -88,8 +80,8 @@ export const BookingForm = () => {
     _endDate.setMinutes(_endDate.getMinutes() + parseInt(time), _endDate.getSeconds())
     form.setValue("startDate", _startDate)
     form.setValue("endDate", _endDate)
-    setStartDate(_startDate)
-    setEndDate(_endDate)
+    setStartDateTime(_startDate)
+    setEndDateTime(_endDate)
 
     setDateRangeValue({
       start: formatToCalendarDate(_startDate),
@@ -103,18 +95,18 @@ export const BookingForm = () => {
     const { start, end } = rangeValue
 
     const _startDate = formatCalendarToDate(start)
-    setStartDate(_startDate)
+    setStartDateTime(_startDate)
 
     const _endDate = formatCalendarToDate(end)
-    setEndDate(_endDate)
+    setEndDateTime(_endDate)
 
     setDateRangeValue(rangeValue)
   }
 
   const handleOnDialogOpen = (isOpen: boolean) => {
     if (isOpen) {
-      const _startDate = form.getValues("startDate") || startDate
-      const _endDate = form.getValues("endDate") || endDate
+      const _startDate = form.getValues("startDate") || startDateTime
+      const _endDate = form.getValues("endDate") || endDateTime
       _startDate.setSeconds(0)
       _endDate.setSeconds(0)
     }
@@ -124,8 +116,8 @@ export const BookingForm = () => {
   const handleTimeRangeChange = (rangeTime: RangeTimeValue) => {
     const { start, end } = rangeTime
 
-    setStartDate(start)
-    setEndDate(end)
+    setStartDateTime(start)
+    setEndDateTime(end)
   }
 
   const handleOnDatePickerCancel = () => {
@@ -133,28 +125,11 @@ export const BookingForm = () => {
   }
 
   const handleOnDatePickerApply = () => {
-    form.setValue("startDate", startDate)
-    form.setValue("endDate", endDate)
+    form.setValue("startDate", startDateTime)
+    form.setValue("endDate", endDateTime)
     form.resetField("time")
 
     setIsPopoverOpen(false)
-  }
-
-  const isDisabledDate = (date: Date) => disabledHours.has(date.toISOString())
-
-  const DateRangeSelected = ({ start, end }: Record<"start" | "end", Date>) => {
-    if (!start || !end) return null
-
-    const formattedStartDate = formatInTimeZone(start, LONG_FORMAT)
-    const formattedEndDate = formatInTimeZone(end, LONG_FORMAT)
-
-    return (
-      <div className={"flex justify-center items-center text-xs md:text-sm w-full text-gray-600"}>
-        <time dateTime={formattedStartDate}>{formattedStartDate}</time>
-        <span>&nbsp;-&nbsp;</span>
-        <time dateTime={formattedEndDate}>{formattedEndDate}</time>
-      </div>
-    )
   }
 
   return (
@@ -211,59 +186,23 @@ export const BookingForm = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      {
-                        <Dialog onOpenChange={handleOnDialogOpen} open={isPopoverOpen}>
-                          <DialogTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
-                              <Calendar size={16} />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogDescription>
-                                <div className={"flex flex-col items-center px-4"}>
-                                  <RangeCalendar
-                                    onChange={handleDateRangeChange}
-                                    value={dateRangeValue}
-                                    isDateUnavailable={(date) =>
-                                      disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())
-                                    }
-                                  />
-                                  <RangeTime
-                                    onChange={handleTimeRangeChange}
-                                    value={{
-                                      start: startDate,
-                                      end: endDate
-                                    }}
-                                    disabledDates={disabledHours}
-                                  />
-                                </div>
-                                <br />
-                                <DateRangeSelected start={startDate} end={endDate} />
-                              </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4"}>
-                              <Button variant={"outline"} className={"min-w-28"} onClick={handleOnDatePickerCancel}>
-                                Cancel
-                              </Button>
-                              <Button
-                                className={"min-w-28"}
-                                onClick={handleOnDatePickerApply}
-                                disabled={
-                                  isDisabledDate(startDate) ||
-                                  isDisabledDate(endDate) ||
-                                  startDate >= endDate ||
-                                  startDate < new Date()
-                                }>
-                                Aplicar
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      }
+                      <DateTimeRangePicker
+                        startDateTime={startDateTime}
+                        endDateTime={endDateTime}
+                        dateRangeValue={dateRangeValue}
+                        onDatePickerApply={handleOnDatePickerApply}
+                        onDatePickerCancel={handleOnDatePickerCancel}
+                        onDateRangeChange={handleDateRangeChange}
+                        onTimeRangeChange={handleTimeRangeChange}
+                        isPopoverOpen={isPopoverOpen}
+                        onDialogOpen={handleOnDialogOpen}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={`border-l-0 rounded-l-none px-[12px] ${isPopoverOpen ? "bg-gray-100 hover:bg-gray-100" : ""}`}>
+                          <Calendar size={16} />
+                        </Button>
+                      </DateTimeRangePicker>
                     </div>
                     {!fieldState.invalid && (
                       <FormDescription className={"text-xs md:text-sm"}>

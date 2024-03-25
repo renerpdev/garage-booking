@@ -9,7 +9,7 @@ import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
 import { getFlags } from "@/lib/flags"
 import { BookingProvider } from "@/context/booking-context"
-import Spinner from "@/components/core/Spinner"
+import Spinner from "@/components/ui/Spinner"
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
