@@ -17,6 +17,8 @@ export type ActiveBooking =
     })
   | null
 
+export type CanceledBooking = Pick<Booking, "id" | "startDate" | "endDate">
+
 export type FeatureFlag = {
   calendarFeature?: boolean
   loginFeature?: boolean

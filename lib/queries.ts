@@ -149,7 +149,7 @@ export async function clearActiveBookings() {
   }
 }
 
-export async function cancelBooking(id: number) {
+export async function cancelBookingById(id: number) {
   logger.info(`Cancelling booking with id: ${id}`)
   try {
     await prisma.booking.update({

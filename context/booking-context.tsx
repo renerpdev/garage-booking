@@ -1,10 +1,10 @@
 "use client"
 
 import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
+import { cancelBookingById, createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
 import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/lib/utils"
 import { toast } from "@/components/ui/use-toast"
-import { ActiveBooking, Booking } from "@/lib/models"
+import { ActiveBooking, Booking, CanceledBooking } from "@/lib/models"
 import { useUser } from "@clerk/nextjs"
 
 type ContextType = {
@@ -16,6 +16,7 @@ type ContextType = {
   createNewBooking: (_booking: Booking) => Promise<void>
   scheduledBookings: Booking[]
   setScheduledBookings: (_bookings: Booking[]) => void
+  cancelBooking: (_booking: CanceledBooking) => Promise<void>
 }
 
 const defaultValue = {
@@ -26,7 +27,8 @@ const defaultValue = {
   disabledDays: new Set<string>(),
   createNewBooking: (_: Booking) => Promise.resolve(),
   scheduledBookings: [],
-  setScheduledBookings: (_: Booking[]) => {}
+  setScheduledBookings: (_: Booking[]) => {},
+  cancelBooking: (_: CanceledBooking) => Promise.resolve()
 }
 
 const BookingContext = createContext<ContextType>(defaultValue)
@@ -109,6 +111,38 @@ export function BookingProvider({ children }: PropsWithChildren) {
     [user?.fullName, user?.id, user?.imageUrl]
   )
 
+  const [disabledDays, disabledHours] = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
+
+  const cancelBooking = useCallback(
+    async (booking: CanceledBooking) => {
+      try {
+        const { id, startDate, endDate } = booking
+
+        await cancelBookingById(id)
+
+        // If the active booking is the same as the one being canceled, remove it
+        if (
+          activeBooking?.endDate &&
+          activeBooking?.startDate &&
+          activeBooking.endDate <= endDate &&
+          activeBooking.startDate >= startDate
+        ) {
+          setActiveBooking(null)
+        }
+        // @ts-ignore
+        setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
+      } catch (e) {
+        toast({
+          title: "Error",
+          description: "No se pudo cancelar la reserva",
+          className: "text-red-500"
+        })
+        throw e
+      }
+    },
+    [activeBooking?.endDate, activeBooking?.startDate]
+  )
+
   useEffect(() => {
     async function fetchActiveBooking() {
       try {
@@ -138,8 +172,6 @@ export function BookingProvider({ children }: PropsWithChildren) {
     fetchActiveBooking().then()
   }, [])
 
-  const [disabledDays, disabledHours] = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
-
   return (
     <BookingContext.Provider
       value={{
@@ -150,7 +182,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
         disabledHours,
         createNewBooking,
         scheduledBookings,
-        setScheduledBookings
+        setScheduledBookings,
+        cancelBooking
       }}>
       {children}
     </BookingContext.Provider>

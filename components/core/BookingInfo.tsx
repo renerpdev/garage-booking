@@ -16,21 +16,21 @@ import React, { useCallback } from "react"
 import { Booking } from "@/lib/models"
 import { formatInTimeZone, FULL_FORMAT } from "@/lib/utils"
 import { useAuth } from "@clerk/nextjs"
-import { cancelBooking } from "@/lib/queries"
 import { toast } from "@/components/ui/use-toast"
 import { useBookingContext } from "@/context/booking-context"
 
 interface BookingInfoProps extends Booking {}
 const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: BookingInfoProps) => {
   const { userId } = useAuth()
-  const { setActiveBooking, setScheduledBookings } = useBookingContext()
+  const { cancelBooking } = useBookingContext()
 
   const cancelCurrentBooking = useCallback(async () => {
     try {
-      await cancelBooking(id)
-      setActiveBooking(null)
-      // @ts-ignore
-      setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
+      await cancelBooking({
+        id,
+        startDate,
+        endDate
+      })
     } catch (error) {
       toast({
         title: "Error",
@@ -38,7 +38,7 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
         className: "text-red-500"
       })
     }
-  }, [id, setActiveBooking, setScheduledBookings])
+  }, [cancelBooking, endDate, id, startDate])
 
   const start = formatInTimeZone(startDate)
   const end = formatInTimeZone(endDate)
