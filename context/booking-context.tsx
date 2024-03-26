@@ -111,7 +111,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
     [user?.fullName, user?.id, user?.imageUrl]
   )
 
-  const [disabledDays, disabledHours] = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
+  const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
 
   const cancelBooking = useCallback(
     async (booking: CanceledBooking) => {
