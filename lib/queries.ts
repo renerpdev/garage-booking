@@ -2,9 +2,8 @@
 
 import prisma from "@/lib/prisma"
 import { logger } from "@/logger"
-import { Booking } from "@/lib/models"
-
-const defaultEmailAccount = process.env.TEST_EMAIL_ACCOUNT
+import { Booking, User } from "@/lib/models"
+import { currentUser } from "@clerk/nextjs"
 
 /****************************************************
                 Booking Actions
@@ -15,6 +14,17 @@ export async function createBooking(booking: Booking) {
 
   logger.info(`Creating booking for "${nickName}" from "${startDate}" to "${endDate}"`)
   try {
+    const user = await currentUser()
+    const email = user?.emailAddresses[0].emailAddress
+
+    if (!email) {
+      logger.error("No email found for user")
+      return {
+        error: true,
+        message: "No se pudo obtener el email del usuario. Por favor inicie sesión e inténtelo nuevamente."
+      }
+    }
+
     const activeBooking = await getActiveBooking(startDate, endDate)
 
     if (activeBooking?.startDate) {
@@ -25,26 +35,22 @@ export async function createBooking(booking: Booking) {
       }
     }
 
-    await prisma.booking.create({
+    const data = await prisma.booking.create({
       data: {
         startDate,
         endDate,
         nickName,
         owner: {
           connect: {
-            // TODO: get the user from the session. Right now we are using a default user
-            email: defaultEmailAccount
+            email
           }
         }
       }
     })
 
-    // TODO: Uncomment this line when the whatsapp integration is ready
-    // await sendWhatsappMsg(dueDate, nickname)
+    logger.info(`Booking created for "${email}" from "${startDate}" to "${endDate}"`)
 
-    logger.info(`Booking created for "${nickName}" from "${startDate}" to "${endDate}"`)
-
-    return { success: true }
+    return { success: true, data }
   } catch (error) {
     logger.error(`Error creating booking for "${nickName}" from "${startDate}" to "${endDate}": ${error}`)
     throw new Error(error as any)
@@ -86,7 +92,8 @@ export async function getScheduledBookings(): Promise<Booking[]> {
         startDate: true,
         endDate: true,
         nickName: true,
-        createdAt: true
+        createdAt: true,
+        owner: true
       },
       where: {
         OR: [
@@ -138,6 +145,72 @@ export async function clearActiveBookings() {
     return { success: true }
   } catch (error) {
     logger.error(`Error deactivating previous ACTIVE bookings: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+export async function cancelBooking(id: number) {
+  logger.info(`Cancelling booking with id: ${id}`)
+  try {
+    await prisma.booking.update({
+      where: {
+        id
+      },
+      data: {
+        status: "CANCELLED"
+      }
+    })
+
+    logger.info(`Booking with id: ${id} was cancelled`)
+    return { success: true }
+  } catch (error) {
+    logger.error(`Error cancelling booking with id: ${id}: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+/****************************************************
+          User Actions
+ *****************************************************/
+
+export async function createUser(user: Omit<User, "createdAt" | "updatedAt" | "id" | "role">) {
+  try {
+    await prisma.user.create({
+      data: {
+        ...user
+      }
+    })
+  } catch (error) {
+    logger.error(`Error creating user: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+export async function deleteUserByExternalId(externalId: string) {
+  try {
+    await prisma.user.delete({
+      where: {
+        externalId
+      }
+    })
+  } catch (error) {
+    logger.error(`Error deleting user by external id: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+export async function updateUserByExternalId(externalId: string, user: Partial<User>) {
+  try {
+    await prisma.user.update({
+      where: {
+        externalId
+      },
+      data: {
+        ...user
+      }
+    })
+  } catch (error) {
+    logger.error(`Error updating user by external id: ${error}`)
     throw new Error(error as any)
   }
 }

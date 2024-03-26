@@ -1,10 +1,10 @@
-import { CalendarDays, LogInIcon } from "lucide-react"
+import { CalendarDays, UserIcon } from "lucide-react"
 import Link from "next/link"
-import { getFlags } from "@/lib/flags"
-import { LoginSheet } from "@/components/core/LoginSheet"
+import { currentUser, SignInButton, UserButton } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
 
 export async function Navbar() {
-  const flags = await getFlags()
+  const user = await currentUser()
 
   return (
     <div className={"bg-gray-50 w-screen h-auto py-2 md:py-3 px-5 md:px-8 border-b-2 border-b-gray-50"}>
@@ -15,19 +15,18 @@ export async function Navbar() {
           </Link>
           <div className={"text-xs text-black font-light mt-[-5px]"}>GalaPoint</div>
         </div>
-        <div className={"flex gap-4 items-center"}>
-          {flags.calendarFeature && (
-            <Link href={"/calendar"} className={"hover:text-primary"}>
-              <CalendarDays />
-            </Link>
-          )}
-          {flags.loginFeature && (
-            <LoginSheet>
-              <Link href={"/calendar"}>
-                <LogInIcon />
-              </Link>
-            </LoginSheet>
-          )}
+        <div className={"flex gap-4 items-center justify-between"}>
+          <Link href={"/calendar"} className={"hover:text-primary"} title="Ir al calendario">
+            <CalendarDays />
+          </Link>
+          {!user ? (
+            <SignInButton>
+              <Button variant={"ghost"} className={"hover:text-primary"} title="Inciar sesión">
+                <UserIcon />
+              </Button>
+            </SignInButton>
+          ) : null}
+          <UserButton />
         </div>
       </div>
     </div>

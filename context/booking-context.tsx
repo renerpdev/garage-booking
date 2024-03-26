@@ -5,6 +5,7 @@ import { createBooking, getActiveBooking, getScheduledBookings } from "@/lib/que
 import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/lib/utils"
 import { toast } from "@/components/ui/use-toast"
 import { ActiveBooking, Booking } from "@/lib/models"
+import { useUser } from "@clerk/nextjs"
 
 type ContextType = {
   activeBooking: ActiveBooking
@@ -34,59 +35,79 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const [activeBooking, setActiveBooking] = useState<ActiveBooking>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
+  const { user } = useUser()
 
-  const createNewBooking = useCallback(async (booking: Booking) => {
-    const { startDate, endDate, nickName } = booking
+  const createNewBooking = useCallback(
+    async (booking: Booking) => {
+      const { startDate, endDate, nickName } = booking
 
-    try {
-      const { error, message } = await createBooking(booking)
+      try {
+        const { error, message, data } = await createBooking(booking)
 
-      if (error) {
-        throw new Error(message)
-      }
+        if (error) {
+          throw new Error(message)
+        }
 
-      // Update the scheduled bookings
-      setScheduledBookings((prev) => [...prev, { ...booking, createdAt: new Date() }])
+        // Update the scheduled bookings
+        setScheduledBookings((prev) => [
+          ...prev,
+          {
+            ...booking,
+            createdAt: new Date(),
+            id: data?.id || -1,
+            owner: {
+              externalId: user?.id,
+              name: user?.fullName || undefined,
+              avatarUrl: user?.imageUrl || undefined
+            }
+          }
+        ])
 
-      const isStarted = startDate <= new Date()
+        const isStarted = startDate <= new Date()
 
-      // If the booking is started, set the active booking and display the alert banner
-      if (isStarted) {
-        setActiveBooking({
-          startDate,
-          endDate,
-          nickName
+        // If the booking is started, set the active booking and display the alert banner
+        if (isStarted) {
+          setActiveBooking({
+            startDate,
+            endDate,
+            nickName,
+            owner: {
+              externalId: user?.id,
+              name: user?.fullName || undefined
+            }
+          })
+        }
+
+        const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
+        const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
+        const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
+
+        toast({
+          title: "Reserva Confirmada",
+          description: isStarted ? (
+            <p>
+              {booking.nickName}, tienes estacionamiento reservado hasta las{" "}
+              <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
+            </p>
+          ) : (
+            <p>
+              {booking.nickName}, tienes estacionamiento reservado desde el{" "}
+              <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
+              <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
+            </p>
+          )
         })
+      } catch (e: any) {
+        toast({
+          title: "Reserva Inválida",
+          description: e.message,
+          className: "text-red-500"
+        })
+        throw e
       }
-
-      const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
-      const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
-      const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
-
-      toast({
-        title: "Reserva Confirmada",
-        description: isStarted ? (
-          <p>
-            {booking.nickName}, tienes estacionamiento reservado hasta las{" "}
-            <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
-          </p>
-        ) : (
-          <p>
-            {booking.nickName}, tienes estacionamiento reservado desde el{" "}
-            <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
-            <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
-          </p>
-        )
-      })
-    } catch (e: any) {
-      toast({
-        title: "Reserva Inválida",
-        description: e.message,
-        className: "text-red-500"
-      })
-      throw e
-    }
-  }, [])
+    },
+    [user?.fullName, user?.id, user?.imageUrl]
+  )
 
   useEffect(() => {
     async function fetchActiveBooking() {

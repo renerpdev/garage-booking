@@ -11,6 +11,7 @@ import { getFlags } from "@/lib/flags"
 import { BookingProvider } from "@/context/booking-context"
 import Spinner from "@/components/ui/Spinner"
 import { Toaster } from "@/components/ui/toaster"
+import { ClerkProvider } from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -57,26 +58,28 @@ export default async function RootLayout({
   const values = await getFlags()
 
   return (
-    <html lang="es">
-      <body
-        className={`${inter.className} flex flex-col min-h-screen w-screen mx-auto my-0 antialiased`}
-        style={{
-          background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
-        }}>
-        <Navbar />
-        <BookingProvider>
-          <Spinner />
-          <main className={"min-h-full my-auto w-full"}>{children}</main>
-          <Toaster />
-        </BookingProvider>
-        <Footer />
-        <Suspense>
-          <Toolbar />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ConfidentialFlagValues values={values} />
-        </Suspense>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="es">
+        <body
+          className={`${inter.className} flex flex-col min-h-screen w-screen mx-auto my-0 antialiased`}
+          style={{
+            background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
+          }}>
+          <Navbar />
+          <BookingProvider>
+            <Spinner />
+            <main className={"min-h-full my-auto w-full"}>{children}</main>
+            <Toaster />
+          </BookingProvider>
+          <Footer />
+          <Suspense>
+            <Toolbar />
+          </Suspense>
+          <Suspense fallback={null}>
+            <ConfidentialFlagValues values={values} />
+          </Suspense>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarDays, Clock, MoreHorizontal, StopCircle, Trash } from "lucide-react"
+import { CalendarDays, Clock, MoreHorizontal, StopCircle } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,20 +12,33 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import React, { useEffect, useState } from "react"
-import { Booking, FeatureFlag } from "@/lib/models"
+import React, { useCallback } from "react"
+import { Booking } from "@/lib/models"
 import { formatInTimeZone, FULL_FORMAT } from "@/lib/utils"
-import { getFlags } from "@/lib/flags"
+import { useAuth } from "@clerk/nextjs"
+import { cancelBooking } from "@/lib/queries"
+import { toast } from "@/components/ui/use-toast"
+import { useBookingContext } from "@/context/booking-context"
 
-interface BookingInfoProps extends Omit<Booking, "id"> {}
-const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoProps) => {
-  const [flags, setFlags] = useState<FeatureFlag>({})
+interface BookingInfoProps extends Booking {}
+const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: BookingInfoProps) => {
+  const { userId } = useAuth()
+  const { setActiveBooking, setScheduledBookings } = useBookingContext()
 
-  useEffect(() => {
-    getFlags().then((flags) => {
-      setFlags(flags)
-    })
-  }, [flags])
+  const cancelCurrentBooking = useCallback(async () => {
+    try {
+      await cancelBooking(id)
+      setActiveBooking(null)
+      // @ts-ignore
+      setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo cancelar la reserva",
+        className: "text-red-500"
+      })
+    }
+  }, [id, setActiveBooking, setScheduledBookings])
 
   const start = formatInTimeZone(startDate)
   const end = formatInTimeZone(endDate)
@@ -33,62 +46,53 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate }: BookingInfoPro
 
   return (
     <div className="flex gap-4 relative w-full group z-30">
-      <Popover>
-        <PopoverTrigger asChild>
-          {flags.loginFeature ? (
+      {owner.externalId === userId && (
+        <Popover>
+          <PopoverTrigger asChild>
             <button
               type="button"
               className="flex items-center rounded-full border border-transparent text-gray-400 hover:text-gray-500 absolute right-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal size={18} />
             </button>
-          ) : null}
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align={"end"}>
-          <ul className={"flex flex-col"}>
-            <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
-              <button
-                type={"button"}
-                className="text-gray-700 px-4 py-4 text-sm gap-2 flex items-center hover:text-primary"
-                role="menuitem">
-                <StopCircle size={14} /> Cancelar
-              </button>
-            </li>
-            <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    type={"button"}
-                    className="px-4 py-4 text-sm gap-2 flex items-center hover:text-red-500 text-red-400"
-                    role="menuitem">
-                    <Trash size={14} /> Eliminar
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account and remove your data from
-                      our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className={"bg-red-600 hover:bg-red-700"}>Continue</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </li>
-          </ul>
-        </PopoverContent>
-      </Popover>
-
-      {flags.loginFeature && (
-        <Avatar>
-          <AvatarImage src="https://github.com/vercel.png" />
-          <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
-        </Avatar>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align={"end"}>
+            <ul className={"flex flex-col"}>
+              <li className={"flex items-center ring-1 first:ring-0 ring-gray-100"}>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      type={"button"}
+                      className="px-4 py-4 text-sm gap-2 flex items-center hover:text-red-500 text-red-400"
+                      role="menuitem">
+                      <StopCircle size={14} /> Cancelar
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. ¿Estás seguro de que deseas cancelar esta reserva?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Volver</AlertDialogCancel>
+                      <AlertDialogAction className={"bg-red-600 hover:bg-red-700"} onClick={cancelCurrentBooking}>
+                        Cancelar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </li>
+            </ul>
+          </PopoverContent>
+        </Popover>
       )}
+
+      <Avatar>
+        {owner && <AvatarImage src={owner.avatarUrl} />}
+        <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
+      </Avatar>
       <div className="space-y-2">
         <h4 className="text-sm font-semibold">{nickName}</h4>
         <div className="flex items-center gap-1 text-sm text-gray-900 lg:text-nowrap">

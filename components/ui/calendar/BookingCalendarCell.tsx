@@ -48,10 +48,9 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
     return (
       <div
         className={`relative focus:z-10${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? "opacity-70" : ""}`}
-        {...mergeProps(buttonProps, focusProps)}
         ref={ref}
         {...cellProps}>
-        <div className={"px-3 py-2 min-h-32"}>
+        <div className={"px-3 py-2 min-h-32"} {...mergeProps(buttonProps, focusProps)}>
           <time
             dateTime="2022-01-03"
             className={`${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>

@@ -154,11 +154,11 @@ export const BookingForm = () => {
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <Input placeholder="Escribe tu nombre aquí" {...field} />
+                      <Input placeholder="Escribe un nombre para la reserva" {...field} />
                     </FormControl>
                     {!fieldState.invalid && (
                       <FormDescription className={"text-xs md:text-sm"}>
-                        El nombre se usará para la confirmación.
+                        El nombre se usará para identificar a la reserva.
                       </FormDescription>
                     )}
                     <FormMessage className={"text-xs md:text-sm"} />
