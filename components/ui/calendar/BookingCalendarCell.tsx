@@ -57,8 +57,8 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
             {formattedDate}
           </time>
           <ol className="mt-2">
-            {bookings.map(({ id, ...booking }) => (
-              <li key={id}>
+            {bookings.map((booking) => (
+              <li key={booking.id}>
                 <HoverCard>
                   <HoverCardTrigger asChild>
                     <div className="group flex cursor-pointer">
