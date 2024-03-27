@@ -12,7 +12,7 @@ export type Booking = {
 }
 
 export type ActiveBooking =
-  | (Pick<Booking, "startDate" | "endDate" | "nickName"> & {
+  | (Pick<Booking, "id" | "startDate" | "endDate" | "nickName"> & {
       owner: Partial<User>
     })
   | null

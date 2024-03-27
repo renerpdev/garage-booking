@@ -94,8 +94,8 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
         <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="space-y-2">
-        <h4 className="text-sm font-semibold">{nickName}</h4>
-        {owner && <h3 className="text-sm">{owner.name}</h3>}
+        <h3 className="text-sm font-semibold">{nickName}</h3>
+        {owner && <h4 className="text-sm">{owner.name}</h4>}
         <div className="flex items-center gap-1 text-sm text-gray-900 lg:text-nowrap">
           <Clock size={16} />{" "}
           <time className="font-light" dateTime={start}>

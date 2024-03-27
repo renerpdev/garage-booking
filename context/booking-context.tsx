@@ -70,6 +70,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         // If the booking is started, set the active booking and display the alert banner
         if (isStarted) {
           setActiveBooking({
+            id: data?.id || -1,
             startDate,
             endDate,
             nickName,
@@ -129,7 +130,6 @@ export function BookingProvider({ children }: PropsWithChildren) {
         ) {
           setActiveBooking(null)
         }
-        // @ts-ignore
         setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
       } catch (e) {
         toast({

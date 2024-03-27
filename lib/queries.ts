@@ -62,6 +62,7 @@ export async function getActiveBooking(startDate: Date = new Date(), endDate: Da
   try {
     return (await prisma.booking.findFirst({
       select: {
+        id: true,
         startDate: true,
         endDate: true,
         nickName: true,

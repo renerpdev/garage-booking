@@ -104,17 +104,14 @@ export const BookingForm = () => {
   }
 
   const handleOnDialogOpen = (isOpen: boolean) => {
-    if (isOpen) {
-      const _startDate = form.getValues("startDate") || startDateTime
-      const _endDate = form.getValues("endDate") || endDateTime
-      _startDate.setSeconds(0)
-      _endDate.setSeconds(0)
-    }
     setIsPopoverOpen(isOpen)
   }
 
   const handleTimeRangeChange = (rangeTime: RangeTimeValue) => {
     const { start, end } = rangeTime
+
+    start.setSeconds(0, 0)
+    end.setSeconds(0, 0)
 
     setStartDateTime(start)
     setEndDateTime(end)

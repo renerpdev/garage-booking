@@ -6,14 +6,17 @@ import { Info } from "lucide-react"
 import { cn, formatInTimeZone, FULL_FORMAT } from "@/lib/utils"
 import { useTimer } from "react-timer-hook"
 import { useBookingContext } from "@/context/booking-context"
+import { Booking } from "@/lib/models"
 
 interface BookingActiveAlertProps {
   className?: string
 }
 const ActiveBookingAlert = ({ className }: BookingActiveAlertProps) => {
-  const { activeBooking, setActiveBooking } = useBookingContext()
+  const { activeBooking, setActiveBooking, setScheduledBookings } = useBookingContext()
 
   const handleOnExpire = () => {
+    // @ts-ignore
+    setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== activeBooking.id))
     setActiveBooking?.(null)
   }
 
