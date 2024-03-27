@@ -76,17 +76,10 @@ export async function POST(req: Request) {
       break
     }
     case "user.updated": {
-      const {
-        first_name,
-        id: externalId,
-        last_name,
-        email_addresses,
-        image_url: avatarUrl,
-        private_metadata
-      } = evt.data
+      const { first_name, id: externalId, last_name, email_addresses, image_url: avatarUrl, public_metadata } = evt.data
       const name = `${first_name} ${last_name}`
       const email = email_addresses[0].email_address
-      const role = ((private_metadata.role as string)?.toUpperCase() as UserRole) || undefined
+      const role = ((public_metadata.role as string)?.toUpperCase() as UserRole) || undefined
 
       await updateUserByExternalId(externalId, {
         name,

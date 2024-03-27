@@ -5,7 +5,7 @@ import { currentUser } from "@clerk/nextjs"
 const AdminPage = async () => {
   const user = await currentUser()
 
-  if (user?.privateMetadata.role !== "admin") {
+  if (user?.publicMetadata.role !== "admin") {
     return <div>Unauthorized</div>
   }
 
