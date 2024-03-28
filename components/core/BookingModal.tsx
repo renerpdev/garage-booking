@@ -13,6 +13,7 @@ import { useBookingContext } from "@/context/booking-context"
 import { Booking } from "@/lib/models"
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -230,7 +231,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                 <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
                 <div className={"flex flex-col md:flex-row gap-2"}>
                   <AlertDialogCancel className={"w-full md:w-[50%]"}>Cancelar</AlertDialogCancel>
-                  <Button
+                  <AlertDialogAction
                     type="submit"
                     className={"md:w-[50%] flex items-center"}
                     disabled={!form.formState.isValid || isSubmitting}>
@@ -240,7 +241,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                         &nbsp;Reservar
                       </>
                     )}
-                  </Button>
+                  </AlertDialogAction>
                 </div>
               </form>
             </Form>
