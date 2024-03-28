@@ -93,12 +93,12 @@ export function BookingProvider({ children }: PropsWithChildren) {
           title: "Reserva Confirmada",
           description: isStarted ? (
             <p>
-              {booking.nickName}, tienes estacionamiento reservado hasta las{" "}
+              Tienes estacionamiento reservado hasta las{" "}
               <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
             </p>
           ) : (
             <p>
-              {booking.nickName}, tienes estacionamiento reservado desde el{" "}
+              Se ha confirmado el estacionamiento desde el{" "}
               <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
               <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
             </p>
