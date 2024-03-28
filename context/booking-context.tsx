@@ -108,7 +108,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         toast({
           title: "Reserva Inválida",
           description: e.message,
-          className: "text-red-500"
+          className: "text-red-500 bg-red-50"
         })
         throw e
       }
@@ -139,7 +139,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         toast({
           title: "Error",
           description: "No se pudo cancelar la reserva",
-          className: "text-red-500"
+          className: "text-red-50 bg-red-500"
         })
         throw e
       }
@@ -165,7 +165,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         toast({
           title: "Error",
           description: "Ocurrió un error al obtener la reserva activa. Por favor, intenta nuevamente.",
-          className: "text-red-500"
+          className: "text-red-500 bg-red-50"
         })
         throw e
       } finally {
