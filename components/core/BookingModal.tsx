@@ -141,7 +141,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent className={"flex flex-col items-center"}>
+      <AlertDialogContent className={"flex flex-col items-center py-8 lg:py-10"}>
         <AlertDialogHeader>
           <AlertDialogTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0 self-center"}>
             Reservar Estacionamiento

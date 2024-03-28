@@ -50,7 +50,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
         className={`relative focus:z-10${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? "opacity-70" : ""}`}
         ref={ref}
         {...cellProps}>
-        <div className={"px-3 py-2 min-h-32"} {...mergeProps(buttonProps, focusProps)}>
+        <div className={"px-3 py-2 lg:min-h-28 xl:min-h-32"} {...mergeProps(buttonProps, focusProps)}>
           <time
             dateTime="2022-01-03"
             className={`${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>
@@ -87,7 +87,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
       type="button"
       className={`relative focus:z-10 border-l-2 ${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? " opacity-70" : ""} ${isSameCalendarDay(date, state.focusedDate) ? "border-primary" : "border-transparent"}`}
       {...cellProps}>
-      <div className={"flex flex-col h-14 px-3 py-2 w-full"} {...mergeProps(buttonProps, focusProps)} ref={ref}>
+      <div className={"flex flex-col h-14 md:h-20 px-3 py-2 w-full"} {...mergeProps(buttonProps, focusProps)} ref={ref}>
         <time
           dateTime={formatInTimeZone(date.toDate(LOCAL_TIME_ZONE))}
           className={`ml-auto ${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>

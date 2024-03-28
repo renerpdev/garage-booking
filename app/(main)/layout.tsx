@@ -11,8 +11,7 @@ import { getFlags } from "@/lib/flags"
 import { BookingProvider } from "@/context/booking-context"
 import Spinner from "@/components/ui/Spinner"
 import { Toaster } from "@/components/ui/toaster"
-import { ClerkProvider, SignInButton } from "@clerk/nextjs"
-import InfoAlert from "@/components/ui/InfoAlert"
+import { ClerkProvider } from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -62,25 +61,14 @@ export default async function RootLayout({
     <ClerkProvider>
       <html lang="es">
         <body
-          className={`${inter.className} flex flex-col min-h-screen w-screen mx-auto my-0 antialiased`}
+          className={`${inter.className} flex flex-col min-h-screen w-screen antialiased`}
           style={{
             background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
           }}>
           <Navbar />
           <BookingProvider>
             <Spinner />
-            <main className={"min-h-full my-auto w-full"}>
-              <InfoAlert title={"Información"} className={"mt-2"}>
-                Para reservar un estacionamiento,{" "}
-                <span className={"*:underline"}>
-                  <Suspense fallback={<span>inicia sesión</span>}>
-                    <SignInButton mode="modal">inicia sesión</SignInButton>
-                  </Suspense>
-                  .
-                </span>
-              </InfoAlert>
-              {children}
-            </main>
+            <main className={"flex-1 flex flex-col justify-center"}>{children}</main>
             <Toaster />
           </BookingProvider>
           <Footer />
