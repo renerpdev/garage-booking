@@ -1,9 +1,12 @@
-import { BookingForm } from "@/components/core/BookingForm"
+import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
+import { BookingCalendar } from "@/components/ui/calendar"
+import React from "react"
 
 export default async function Home() {
   return (
-    <div className="flex w-full min-h-full flex-col items-center justify-center p-4 md:px-6">
-      <BookingForm />
+    <div className={"h-full w-full p-4 md:px-6"}>
+      <ActiveBookingAlert className={"mb-4"} />
+      <BookingCalendar />
     </div>
   )
 }
