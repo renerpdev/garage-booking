@@ -19,6 +19,8 @@ import { useBookingContext } from "@/context/booking-context"
 import { Booking } from "@/lib/models"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 import DateTimeRangePicker, { DateRangeSelected } from "@/components/ui/DateTimeRangePicker"
+import { useUser } from "@clerk/nextjs"
+import { useRouter } from "next/navigation"
 
 const QUICK_OPTIONS = [15, 30, 45, 60]
 
@@ -41,6 +43,8 @@ export const BookingForm = () => {
     end: formatToCalendarDate(new Date())
   })
   const { createNewBooking } = useBookingContext()
+  const { isSignedIn } = useUser()
+  const navigation = useRouter()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -63,7 +67,7 @@ export const BookingForm = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
-    createNewBooking(data as Booking)
+    createNewBooking({ ...data, nickName: data.nickName.trim() ?? undefined } as Booking)
       .then(() => {
         resetForm()
       })
@@ -129,6 +133,11 @@ export const BookingForm = () => {
     setIsPopoverOpen(false)
   }
 
+  if (!isSignedIn) {
+    navigation.replace("/calendar")
+    return null
+  }
+
   return (
     <>
       <ActiveBookingAlert className={"mb-4"} />
@@ -151,7 +160,13 @@ export const BookingForm = () => {
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <Input placeholder="Escribe un nombre para la reserva" {...field} />
+                      <Input
+                        placeholder="Escribe un nombre para la reserva"
+                        {...field}
+                        onBlur={(e) => {
+                          field.onChange(e.target.value.trim())
+                        }}
+                      />
                     </FormControl>
                     {!fieldState.invalid && (
                       <FormDescription className={"text-xs md:text-sm"}>

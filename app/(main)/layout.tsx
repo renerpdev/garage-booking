@@ -12,6 +12,7 @@ import { BookingProvider } from "@/context/booking-context"
 import Spinner from "@/components/ui/Spinner"
 import { Toaster } from "@/components/ui/toaster"
 import { ClerkProvider } from "@clerk/nextjs"
+import InfoAlert from "@/components/ui/InfoAlert"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -68,7 +69,14 @@ export default async function RootLayout({
           <Navbar />
           <BookingProvider>
             <Spinner />
-            <main className={"min-h-full my-auto w-full"}>{children}</main>
+            <main className={"min-h-full my-auto w-full"}>
+              <InfoAlert
+                title={"Información"}
+                description={"Para reservar un estacionamiento, inicia sesión"}
+                className={"mt-2"}
+              />
+              {children}
+            </main>
             <Toaster />
           </BookingProvider>
           <Footer />

@@ -44,6 +44,10 @@ export function BookingProvider({ children }: PropsWithChildren) {
       const { startDate, endDate, nickName } = booking
 
       try {
+        if (!nickName) {
+          throw new Error("La reserva debe tener un nombre.")
+        }
+
         const { error, message, data } = await createBooking(booking)
 
         if (error) {
