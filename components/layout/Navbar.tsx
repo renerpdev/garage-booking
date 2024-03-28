@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, LogInIcon, LayoutDashboard } from "lucide-react"
+import { LogInIcon, LockKeyhole } from "lucide-react"
 import Link from "next/link"
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
@@ -32,18 +32,12 @@ export function Navbar() {
           </div>
         </Link>
         <div className={"flex gap-4 items-center justify-between"}>
-          <Link
-            href={"/calendar"}
-            className={`hover:text-primary ${pathname == "/calendar" ? "text-primary" : ""}`}
-            title="Ir al calendario">
-            <CalendarDays />
-          </Link>
           {isAdmin ? (
             <Link
               href={"/admin"}
               className={`hover:text-primary ${pathname == "/admin" ? "text-primary" : ""}`}
-              title="Ir al tablero">
-              <LayoutDashboard />
+              title="Administración">
+              <LockKeyhole />
             </Link>
           ) : null}
           {!user ? (
