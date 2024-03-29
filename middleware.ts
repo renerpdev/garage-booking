@@ -7,9 +7,10 @@ export default authMiddleware({
   publicRoutes: [
     "/",
     "/calendar",
-    "/manifest.json",
+    "/manifest(.*)",
+    "/public/manifest(.*)",
     "/api/webhooks(.*)",
-    "/api/notification(.*)",
+    "/api/notifications/subscribe(.*)",
     "/.well-known/vercel/flags"
   ]
 })

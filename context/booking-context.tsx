@@ -6,7 +6,7 @@ import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/
 import { toast } from "@/components/ui/use-toast"
 import { ActiveBooking, Booking, CanceledBooking } from "@/lib/models"
 import { useUser } from "@clerk/nextjs"
-import { notifySubscribers } from "@/lib/notification"
+import { notifySubscribers } from "@/lib/notifications"
 
 type ContextType = {
   activeBooking: ActiveBooking

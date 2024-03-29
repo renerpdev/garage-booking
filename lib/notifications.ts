@@ -32,8 +32,7 @@ export const subscribe = async () => {
 }
 
 export const saveSubscription = async (subscription: PushSubscription) => {
-  const ORIGIN = window.location.origin
-  const BACKEND_URL = `${ORIGIN}/api/notification`
+  const BACKEND_URL = "/api/notifications/subscribe"
 
   const response = await fetch(BACKEND_URL, {
     method: "POST",
@@ -46,11 +45,14 @@ export const saveSubscription = async (subscription: PushSubscription) => {
 }
 
 export const notifySubscribers = async () => {
-  const ORIGIN = window.location.origin
-  const BACKEND_URL = `${ORIGIN}/api/notification`
+  const BACKEND_URL = "/api/notifications/send"
 
   const response = await fetch(BACKEND_URL, {
-    method: "GET"
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: null
   })
   return response.json()
 }
