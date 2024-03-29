@@ -20,6 +20,7 @@ export function Navbar() {
       <div className={"flex justify-between items-center"}>
         <Link href={"/"} className={"flex gap-1"}>
           <Image
+            priority
             src={logo}
             alt="garage booking logo"
             className={"w-[28px] h-[28px] sm:w-[36px] sm:h-[36px] self-center"}

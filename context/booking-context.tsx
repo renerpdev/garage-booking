@@ -6,6 +6,7 @@ import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/
 import { toast } from "@/components/ui/use-toast"
 import { ActiveBooking, Booking, CanceledBooking } from "@/lib/models"
 import { useUser } from "@clerk/nextjs"
+import { notifySubscribers } from "@/lib/notification"
 
 type ContextType = {
   activeBooking: ActiveBooking
@@ -104,6 +105,9 @@ export function BookingProvider({ children }: PropsWithChildren) {
             </p>
           )
         })
+
+        // Notify subscribers about the new booking
+        await notifySubscribers()
       } catch (e: any) {
         toast({
           title: "Reserva Inválida",

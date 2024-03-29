@@ -20,6 +20,7 @@ const imageUrl = "https://images.pexels.com/photos/2280148/pexels-photo-2280148.
 export const metadata: Metadata = {
   title: "Garage Booking | Gala Point",
   description: "Sitio web para reservar estacionamiento en Gala Point",
+  manifest: "/manifest.json",
   openGraph: {
     type: "website",
     locale: "es",

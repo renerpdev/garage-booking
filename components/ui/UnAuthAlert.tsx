@@ -8,7 +8,7 @@ import { SignInButton, useUser } from "@clerk/nextjs"
 interface InfoAlertProps extends PropsWithChildren {
   className?: string
 }
-const UnauthAlert = ({ className }: InfoAlertProps) => {
+const UnAuthAlert = ({ className }: InfoAlertProps) => {
   const { isSignedIn } = useUser()
 
   if (isSignedIn) return null
@@ -30,4 +30,4 @@ const UnauthAlert = ({ className }: InfoAlertProps) => {
   )
 }
 
-export default UnauthAlert
+export default UnAuthAlert
