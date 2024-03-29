@@ -6,7 +6,7 @@ import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { UserRole } from "@/lib/models"
 import Image from "next/image"
-import logo from "@/app/logo.svg"
+import logo from "@/public/logo.svg"
 import { usePathname } from "next/navigation"
 
 export function Navbar() {
