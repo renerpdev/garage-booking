@@ -47,3 +47,10 @@ model User {
   updatedAt  DateTime  @updatedAt
   bookings   Booking[]
 }
+
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  endpoint  String   @unique
+  data      String
+  createdAt DateTime @default(now())
+}

@@ -45,6 +45,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       const { startDate, endDate, nickName } = booking
 
       try {
+        setIsLoading(true)
         if (!nickName) {
           throw new Error("La reserva debe tener un nombre.")
         }
@@ -115,6 +116,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
           className: "text-red-500 bg-red-50"
         })
         throw e
+      } finally {
+        setIsLoading(false)
       }
     },
     [user?.fullName, user?.id, user?.imageUrl]
@@ -125,6 +128,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const cancelBooking = useCallback(
     async (booking: CanceledBooking) => {
       try {
+        setIsLoading(true)
         const { id, startDate, endDate } = booking
 
         await cancelBookingById(id)
@@ -146,6 +150,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
           className: "text-red-50 bg-red-500"
         })
         throw e
+      } finally {
+        setIsLoading(false)
       }
     },
     [activeBooking?.endDate, activeBooking?.startDate]

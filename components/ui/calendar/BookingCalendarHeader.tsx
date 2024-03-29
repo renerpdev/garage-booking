@@ -1,17 +1,19 @@
 import React from "react"
 import { CalendarButton } from "@/components/ui/calendar/BookingCalendarButton"
-import { CalendarCheck, ChevronLeft, ChevronRight, Circle } from "lucide-react"
+import { CalendarCheck, ChevronLeft, ChevronRight, Circle, LoaderCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCalendar } from "react-aria"
 import { CalendarDate } from "@internationalized/date"
 import { CalendarState, CalendarStateOptions } from "react-stately"
 import { BookingModal } from "@/components/core/BookingModal"
+import { useBookingContext } from "@/context/booking-context"
 
 interface CalendarHeaderProps extends Partial<CalendarStateOptions> {
   state: CalendarState
 }
 export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
   let { prevButtonProps, nextButtonProps, title } = useCalendar(props, state)
+  const { isLoading } = useBookingContext()
 
   const goToToday = () => {
     const currentDate = new Date()
@@ -24,6 +26,7 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
         <time dateTime="2022-01">{title}</time>
       </h1>
       <div className="flex items-center">
+        {isLoading && <LoaderCircle className={"h-6 w-6 mr-2 text-primary animate-spin"} />}
         <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
           <CalendarButton
             type="button"

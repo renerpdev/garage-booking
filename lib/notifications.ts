@@ -8,17 +8,29 @@ export const unregisterServiceWorkers = async () => {
   await Promise.all(registrations.map((r) => r.unregister()))
 }
 
+export const isPermissionGranted = () =>
+  window?.Notification?.permission === "granted" || window?.Notification?.permission !== "default"
+
 export const registerServiceWorker = async () => {
   return navigator.serviceWorker.register("/sw.js")
 }
 
 export const subscribe = async () => {
-  await unregisterServiceWorkers()
-
-  const swRegistration = await registerServiceWorker()
-  await window?.Notification.requestPermission()
+  if (!notificationsSupported()) {
+    console.error("Notifications not supported. You might need to accept the permissions.")
+    return
+  }
 
   try {
+    await unregisterServiceWorkers()
+
+    const swRegistration = await registerServiceWorker()
+
+    const permission = await window?.Notification?.requestPermission()
+    if (permission !== "granted") {
+      throw new Error("Permission not granted")
+    }
+
     const options = {
       applicationServerKey: config.vapidPublicKey,
       userVisibleOnly: true
@@ -26,6 +38,7 @@ export const subscribe = async () => {
     const subscription = await swRegistration.pushManager.subscribe(options)
 
     await saveSubscription(subscription)
+    window.location.reload()
   } catch (err) {
     console.error("Error", err)
   }

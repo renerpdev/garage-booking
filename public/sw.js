@@ -1,14 +1,17 @@
 self.addEventListener("push", async (event) => {
   if (event.data) {
     const eventData = await event.data.json()
-    console.log(eventData)
-    showLocalNotification(eventData.title, eventData.body, self.registration)
+    await showLocalNotification(eventData.title, eventData.body, self.registration)
   }
 })
 
-const showLocalNotification = (title, body, swRegistration) => {
-  swRegistration.showNotification(title, {
-    body,
-    icon: "/ios/192.png"
-  })
+const showLocalNotification = async (title, body, swRegistration) => {
+  try {
+    await swRegistration.showNotification(title, {
+      body,
+      icon: "/ios/192.png"
+    })
+  } catch (error) {
+    console.error(error)
+  }
 }

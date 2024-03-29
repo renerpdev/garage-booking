@@ -5,13 +5,10 @@ import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { Toolbar } from "@/components/layout/Toolbar"
 import React, { Suspense } from "react"
-import { encrypt, type FlagValuesType } from "@vercel/flags"
-import { FlagValues } from "@vercel/flags/react"
-import { getFlags } from "@/lib/flags"
 import { BookingProvider } from "@/context/booking-context"
-import Spinner from "@/components/ui/Spinner"
 import { Toaster } from "@/components/ui/toaster"
 import { ClerkProvider } from "@clerk/nextjs"
+import Notifications from "@/components/core/Notifications"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -46,17 +43,19 @@ export const viewport: Viewport = {
   userScalable: false
 }
 
-async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
-  const encryptedFlagValues = await encrypt(values)
-  return <FlagValues values={encryptedFlagValues} />
-}
+// TODO: bring back again when feature is needed
+// async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
+//   const encryptedFlagValues = await encrypt(values)
+//   return <FlagValues values={encryptedFlagValues} />
+// }
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const values = await getFlags()
+  // TODO: bring back again when feature is needed
+  // const values = await getFlags()
 
   return (
     <ClerkProvider>
@@ -66,9 +65,9 @@ export default async function RootLayout({
           style={{
             background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
           }}>
+          <Notifications />
           <Navbar />
           <BookingProvider>
-            <Spinner />
             <main className={"flex-1 flex flex-col justify-center"}>{children}</main>
             <Toaster />
           </BookingProvider>
@@ -76,9 +75,10 @@ export default async function RootLayout({
           <Suspense>
             <Toolbar />
           </Suspense>
-          <Suspense fallback={null}>
-            <ConfidentialFlagValues values={values} />
-          </Suspense>
+          {/*TODO: bring back again when feature is needed*/}
+          {/*<Suspense fallback={null}>*/}
+          {/*  <ConfidentialFlagValues values={values} />*/}
+          {/*</Suspense>*/}
         </body>
       </html>
     </ClerkProvider>

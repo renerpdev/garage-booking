@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { logger } from "@/logger"
-import { Booking, User } from "@/lib/models"
+import { Booking, Subscription, SubscriptionDto, User } from "@/lib/models"
 import { currentUser } from "@clerk/nextjs"
 
 /****************************************************
@@ -212,6 +212,66 @@ export async function updateUserByExternalId(externalId: string, user: Partial<U
     })
   } catch (error) {
     logger.error(`Error updating user by external id: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+/****************************************************
+        Subscription Actions
+ *****************************************************/
+
+export async function createSubscription(subscription: SubscriptionDto): Promise<Subscription> {
+  try {
+    logger.info("Saving subscription to db")
+
+    const isAlreadyRegistered = await prisma.subscription.findUnique({
+      where: {
+        endpoint: subscription.endpoint
+      }
+    })
+
+    // Check if the subscription is already registered, if so we exit
+    if (isAlreadyRegistered) {
+      const message = `Subscription already registered: ${subscription.endpoint}`
+      logger.info(message)
+      throw new Error(message)
+    }
+
+    const savedSubscription = await prisma.subscription.create({
+      data: subscription
+    })
+
+    const message = `Subscription saved successfully! Your endpoint is ${subscription.endpoint}`
+    logger.info(message)
+
+    return savedSubscription
+  } catch (e: any) {
+    logger.error(e.message)
+    throw new Error(e.message)
+  }
+}
+
+export async function getAllSubscriptions(): Promise<Subscription[]> {
+  try {
+    return await prisma.subscription.findMany()
+  } catch (error) {
+    logger.error(`Error getting subscriptions: ${error}`)
+    throw new Error(error as any)
+  }
+}
+
+export async function deleteSubscriptionByEndpoint(endpoint: string): Promise<Subscription> {
+  try {
+    const deletedSubscription = await prisma.subscription.delete({
+      where: {
+        endpoint
+      }
+    })
+    logger.info(`Deleted subscription with endpoint: ${endpoint}`)
+
+    return deletedSubscription
+  } catch (error) {
+    logger.error(`Error deleting subscription with endpoint: ${error}`)
     throw new Error(error as any)
   }
 }

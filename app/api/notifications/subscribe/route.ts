@@ -1,15 +1,26 @@
-import { NextResponse, NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { PushSubscription } from "web-push"
-import { saveSubscriptionToDb } from "@/db/in-memory-db"
+import { logger } from "@/logger"
+import { createSubscription } from "@/lib/queries"
 
 export async function POST(request: NextRequest) {
-  const subscription = (await request.json()) as PushSubscription | null
+  try {
+    const subscription = (await request.json()) as PushSubscription | null
 
-  if (!subscription) {
-    throw new Error("No subscription was provided!")
+    if (!subscription) {
+      return new NextResponse(JSON.stringify({ message: "No subscription was provided!" }), { status: 400 })
+    }
+
+    const savedSubscription = await createSubscription({
+      data: JSON.stringify(subscription),
+      endpoint: subscription.endpoint
+    })
+
+    return NextResponse.json({
+      message: `Subscription saved successfully! Your endpoint is ${savedSubscription.endpoint}`
+    })
+  } catch (e: any) {
+    logger.error(e.message)
+    return new NextResponse(JSON.stringify({ message: e.message }), { status: 500 })
   }
-
-  const updatedDb = await saveSubscriptionToDb(subscription)
-
-  return NextResponse.json({ message: "success", updatedDb })
 }

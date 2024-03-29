@@ -8,6 +8,7 @@ import { UserRole } from "@/lib/models"
 import Image from "next/image"
 import logo from "@/public/logo.svg"
 import { usePathname } from "next/navigation"
+import React from "react"
 
 export function Navbar() {
   const { user } = useUser()

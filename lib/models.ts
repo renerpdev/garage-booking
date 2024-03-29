@@ -36,3 +36,12 @@ export type User = {
   createdAt: Date
   updatedAt: Date
 }
+
+export type Subscription = {
+  id: number
+  endpoint: string
+  data: string
+  createdAt: Date
+}
+
+export type SubscriptionDto = Pick<Subscription, "data" | "endpoint">
