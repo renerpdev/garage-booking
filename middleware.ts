@@ -8,7 +8,6 @@ export default authMiddleware({
     "/",
     "/calendar",
     "/manifest(.*)",
-    "/public/manifest(.*)",
     "/api/webhooks(.*)",
     "/api/notifications/subscribe(.*)",
     "/.well-known/vercel/flags"
