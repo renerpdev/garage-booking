@@ -4,7 +4,14 @@ import { authMiddleware } from "@clerk/nextjs"
 // for more information about configuring your Middleware
 export default authMiddleware({
   // Allow signed out users to access the specified routes:
-  publicRoutes: ["/", "/calendar", "/api/webhooks(.*)", "/.well-known/vercel/flags"]
+  publicRoutes: [
+    "/",
+    "/calendar",
+    "/manifest.json",
+    "/api/webhooks(.*)",
+    "/api/notification(.*)",
+    "/.well-known/vercel/flags"
+  ]
 })
 
 export const config = {
