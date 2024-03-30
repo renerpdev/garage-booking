@@ -1,4 +1,5 @@
 import { config } from "@/config"
+import { NotificationContent } from "@/lib/models"
 
 export const notificationsSupported = () =>
   "Notification" in window && "serviceWorker" in navigator && "PushManager" in window
@@ -59,7 +60,7 @@ export const saveSubscription = async (subscription: PushSubscription) => {
   return response.json()
 }
 
-export const notifySubscribers = async () => {
+export const notifySubscribers = async (content: NotificationContent) => {
   const BACKEND_URL = "/api/notifications/send"
 
   const response = await fetch(BACKEND_URL, {
@@ -67,7 +68,7 @@ export const notifySubscribers = async () => {
     headers: {
       "Content-Type": "application/json"
     },
-    body: null
+    body: JSON.stringify(content)
   })
   return response.json()
 }

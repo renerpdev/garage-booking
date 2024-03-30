@@ -45,3 +45,8 @@ export type Subscription = {
 }
 
 export type SubscriptionDto = Pick<Subscription, "data" | "endpoint">
+
+export type NotificationContent = {
+  title: string
+  body: string
+}

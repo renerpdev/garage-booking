@@ -7,16 +7,19 @@ import { deleteManySubscriptionsByEndpoint, getAllSubscriptions } from "@/lib/qu
 
 webpush.setVapidDetails("mailto:test@gmail.com", config.vapidPublicKey, config.vapidPrivateKey)
 
-export async function POST(_: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    const { title, body } = await req.json()
+
     logger.info("Sending push notification to subscribers")
+
     const subscriptions: Subscription[] = await getAllSubscriptions()
 
     const result = await Promise.allSettled(
       subscriptions.map((s) => {
         const payload = JSON.stringify({
-          title: "Nueva Reserva",
-          body: "Una nueva reserva ha sido agregada a la base de datos"
+          title,
+          body
         })
         const subscription = JSON.parse(s.data) as PushSubscription
         return webpush.sendNotification(subscription, payload)
@@ -27,7 +30,9 @@ export async function POST(_: NextRequest) {
       .filter((r) => r.status === "rejected")
       .map((r) => (r as any).reason.endpoint)
 
-    await deleteManySubscriptionsByEndpoint(markedForDeletion)
+    if (markedForDeletion.length > 0) {
+      await deleteManySubscriptionsByEndpoint(markedForDeletion)
+    }
 
     return NextResponse.json({
       message: `${subscriptions.length} messages sent!`

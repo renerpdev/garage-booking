@@ -58,6 +58,9 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const createNewBooking = useCallback(
     async (booking: Booking) => {
       const { startDate, endDate, nickName } = booking
+      const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
+      const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
+      const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
 
       try {
         setIsLoading(true)
@@ -102,10 +105,6 @@ export function BookingProvider({ children }: PropsWithChildren) {
           })
         }
 
-        const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
-        const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
-        const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
-
         // Display a toast notification if push notifications are disabled
         if (!isPermissionGranted()) {
           toast({
@@ -137,7 +136,10 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
       try {
         // Notify subscribers about the new booking
-        await notifySubscribers()
+        await notifySubscribers({
+          title: "Nueva Reserva Confirmada",
+          body: `La reserva comienza el ${formattedStartDate} y termina el ${formattedEndDate}.`
+        })
       } catch (e: any) {
         console.error(e.message)
       }
