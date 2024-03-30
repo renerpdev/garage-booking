@@ -47,7 +47,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
   if (mode === "div") {
     return (
       <div
-        className={`relative focus:z-10${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? "opacity-70" : ""}`}
+        className={`relative focus:z-10${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-100 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-50"} ${isOutsideVisibleRange ? "opacity-60" : ""}`}
         ref={ref}
         {...cellProps}>
         <div className={"px-3 py-2 lg:min-h-28 xl:min-h-32"} {...mergeProps(buttonProps, focusProps)}>
@@ -85,7 +85,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
   return (
     <button
       type="button"
-      className={`relative focus:z-10 border-l-2 ${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-100"} ${isOutsideVisibleRange ? " opacity-70" : ""} ${isSameCalendarDay(date, state.focusedDate) ? "border-primary" : "border-transparent"}`}
+      className={`relative focus:z-10 border-l-2 ${isFocusVisible ? "z-10" : "z-0"} ${isSelected ? "bg-primary" : ""} ${isOutsideVisibleRange || isDisabled ? "bg-gray-50 text-gray-400 pointer-events-none" : "bg-white hover:bg-gray-50"} ${isOutsideVisibleRange ? " opacity-70" : ""} ${isSameCalendarDay(date, state.focusedDate) ? "border-primary" : "border-transparent"}`}
       {...cellProps}>
       <div className={"flex flex-col h-14 md:h-20 px-3 py-2 w-full"} {...mergeProps(buttonProps, focusProps)} ref={ref}>
         <time

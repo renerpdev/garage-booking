@@ -2,11 +2,19 @@
 
 import { isPermissionGranted, subscribe } from "@/lib/notifications"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 
 export default function Notifications() {
-  const [isBannerVisible, setIsBannerVisible] = useState(!isPermissionGranted())
+  const [isBannerVisible, setIsBannerVisible] = useState(false)
+
+  useEffect(() => {
+    if (isPermissionGranted()) {
+      setIsBannerVisible(false)
+    } else {
+      setIsBannerVisible(true)
+    }
+  }, [])
 
   if (!isBannerVisible) {
     return null

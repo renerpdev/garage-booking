@@ -31,9 +31,9 @@ export const subscribe = async () => {
       throw new Error("Permission not granted")
     }
 
-    const options = {
-      applicationServerKey: config.vapidPublicKey,
-      userVisibleOnly: true
+    const options: PushSubscriptionOptionsInit = {
+      applicationServerKey: config.vapidPublicKey
+      // userVisibleOnly: true
     }
     const subscription = await swRegistration.pushManager.subscribe(options)
 

@@ -106,9 +106,6 @@ export function BookingProvider({ children }: PropsWithChildren) {
             </p>
           )
         })
-
-        // Notify subscribers about the new booking
-        await notifySubscribers()
       } catch (e: any) {
         toast({
           title: "Reserva Inválida",
@@ -118,6 +115,13 @@ export function BookingProvider({ children }: PropsWithChildren) {
         throw e
       } finally {
         setIsLoading(false)
+      }
+
+      try {
+        // Notify subscribers about the new booking
+        await notifySubscribers()
+      } catch (e: any) {
+        console.error(e.message)
       }
     },
     [user?.fullName, user?.id, user?.imageUrl]

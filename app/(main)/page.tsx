@@ -3,7 +3,7 @@
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 import { BookingCalendar } from "@/components/ui/calendar"
 import React from "react"
-import UnAuthAlert from "@/components/ui/UnAuthAlert"
+import UnauthorizedAlert from "@/components/ui/UnauthorizedAlert"
 import Head from "next/head"
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
         <meta name="theme-color" content="#7B39ED" />
       </Head>
       <div className={"hidden bg-red-50"}>{/* this element is used for adding tailwind classes */}</div>
-      <UnAuthAlert />
+      <UnauthorizedAlert />
       <ActiveBookingAlert className={"mb-4"} />
       <BookingCalendar />
     </div>
