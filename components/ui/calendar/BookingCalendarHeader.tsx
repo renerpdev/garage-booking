@@ -13,7 +13,7 @@ interface CalendarHeaderProps extends Partial<CalendarStateOptions> {
 }
 export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
   let { prevButtonProps, nextButtonProps, title } = useCalendar(props, state)
-  const { isLoading } = useBookingContext()
+  const { isLoading, isFetching } = useBookingContext()
 
   const goToToday = () => {
     const currentDate = new Date()
@@ -26,7 +26,7 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
         <time dateTime="2022-01">{title}</time>
       </h1>
       <div className="flex items-center">
-        {isLoading && <LoaderCircle className={"h-6 w-6 mr-2 text-primary animate-spin"} />}
+        {(isLoading || isFetching) && <LoaderCircle className={"h-6 w-6 mr-2 text-primary animate-spin"} />}
         <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
           <CalendarButton
             type="button"

@@ -12,6 +12,7 @@ type ContextType = {
   activeBooking: ActiveBooking
   setActiveBooking: (_booking: Booking | null) => void
   isLoading: boolean
+  isFetching: boolean
   disabledHours: Set<string>
   disabledDays: Set<string>
   createNewBooking: (_booking: Booking) => Promise<void>
@@ -24,6 +25,7 @@ const defaultValue = {
   activeBooking: null,
   setActiveBooking: () => {},
   isLoading: false,
+  isFetching: false,
   disabledHours: new Set<string>(),
   disabledDays: new Set<string>(),
   createNewBooking: (_: Booking) => Promise.resolve(),
@@ -37,8 +39,21 @@ const BookingContext = createContext<ContextType>(defaultValue)
 export function BookingProvider({ children }: PropsWithChildren) {
   const [activeBooking, setActiveBooking] = useState<ActiveBooking>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isFetching, setIsFetching] = useState<boolean>(false)
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
   const { user } = useUser()
+
+  const updateScheduledBookings = useCallback(async () => {
+    try {
+      setIsFetching(true)
+      const scheduledDates = await getScheduledBookings()
+      setScheduledBookings(scheduledDates)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsFetching(false)
+    }
+  }, [setScheduledBookings])
 
   const createNewBooking = useCallback(
     async (booking: Booking) => {
@@ -123,16 +138,14 @@ export function BookingProvider({ children }: PropsWithChildren) {
       } catch (e: any) {
         console.error(e.message)
       }
+
+      // now update the scheduled bookings with real data
+      await updateScheduledBookings()
     },
-    [user?.fullName, user?.id, user?.imageUrl]
+    [updateScheduledBookings, user]
   )
 
   const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
-
-  const updateScheduledBookings = useCallback(async () => {
-    const scheduledDates = await getScheduledBookings()
-    setScheduledBookings(scheduledDates)
-  }, [setScheduledBookings])
 
   const cancelBooking = useCallback(
     async (booking: CanceledBooking) => {
@@ -154,9 +167,6 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
         // Update the scheduled bookings using optimistic updates
         setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
-
-        // now update the scheduled bookings with real data
-        await updateScheduledBookings()
       } catch (e) {
         toast({
           title: "Error",
@@ -167,8 +177,11 @@ export function BookingProvider({ children }: PropsWithChildren) {
       } finally {
         setIsLoading(false)
       }
+
+      // now update the scheduled bookings with real data
+      await updateScheduledBookings()
     },
-    [activeBooking?.endDate, activeBooking?.startDate]
+    [activeBooking, updateScheduledBookings]
   )
 
   useEffect(() => {
@@ -197,7 +210,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
     }
 
     fetchActiveBooking().then()
-  }, [])
+  }, [updateScheduledBookings])
 
   return (
     <BookingContext.Provider
@@ -205,6 +218,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         activeBooking,
         setActiveBooking,
         isLoading,
+        isFetching,
         disabledDays,
         disabledHours,
         createNewBooking,
