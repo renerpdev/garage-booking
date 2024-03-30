@@ -1,5 +1,3 @@
-"use client"
-
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 import { BookingCalendar } from "@/components/ui/calendar"
 import React from "react"

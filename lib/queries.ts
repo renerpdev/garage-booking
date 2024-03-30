@@ -260,16 +260,16 @@ export async function getAllSubscriptions(): Promise<Subscription[]> {
   }
 }
 
-export async function deleteSubscriptionByEndpoint(endpoint: string): Promise<Subscription> {
+export async function deleteManySubscriptionsByEndpoint(endpoints: string[]): Promise<void> {
   try {
-    const deletedSubscription = await prisma.subscription.delete({
+    const payload = await prisma.subscription.deleteMany({
       where: {
-        endpoint
+        endpoint: {
+          in: endpoints
+        }
       }
     })
-    logger.info(`Deleted subscription with endpoint: ${endpoint}`)
-
-    return deletedSubscription
+    logger.info(`Deleted ${payload.count} subscriptions with endpoints: ${endpoints.join(", ")}`)
   } catch (error) {
     logger.error(`Error deleting subscription with endpoint: ${error}`)
     throw new Error(error as any)
