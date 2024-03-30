@@ -22,8 +22,6 @@ export const subscribe = async () => {
   }
 
   try {
-    await unregisterServiceWorkers()
-
     const swRegistration = await registerServiceWorker()
 
     const permission = await window?.Notification?.requestPermission()
