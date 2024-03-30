@@ -8,8 +8,10 @@ export const unregisterServiceWorkers = async () => {
   await Promise.all(registrations.map((r) => r.unregister()))
 }
 
-export const isPermissionGranted = () =>
-  window?.Notification?.permission === "granted" || window?.Notification?.permission !== "default"
+export const isPermissionGrantedOrDefault = () =>
+  isPermissionGranted() || window?.Notification?.permission !== "default"
+
+export const isPermissionGranted = () => window?.Notification?.permission === "granted"
 
 export const registerServiceWorker = async () => {
   return navigator.serviceWorker.register("/sw.js")
@@ -22,6 +24,8 @@ export const subscribe = async () => {
   }
 
   try {
+    await unregisterServiceWorkers()
+
     const swRegistration = await registerServiceWorker()
 
     const permission = await window?.Notification?.requestPermission()

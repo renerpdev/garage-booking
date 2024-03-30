@@ -6,7 +6,7 @@ import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/
 import { toast } from "@/components/ui/use-toast"
 import { ActiveBooking, Booking, CanceledBooking } from "@/lib/models"
 import { useUser } from "@clerk/nextjs"
-import { notifySubscribers } from "@/lib/notifications"
+import { isPermissionGranted, notifySubscribers } from "@/lib/notifications"
 
 type ContextType = {
   activeBooking: ActiveBooking
@@ -71,7 +71,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
           throw new Error(message)
         }
 
-        // Update the scheduled bookings
+        // Update the scheduled bookings, using optimistic updates
         setScheduledBookings((prev) => [
           ...prev,
           {
@@ -88,7 +88,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
         const isStarted = startDate <= new Date()
 
-        // If the booking is started, set the active booking and display the alert banner
+        // If the booking is started, set the active booking and display the alert banner, using optimistic updates
         if (isStarted) {
           setActiveBooking({
             id: data?.id || -1,
@@ -106,21 +106,24 @@ export function BookingProvider({ children }: PropsWithChildren) {
         const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
         const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
 
-        toast({
-          title: "Reserva Confirmada",
-          description: isStarted ? (
-            <p>
-              Tienes estacionamiento reservado hasta las{" "}
-              <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
-            </p>
-          ) : (
-            <p>
-              Se ha confirmado el estacionamiento desde el{" "}
-              <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
-              <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
-            </p>
-          )
-        })
+        // Display a toast notification if push notifications are disabled
+        if (!isPermissionGranted()) {
+          toast({
+            title: "Reserva Confirmada",
+            description: isStarted ? (
+              <p>
+                Tienes estacionamiento reservado hasta las{" "}
+                <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
+              </p>
+            ) : (
+              <p>
+                Se ha confirmado el estacionamiento desde el{" "}
+                <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
+                <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
+              </p>
+            )
+          })
+        }
       } catch (e: any) {
         toast({
           title: "Reserva Inválida",

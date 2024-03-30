@@ -1,6 +1,6 @@
 "use client"
 
-import { isPermissionGranted, subscribe } from "@/lib/notifications"
+import { isPermissionGrantedOrDefault, subscribe } from "@/lib/notifications"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { X } from "lucide-react"
@@ -9,7 +9,7 @@ export default function Notifications() {
   const [isBannerVisible, setIsBannerVisible] = useState(false)
 
   useEffect(() => {
-    if (isPermissionGranted()) {
+    if (isPermissionGrantedOrDefault()) {
       setIsBannerVisible(false)
     } else {
       setIsBannerVisible(true)
