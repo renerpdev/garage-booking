@@ -37,12 +37,3 @@ export async function POST(_: NextRequest) {
     return new NextResponse(JSON.stringify({ message: e.message }), { status: 500 })
   }
 }
-
-const data = {
-  endpoint: "",
-  expirationTime: null,
-  keys: {
-    p256dh: "",
-    auth: "CZCMko6yPNYJwk-wFWFMcA"
-  }
-}
