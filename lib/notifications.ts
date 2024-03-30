@@ -32,8 +32,8 @@ export const subscribe = async () => {
     }
 
     const options: PushSubscriptionOptionsInit = {
-      applicationServerKey: config.vapidPublicKey
-      // userVisibleOnly: true
+      applicationServerKey: config.vapidPublicKey,
+      userVisibleOnly: true
     }
     const subscription = await swRegistration.pushManager.subscribe(options)
 
