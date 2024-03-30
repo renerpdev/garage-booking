@@ -129,6 +129,11 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
   const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
 
+  const updateScheduledBookings = useCallback(async () => {
+    const scheduledDates = await getScheduledBookings()
+    setScheduledBookings(scheduledDates)
+  }, [setScheduledBookings])
+
   const cancelBooking = useCallback(
     async (booking: CanceledBooking) => {
       try {
@@ -146,7 +151,12 @@ export function BookingProvider({ children }: PropsWithChildren) {
         ) {
           setActiveBooking(null)
         }
+
+        // Update the scheduled bookings using optimistic updates
         setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
+
+        // now update the scheduled bookings with real data
+        await updateScheduledBookings()
       } catch (e) {
         toast({
           title: "Error",
@@ -171,8 +181,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
           setActiveBooking(_activeBooking)
         }
 
-        const scheduledDates = await getScheduledBookings()
-        setScheduledBookings(scheduledDates)
+        await updateScheduledBookings()
 
         setIsLoading(false)
       } catch (e) {
