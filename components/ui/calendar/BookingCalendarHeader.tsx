@@ -23,7 +23,9 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
   return (
     <header className="flex items-center justify-between border-b border-gray-200 px-4 md:px-6 py-4 lg:flex-none">
       <h1 className="text-base font-semibold leading-6 text-black">
-        <time dateTime="2022-01">{title}</time>
+        <time dateTime="2022-01" className={"capitalize"}>
+          {title}
+        </time>
       </h1>
       <div className="flex items-center">
         {(isLoading || isFetching) && <LoaderCircle className={"h-6 w-6 mr-2 text-primary animate-spin"} />}
