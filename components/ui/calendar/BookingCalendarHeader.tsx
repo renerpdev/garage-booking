@@ -7,6 +7,7 @@ import { CalendarDate } from "@internationalized/date"
 import { CalendarState, CalendarStateOptions } from "react-stately"
 import { BookingModal } from "@/components/core/BookingModal"
 import { useBookingContext } from "@/context/booking-context"
+import { useAuth } from "@clerk/nextjs"
 
 interface CalendarHeaderProps extends Partial<CalendarStateOptions> {
   state: CalendarState
@@ -14,6 +15,7 @@ interface CalendarHeaderProps extends Partial<CalendarStateOptions> {
 export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
   let { prevButtonProps, nextButtonProps, title } = useCalendar(props, state)
   const { isLoading, isFetching } = useBookingContext()
+  const { isSignedIn } = useAuth()
 
   const goToToday = () => {
     const currentDate = new Date()
@@ -57,15 +59,17 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
             <ChevronRight size={18} />
           </CalendarButton>
         </div>
-        <div className="flex md:items-center">
-          <div className="hidden md:inline-block ml-6 h-6 w-px bg-gray-300"></div>
-          <BookingModal>
-            <Button className={"ml-4 md:ml-6 flex gap-1 items-center"}>
-              <CalendarCheck size={16} />
-              <span className={"sr-only md:not-sr-only"}> Reservar</span>
-            </Button>
-          </BookingModal>
-        </div>
+        {isSignedIn && (
+          <div className="flex md:items-center">
+            <div className="hidden md:inline-block ml-6 h-6 w-px bg-gray-300"></div>
+            <BookingModal>
+              <Button className={"ml-4 md:ml-6 flex gap-1 items-center"}>
+                <CalendarCheck size={16} />
+                <span className={"sr-only md:not-sr-only"}> Reservar</span>
+              </Button>
+            </BookingModal>
+          </div>
+        )}
       </div>
     </header>
   )
