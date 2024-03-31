@@ -9,6 +9,9 @@ import { BookingProvider } from "@/context/booking-context"
 import { Toaster } from "@/components/ui/toaster"
 import { ClerkProvider } from "@clerk/nextjs"
 import Notifications from "@/components/core/Notifications"
+import { getFlags } from "@/lib/flags"
+import { encrypt, type FlagValuesType } from "@vercel/flags"
+import { FlagValues } from "@vercel/flags/react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -43,19 +46,17 @@ export const viewport: Viewport = {
   userScalable: false
 }
 
-// TODO: bring back again when feature is needed
-// async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
-//   const encryptedFlagValues = await encrypt(values)
-//   return <FlagValues values={encryptedFlagValues} />
-// }
+async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
+  const encryptedFlagValues = await encrypt(values)
+  return <FlagValues values={encryptedFlagValues} />
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // TODO: bring back again when feature is needed
-  // const values = await getFlags()
+  const values = await getFlags()
 
   return (
     <ClerkProvider>
@@ -75,10 +76,9 @@ export default function RootLayout({
           <Suspense>
             <Toolbar />
           </Suspense>
-          {/*TODO: bring back again when feature is needed*/}
-          {/*<Suspense fallback={null}>*/}
-          {/*  <ConfidentialFlagValues values={values} />*/}
-          {/*</Suspense>*/}
+          <Suspense fallback={null}>
+            <ConfidentialFlagValues values={values} />
+          </Suspense>
         </body>
       </html>
     </ClerkProvider>
