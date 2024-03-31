@@ -145,7 +145,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       }
 
       // now update the scheduled bookings with real data
-      await updateScheduledBookings()
+      updateScheduledBookings().catch(console.error)
     },
     [updateScheduledBookings, user]
   )
@@ -184,7 +184,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       }
 
       // now update the scheduled bookings with real data
-      await updateScheduledBookings()
+      updateScheduledBookings().catch(console.error)
     },
     [activeBooking, updateScheduledBookings]
   )
@@ -214,7 +214,29 @@ export function BookingProvider({ children }: PropsWithChildren) {
       }
     }
 
-    fetchActiveBooking().then()
+    fetchActiveBooking().catch(console.error)
+  }, [updateScheduledBookings])
+
+  useEffect(() => {
+    const onChange = () => {
+      updateScheduledBookings().catch(console.error)
+    }
+
+    let hidden: string = "hidden"
+    // Standards:
+    if (hidden in document) document.addEventListener("visibilitychange", onChange)
+    else if ((hidden = "mozHidden") in document) document.addEventListener("mozvisibilitychange", onChange)
+    else if ((hidden = "webkitHidden") in document) document.addEventListener("webkitvisibilitychange", onChange)
+    else if ((hidden = "msHidden") in document) document.addEventListener("msvisibilitychange", onChange)
+    // All others:
+    else window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onChange
+
+    return () => {
+      document.removeEventListener("visibilitychange", onChange)
+      document.removeEventListener("mozvisibilitychange", onChange)
+      document.removeEventListener("webkitvisibilitychange", onChange)
+      document.removeEventListener("msvisibilitychange", onChange)
+    }
   }, [updateScheduledBookings])
 
   return (
