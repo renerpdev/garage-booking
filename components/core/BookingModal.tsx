@@ -141,7 +141,8 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent className={"flex flex-col items-center py-8 lg:py-10"}>
+      <AlertDialogContent
+        className={"flex flex-col items-center py-4 md:py-8 lg:py-10 h-full overflow-y-auto lg:h-auto"}>
         <AlertDialogHeader>
           <AlertDialogTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0 self-center"}>
             Reservar Estacionamiento
@@ -150,10 +151,10 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
             <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <div className={"flex flex-col items-center"}>
+        <AlertDialogFooter className={"w-full md:w-auto h-full md:h-auto"}>
+          <div className={"flex flex-col items-center w-full h-full md:h-auto"}>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 h-full md:h-auto flex flex-col">
                 <FormField
                   control={form.control}
                   name="nickName"
@@ -229,11 +230,11 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                   control={form.control}
                 />
                 <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
-                <div className={"flex flex-col md:flex-row gap-2"}>
-                  <AlertDialogCancel className={"w-full md:w-[50%]"}>Cancelar</AlertDialogCancel>
+                <div className={"flex flex-col md:flex-row gap-0 md:gap-2 !mt-auto pt-6"}>
+                  <AlertDialogCancel className={"w-full md:w-[50%] order-2 md:order-1"}>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
                     type="submit"
-                    className={"md:w-[50%] flex items-center"}
+                    className={"md:w-[50%] flex items-center  order-1 md:order-2"}
                     disabled={!form.formState.isValid || isSubmitting}>
                     {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
                       <>
