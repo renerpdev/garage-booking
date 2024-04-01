@@ -198,13 +198,14 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const fetchActiveBooking = useCallback(async () => {
     setIsLoading(true)
     const _activeBooking: Booking | null = await getActiveBooking()
-    if (_activeBooking) {
-      setActiveBooking(_activeBooking)
-      // Update the scheduled bookings, using optimistic updates
+    setActiveBooking(_activeBooking)
+
+    // Update the scheduled bookings, using optimistic updates
+    if (_activeBooking && activeBooking?.id !== _activeBooking.id) {
       updateActiveBooking(_activeBooking)
     }
     setIsLoading(false)
-  }, [updateActiveBooking])
+  }, [activeBooking?.id, updateActiveBooking])
 
   useEffect(() => {
     async function handleActiveBooking() {
