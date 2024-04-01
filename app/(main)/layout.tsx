@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description: "Sitio web para reservar estacionamiento en Gala Point",
     images: [
       {
-        url: `${imageUrl}?auto=compress&cs=tinysrgb&w=640&h=425&dpr=1`,
+        url: "/screenshot.jpeg",
         width: 800,
         height: 600,
         alt: "Garage Booking | Gala Point"
