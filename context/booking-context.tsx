@@ -55,6 +55,24 @@ export function BookingProvider({ children }: PropsWithChildren) {
     }
   }, [setScheduledBookings])
 
+  const updateActiveBooking = useCallback(
+    (booking: Booking) => {
+      setScheduledBookings((prev) => [
+        ...prev,
+        {
+          ...booking,
+          createdAt: new Date(),
+          owner: {
+            externalId: user?.id,
+            name: user?.fullName || undefined,
+            avatarUrl: user?.imageUrl || undefined
+          }
+        }
+      ])
+    },
+    [user?.fullName, user?.id, user?.imageUrl]
+  )
+
   const createNewBooking = useCallback(
     async (booking: Booking) => {
       const { startDate, endDate, nickName } = booking
@@ -75,19 +93,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         }
 
         // Update the scheduled bookings, using optimistic updates
-        setScheduledBookings((prev) => [
-          ...prev,
-          {
-            ...booking,
-            createdAt: new Date(),
-            id: data?.id || -1,
-            owner: {
-              externalId: user?.id,
-              name: user?.fullName || undefined,
-              avatarUrl: user?.imageUrl || undefined
-            }
-          }
-        ])
+        updateActiveBooking({ ...booking, id: data?.id || -1 })
 
         const isStarted = startDate <= new Date()
 
@@ -147,7 +153,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       // now update the scheduled bookings with real data
       updateScheduledBookings().catch(console.error)
     },
-    [updateScheduledBookings, user]
+    [updateActiveBooking, updateScheduledBookings, user?.fullName, user?.id]
   )
 
   const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
@@ -194,12 +200,14 @@ export function BookingProvider({ children }: PropsWithChildren) {
     const _activeBooking: Booking | null = await getActiveBooking()
     if (_activeBooking) {
       setActiveBooking(_activeBooking)
+      // Update the scheduled bookings, using optimistic updates
+      updateActiveBooking(_activeBooking)
     }
     setIsLoading(false)
-  }, [setActiveBooking])
+  }, [updateActiveBooking])
 
   useEffect(() => {
-    async function updateActiveBooking() {
+    async function handleActiveBooking() {
       try {
         await fetchActiveBooking()
       } catch (e) {
@@ -214,7 +222,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       }
     }
 
-    updateActiveBooking().catch(console.error)
+    handleActiveBooking().catch(console.error)
     updateScheduledBookings().catch(console.error)
   }, [fetchActiveBooking, updateScheduledBookings])
 

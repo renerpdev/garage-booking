@@ -90,7 +90,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
       <div className={"flex flex-col h-14 md:h-20 px-3 py-2 w-full"} {...mergeProps(buttonProps, focusProps)} ref={ref}>
         <time
           dateTime={formatInTimeZone(date.toDate(LOCAL_TIME_ZONE))}
-          className={`ml-auto ${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none" : ""}`}>
+          className={`ml-auto ${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white leading-none min-w-5 min-h-5" : ""}`}>
           {formattedDate}
         </time>
         <span className="sr-only">{bookings.length} reservas</span>
