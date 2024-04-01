@@ -189,19 +189,19 @@ export function BookingProvider({ children }: PropsWithChildren) {
     [activeBooking, updateScheduledBookings]
   )
 
+  const fetchActiveBooking = useCallback(async () => {
+    setIsLoading(true)
+    const _activeBooking: Booking | null = await getActiveBooking()
+    if (_activeBooking) {
+      setActiveBooking(_activeBooking)
+    }
+    setIsLoading(false)
+  }, [setActiveBooking])
+
   useEffect(() => {
-    async function fetchActiveBooking() {
+    async function updateActiveBooking() {
       try {
-        setIsLoading(true)
-
-        const _activeBooking: Booking | null = await getActiveBooking()
-        if (_activeBooking) {
-          setActiveBooking(_activeBooking)
-        }
-
-        await updateScheduledBookings()
-
-        setIsLoading(false)
+        await fetchActiveBooking()
       } catch (e) {
         toast({
           title: "Error",
@@ -214,12 +214,13 @@ export function BookingProvider({ children }: PropsWithChildren) {
       }
     }
 
-    fetchActiveBooking().catch(console.error)
-  }, [updateScheduledBookings])
+    updateActiveBooking().catch(console.error)
+    updateScheduledBookings().catch(console.error)
+  }, [fetchActiveBooking, updateScheduledBookings])
 
   useEffect(() => {
     const onChange = () => {
-      updateScheduledBookings().catch(console.error)
+      fetchActiveBooking().catch(console.error)
     }
 
     let hidden: string = "hidden"
@@ -237,7 +238,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       document.removeEventListener("webkitvisibilitychange", onChange)
       document.removeEventListener("msvisibilitychange", onChange)
     }
-  }, [updateScheduledBookings])
+  }, [fetchActiveBooking, updateScheduledBookings])
 
   return (
     <BookingContext.Provider
