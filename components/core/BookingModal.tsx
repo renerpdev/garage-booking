@@ -142,7 +142,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent
-        className={"flex flex-col items-center py-4 md:py-8 lg:py-10 h-full overflow-y-auto lg:h-auto"}>
+        className={"flex flex-col items-center p-6 md:py-8 lg:py-10 h-full overflow-y-auto lg:h-auto max-h-[700px]"}>
         <AlertDialogHeader>
           <AlertDialogTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0 self-center"}>
             Reservar Estacionamiento
@@ -151,10 +151,10 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
             <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className={"w-full md:w-auto h-full md:h-auto"}>
-          <div className={"flex flex-col items-center w-full h-full md:h-auto"}>
+        <AlertDialogFooter className={"w-full md:w-auto h-full"}>
+          <div className={"flex flex-col items-center w-full h-full"}>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 h-full md:h-auto flex flex-col">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 h-full flex flex-col">
                 <FormField
                   control={form.control}
                   name="nickName"

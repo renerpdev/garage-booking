@@ -46,7 +46,7 @@ const DateTimeRangePicker = ({
     <div>
       <Dialog onOpenChange={onDialogOpen} open={isPopoverOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className={"h-full overflow-y-auto p-4 lg:h-auto"}>
+        <DialogContent className={"h-full overflow-y-auto p-6 lg:h-auto max-h-[700px]"}>
           <DialogHeader>
             <DialogDescription>
               <div className={"flex flex-col items-center px-4"}>
@@ -68,7 +68,7 @@ const DateTimeRangePicker = ({
               <DateRangeSelected start={startDateTime} end={endDateTime} />
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4"}>
+          <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4 mt-auto"}>
             <Button variant={"outline"} className={"min-w-28"} onClick={onDatePickerCancel}>
               Cancelar
             </Button>
