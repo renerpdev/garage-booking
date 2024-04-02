@@ -69,7 +69,7 @@ export function getDisabledDates(dates: { startDate: Date; endDate: Date }[]) {
   const disabledHours = new Set<string>()
   const disabledDays = new Set<string>()
 
-  dates.forEach(({ startDate, endDate }) => {
+  dates?.forEach(({ startDate, endDate }) => {
     if (differenceInDays(endDate, startDate) > 0) {
       const daysToAdd = startDate.getHours() === 0 && startDate.getMinutes() === 0 ? 0 : 1
       const daysToSubtract = endDate.getHours() === 23 && endDate.getMinutes() === 59 ? 0 : 1
