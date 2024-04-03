@@ -269,7 +269,9 @@ export async function deleteManySubscriptionsByEndpoint(endpoints: string[]): Pr
         }
       }
     })
-    logger.info(`Deleted ${payload.count} subscriptions with endpoints: ${endpoints.join(", ")}`)
+    if (payload.count > 0) {
+      logger.info(`Deleted ${payload.count} subscriptions. Deleted endpoints: \n-${endpoints.join("\n-")}\n`)
+    }
   } catch (error) {
     logger.error(`Error deleting subscription with endpoint: ${error}`)
     throw new Error(error as any)
