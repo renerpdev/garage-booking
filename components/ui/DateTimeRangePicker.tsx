@@ -48,24 +48,26 @@ const DateTimeRangePicker = ({
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className={"h-full overflow-y-auto p-6 lg:h-auto max-h-[700px]"}>
           <DialogHeader>
-            <DialogDescription>
-              <div className={"flex flex-col items-center px-4"}>
-                <RangeCalendar
-                  onChange={onDateRangeChange}
-                  value={dateRangeValue}
-                  isDateUnavailable={(date) => disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())}
-                />
-                <RangeTime
-                  onChange={onTimeRangeChange}
-                  value={{
-                    start: startDateTime,
-                    end: endDateTime
-                  }}
-                  disabledDates={disabledHours}
-                />
+            <DialogDescription asChild>
+              <div>
+                <div className={"flex flex-col items-center px-4"}>
+                  <RangeCalendar
+                    onChange={onDateRangeChange}
+                    value={dateRangeValue}
+                    isDateUnavailable={(date) => disabledDays.has(date.toDate(getLocalTimeZone()).toISOString())}
+                  />
+                  <RangeTime
+                    onChange={onTimeRangeChange}
+                    value={{
+                      start: startDateTime,
+                      end: endDateTime
+                    }}
+                    disabledDates={disabledHours}
+                  />
+                </div>
+                <br />
+                <DateRangeSelected start={startDateTime} end={endDateTime} />
               </div>
-              <br />
-              <DateRangeSelected start={startDateTime} end={endDateTime} />
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4 mt-auto"}>
