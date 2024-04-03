@@ -160,10 +160,10 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                   name="nickName"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Nombre</FormLabel>
+                      <FormLabel>Título</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Escribe un nombre para la reserva"
+                          placeholder="Escribe un título para la reserva"
                           {...field}
                           onBlur={(e) => {
                             field.onChange(e.target.value.trim())
@@ -172,7 +172,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                       </FormControl>
                       {!fieldState.invalid && (
                         <FormDescription className={"text-xs md:text-sm"}>
-                          El nombre se usará para identificar a la reserva.
+                          El título se usará para identificar a la reserva.
                         </FormDescription>
                       )}
                       <FormMessage className={"text-xs md:text-sm"} />
