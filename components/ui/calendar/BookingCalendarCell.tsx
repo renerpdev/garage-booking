@@ -59,7 +59,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
         <div className={"px-3 py-2 lg:min-h-28 xl:min-h-32"} {...mergeProps(buttonProps, focusProps)}>
           <time
             dateTime="2022-01-03"
-            className={`${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white inline-flex justify-center items-center leading-none min-w-5 min-h-5" : ""}`}>
+            className={`${isToday(date, getLocalTimeZone()) ? "bg-black p-1 font-medium rounded-full text-white inline-flex justify-center items-center leading-none min-w-5 min-h-5" : ""}`}>
             {formattedDate}
           </time>
           <ol className="mt-2">
