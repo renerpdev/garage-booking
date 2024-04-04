@@ -14,7 +14,7 @@ const UnauthorizedAlert = ({ className }: InfoAlertProps) => {
   if (isSignedIn) return null
 
   return (
-    <Alert className={cn("max-w-md mx-auto bg-orange-50 my-2", className)}>
+    <Alert className={cn("md:max-w-md mx-auto bg-orange-50", className)}>
       <Info className="h-4 w-4 fill-orange-300" />
       <AlertTitle className={"text-orange-700 font-bold"}>Aviso</AlertTitle>
       <AlertDescription className={"text-orange-700"}>

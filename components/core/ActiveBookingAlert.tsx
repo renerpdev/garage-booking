@@ -24,7 +24,7 @@ const ActiveBookingAlert = ({ className }: BookingActiveAlertProps) => {
   if (!activeBooking?.endDate) return null
 
   return (
-    <Alert className={cn("max-w-md mx-auto", className)}>
+    <Alert className={cn("md:max-w-md mx-auto", className)}>
       <Info className="h-4 w-4" />
       <AlertTitle className={"text-primary font-bold"}>Reserva Activa</AlertTitle>
       <AlertDescription>

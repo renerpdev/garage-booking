@@ -25,7 +25,7 @@ export const BookingCalendar = ({ currentDate = new Date(), ...props }: BookingC
   let { calendarProps } = useCalendar(props, state)
 
   return (
-    <div className="lg:flex lg:h-full lg:flex-col rounded-lg bg-gray-50 overflow-hidden" {...calendarProps}>
+    <div className="lg:flex lg:h-full lg:flex-col rounded-lg bg-gray-50 overflow-hidden shadow-md" {...calendarProps}>
       {/* Here goes the calendar title and action buttons */}
       <CalendarHeader state={state} {...props} />
       {/* Here goes the whole calendar grid */}

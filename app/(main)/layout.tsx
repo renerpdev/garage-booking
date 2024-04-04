@@ -12,10 +12,10 @@ import Notifications from "@/components/core/Notifications"
 import { getFlags } from "@/lib/flags"
 import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
+import UnauthorizedAlert from "@/components/ui/UnauthorizedAlert"
+import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 
 const inter = Inter({ subsets: ["latin"] })
-
-const imageUrl = "https://images.pexels.com/photos/2280148/pexels-photo-2280148.jpeg"
 
 export const metadata: Metadata = {
   title: "Garage Booking | Gala Point",
@@ -61,15 +61,15 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="es">
-        <body
-          className={`${inter.className} flex flex-col min-h-screen w-screen antialiased`}
-          style={{
-            background: `url(${imageUrl}?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2) no-repeat center center/cover`
-          }}>
+        <body className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gray-200`}>
           <Notifications />
           <Navbar />
           <BookingProvider>
-            <main className={"flex-1 flex flex-col justify-center"}>{children}</main>
+            <main className={"flex-1 flex flex-col p-4 md:px-6 gap-2"}>
+              <UnauthorizedAlert />
+              <ActiveBookingAlert />
+              {children}
+            </main>
             <Toaster />
           </BookingProvider>
           <Footer />

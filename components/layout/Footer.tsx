@@ -6,11 +6,6 @@ export const Footer = () => (
           renerp.dev
         </a>{" "}
         <span>&copy; {new Date().getFullYear()}</span>
-        <a
-          className="text-xs block text-gray-500 underline"
-          href="https://www.pexels.com/es-es/foto/foto-de-estacionamiento-subterraneo-vacio-2280148">
-          Foto de Carl Newton
-        </a>
       </div>
     </div>
   </div>
