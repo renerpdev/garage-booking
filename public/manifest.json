@@ -3,8 +3,8 @@
   "short_name": "Garage Booking",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#7B39ED",
-  "background_color": "#7B39ED",
+  "theme_color": "#B0B3FB",
+  "background_color": "#B0B3FB",
   "description": "Booking garage at Gala Point",
   "icons": [
     {

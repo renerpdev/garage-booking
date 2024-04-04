@@ -14,6 +14,7 @@ import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
 import UnauthorizedAlert from "@/components/ui/UnauthorizedAlert"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
+import Head from "next/head"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -63,6 +64,10 @@ export default async function RootLayout({
       <html lang="es">
         <body
           className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gradient-to-r from-violet-300 to-indigo-300`}>
+          <Head>
+            <link rel="shortcut icon" href="/favicon.ico" />
+            <meta name="theme-color" content="#B0B3FB" />
+          </Head>
           <Notifications />
           <Navbar />
           <BookingProvider>
