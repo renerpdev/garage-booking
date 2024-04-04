@@ -27,7 +27,7 @@ export function Navbar() {
   const isAdmin = ((user?.publicMetadata?.role as string)?.toUpperCase() as UserRole) === "ADMIN"
 
   return (
-    <div className={"bg-gray-50 w-screen h-auto py-2 md:py-3 px-4 md:px-6 border-b-2 border-b-gray-50"}>
+    <div className={"bg-gray-50 w-screen h-auto py-2 md:py-3 px-4 md:px-6 border-b-2 border-b-gray-50 shadow-md"}>
       <div className={"flex justify-between items-center"}>
         <Link href={"/"} className={"flex gap-1"}>
           <Image

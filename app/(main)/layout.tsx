@@ -61,7 +61,8 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="es">
-        <body className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gray-200`}>
+        <body
+          className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gradient-to-r from-violet-300 to-indigo-300`}>
           <Notifications />
           <Navbar />
           <BookingProvider>
