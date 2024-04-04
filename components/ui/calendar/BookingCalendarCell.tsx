@@ -1,6 +1,12 @@
 import React, { useMemo, useRef } from "react"
 import { mergeProps, useCalendarCell, useFocusRing } from "react-aria"
-import { CalendarDate, DateValue, isToday, isSameDay as isSameCalendarDay } from "@internationalized/date"
+import {
+  CalendarDate,
+  DateValue,
+  isToday,
+  isSameDay as isSameCalendarDay,
+  getLocalTimeZone
+} from "@internationalized/date"
 import { CalendarState } from "react-stately"
 import { formatInTimeZone, LOCAL_TIME_ZONE } from "@/lib/utils"
 import { useBookingContext } from "@/context/booking-context"
@@ -59,7 +65,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
           <ol className="mt-2">
             {bookings.map((booking) => (
               <li key={booking.id}>
-                <HoverCard>
+                <HoverCard openDelay={100}>
                   <HoverCardTrigger asChild>
                     <div className="group flex cursor-pointer">
                       <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-primary">
@@ -90,7 +96,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
       <div className={"flex flex-col h-14 md:h-20 px-3 py-2 w-full"} {...mergeProps(buttonProps, focusProps)} ref={ref}>
         <time
           dateTime={formatInTimeZone(date.toDate(LOCAL_TIME_ZONE))}
-          className={`ml-auto ${isToday(date, LOCAL_TIME_ZONE) ? "bg-black p-1 font-medium rounded-full text-white inline-flex justify-center items-center leading-none min-w-5 min-h-5" : ""}`}>
+          className={`ml-auto ${isToday(date, getLocalTimeZone()) ? "bg-black p-1 font-medium rounded-full text-white inline-flex justify-center items-center leading-none min-w-5 min-h-5" : ""}`}>
           {formattedDate}
         </time>
         <span className="sr-only">{bookings.length} reservas</span>
