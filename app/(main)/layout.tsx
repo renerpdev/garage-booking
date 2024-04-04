@@ -15,6 +15,7 @@ import { FlagValues } from "@vercel/flags/react"
 import UnauthorizedAlert from "@/components/ui/UnauthorizedAlert"
 import ActiveBookingAlert from "@/components/core/ActiveBookingAlert"
 import Head from "next/head"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -68,6 +69,7 @@ export default async function RootLayout({
             <link rel="shortcut icon" href="/favicon.ico" />
             <meta name="theme-color" content="#B0B3FB" />
           </Head>
+          <SpeedInsights />
           <Notifications />
           <Navbar />
           <BookingProvider>
