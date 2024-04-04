@@ -181,7 +181,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       } catch (e) {
         toast({
           title: "Error",
-          description: "No se pudo cancelar la reserva",
+          description: "No se pudo cancelar la reserva. Por favor, intente nuevamente en unos segundos.",
           className: "text-red-50 bg-red-500"
         })
         throw e
@@ -199,13 +199,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
     setIsFetching(true)
     const _activeBooking: Booking | null = await getActiveBooking()
     setActiveBooking(_activeBooking)
-
-    // Update the scheduled bookings, using optimistic updates
-    if (_activeBooking && activeBooking?.id !== _activeBooking.id) {
-      updateActiveBooking(_activeBooking)
-    }
     setIsFetching(false)
-  }, [activeBooking?.id, updateActiveBooking])
+  }, [])
 
   useEffect(() => {
     async function handleActiveBooking() {
@@ -215,7 +210,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       } catch (e) {
         toast({
           title: "Error",
-          description: "Ocurrió un error al obtener la reserva activa. Por favor, intenta nuevamente.",
+          description: "Ocurrió un error al obtener la reserva activa. Por favor, recargue la aplicación nuevamente.",
           className: "text-red-500 bg-red-50"
         })
         throw e
@@ -248,7 +243,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       document.removeEventListener("webkitvisibilitychange", onChange)
       document.removeEventListener("msvisibilitychange", onChange)
     }
-  }, [fetchActiveBooking, updateScheduledBookings])
+  }, [fetchActiveBooking])
 
   return (
     <BookingContext.Provider

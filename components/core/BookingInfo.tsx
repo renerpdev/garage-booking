@@ -91,7 +91,7 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
 
       <Avatar>
         {owner && <AvatarImage src={owner.avatarUrl} />}
-        <AvatarFallback>{nickName?.substring(0, 2).toUpperCase()}</AvatarFallback>
+        <AvatarFallback>{owner.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="space-y-2">
         <h3 className="text-sm font-semibold">{nickName}</h3>

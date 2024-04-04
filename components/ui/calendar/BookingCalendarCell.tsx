@@ -59,7 +59,7 @@ export const CalendarCell = ({ state, date, mode = "button" }: CalendarCellProps
           <ol className="mt-2">
             {bookings.map((booking) => (
               <li key={booking.id}>
-                <HoverCard openDelay={100}>
+                <HoverCard openDelay={200} closeDelay={50}>
                   <HoverCardTrigger asChild>
                     <div className="group flex cursor-pointer">
                       <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-primary">
