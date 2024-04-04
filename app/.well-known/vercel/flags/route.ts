@@ -4,16 +4,8 @@ import { type ApiData } from "@vercel/flags"
 export async function GET() {
   const apiData = {
     definitions: {
-      calendarFeature: {
-        description: "Controls whether the Calendar feature is visible",
-        origin: "https://garage-booking.renerp.dev/calendar",
-        options: [
-          { value: false, label: "Off" },
-          { value: true, label: "On" }
-        ]
-      },
-      loginFeature: {
-        description: "Controls whether the Login feature is visible",
+      adminFeature: {
+        description: "Controls whether the Admin feature is visible",
         origin: "https://garage-booking.renerp.dev",
         options: [
           { value: false, label: "Off" },

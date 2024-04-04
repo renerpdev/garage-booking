@@ -4,15 +4,25 @@ import { LogInIcon, LockKeyhole } from "lucide-react"
 import Link from "next/link"
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { UserRole } from "@/lib/models"
+import { FeatureFlag, UserRole } from "@/lib/models"
 import Image from "next/image"
 import logo from "@/public/logo.svg"
 import { usePathname } from "next/navigation"
-import React from "react"
+import React, { useEffect, useMemo } from "react"
+import { getFlags } from "@/lib/flags"
 
 export function Navbar() {
   const { user } = useUser()
   const pathname = usePathname()
+  const [flags, setFlags] = React.useState<FeatureFlag | null>(null)
+
+  const isAdminFeatureEnabled = useMemo(() => flags?.adminFeature, [flags])
+
+  useEffect(() => {
+    getFlags().then((value) => {
+      setFlags(value)
+    })
+  }, [isAdminFeatureEnabled])
 
   const isAdmin = ((user?.publicMetadata?.role as string)?.toUpperCase() as UserRole) === "ADMIN"
 
@@ -34,7 +44,7 @@ export function Navbar() {
           </div>
         </Link>
         <div className={"flex gap-4 items-center justify-between"}>
-          {isAdmin ? (
+          {isAdminFeatureEnabled && isAdmin ? (
             <Link
               href={"/admin"}
               className={`hover:text-primary ${pathname == "/admin" ? "text-primary" : ""}`}
