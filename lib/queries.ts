@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { logger } from "@/logger"
-import { Booking, Subscription, SubscriptionDto, User } from "@/lib/models"
+import { ActiveBooking, Booking, Subscription, SubscriptionDto, User } from "@/lib/models"
 import { currentUser } from "@clerk/nextjs"
 
 /****************************************************
@@ -57,7 +57,10 @@ export async function createBooking(booking: Booking) {
   }
 }
 
-export async function getActiveBooking(startDate: Date = new Date(), endDate: Date = new Date()): Promise<Booking> {
+export async function getActiveBooking(
+  startDate: Date = new Date(),
+  endDate: Date = new Date()
+): Promise<ActiveBooking> {
   await clearActiveBookings()
   try {
     return (await prisma.booking.findFirst({
@@ -66,7 +69,15 @@ export async function getActiveBooking(startDate: Date = new Date(), endDate: Da
         startDate: true,
         endDate: true,
         nickName: true,
-        createdAt: true
+        createdAt: true,
+        owner: {
+          select: {
+            externalId: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        }
       },
       where: {
         status: "ACTIVE",
@@ -78,7 +89,7 @@ export async function getActiveBooking(startDate: Date = new Date(), endDate: Da
         }
       },
       orderBy: { startDate: "asc" }
-    })) as Booking
+    })) as ActiveBooking
   } catch (error) {
     logger.error(`Error getting active booking: ${error}`)
     throw new Error(error as any)

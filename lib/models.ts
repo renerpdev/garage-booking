@@ -11,11 +11,7 @@ export type Booking = {
   owner: Partial<User>
 }
 
-export type ActiveBooking =
-  | (Pick<Booking, "id" | "startDate" | "endDate" | "nickName"> & {
-      owner: Partial<User>
-    })
-  | null
+export type ActiveBooking = Omit<Booking, "updatedAt" | "status">
 
 export type CanceledBooking = Pick<Booking, "id" | "startDate" | "endDate">
 

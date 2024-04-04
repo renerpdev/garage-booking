@@ -9,7 +9,7 @@ import { useUser } from "@clerk/nextjs"
 import { isPermissionGranted, notifySubscribers } from "@/lib/notifications"
 
 type ContextType = {
-  activeBooking: ActiveBooking
+  activeBooking: ActiveBooking | null
   setActiveBooking: (_booking: Booking | null) => void
   isLoading: boolean
   isFetching: boolean
@@ -37,7 +37,7 @@ const defaultValue = {
 const BookingContext = createContext<ContextType>(defaultValue)
 
 export function BookingProvider({ children }: PropsWithChildren) {
-  const [activeBooking, setActiveBooking] = useState<ActiveBooking>(null)
+  const [activeBooking, setActiveBooking] = useState<ActiveBooking | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isFetching, setIsFetching] = useState<boolean>(false)
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
@@ -106,8 +106,10 @@ export function BookingProvider({ children }: PropsWithChildren) {
             nickName,
             owner: {
               externalId: user?.id,
-              name: user?.fullName || undefined
-            }
+              name: user?.fullName || undefined,
+              avatarUrl: user?.imageUrl || undefined
+            },
+            createdAt: new Date()
           })
         }
 
@@ -153,7 +155,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       // now update the scheduled bookings with real data
       updateScheduledBookings().catch(console.error)
     },
-    [updateActiveBooking, updateScheduledBookings, user?.fullName, user?.id]
+    [updateActiveBooking, updateScheduledBookings, user]
   )
 
   const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
@@ -197,7 +199,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
   const fetchActiveBooking = useCallback(async () => {
     setIsFetching(true)
-    const _activeBooking: Booking | null = await getActiveBooking()
+    const _activeBooking: ActiveBooking | null = await getActiveBooking()
     setActiveBooking(_activeBooking)
     setIsFetching(false)
   }, [])
@@ -225,7 +227,16 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const onChange = () => {
-      fetchActiveBooking().catch(console.error)
+      fetchActiveBooking()
+        .then(() => {
+          setScheduledBookings((prev) => {
+            if (!activeBooking) return prev
+
+            const filteredBookings = prev.filter((booking) => booking.id !== activeBooking?.id)
+            return [...filteredBookings, activeBooking as Booking]
+          })
+        })
+        .catch(console.error)
     }
 
     let hidden: string = "hidden"
@@ -243,7 +254,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       document.removeEventListener("webkitvisibilitychange", onChange)
       document.removeEventListener("msvisibilitychange", onChange)
     }
-  }, [fetchActiveBooking])
+  }, [activeBooking, fetchActiveBooking])
 
   return (
     <BookingContext.Provider
