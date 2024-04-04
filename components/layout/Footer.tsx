@@ -5,7 +5,7 @@ export const Footer = () => (
         <a href="https://renerp.dev" target="_blank" rel="noopener" className={"font-semibold hover:text-primary"}>
           renerp.dev
         </a>{" "}
-        <span>&copy; 2024</span>
+        <span>&copy; {new Date().getFullYear()}</span>
         <a
           className="text-xs block text-gray-500 underline"
           href="https://www.pexels.com/es-es/foto/foto-de-estacionamiento-subterraneo-vacio-2280148">
