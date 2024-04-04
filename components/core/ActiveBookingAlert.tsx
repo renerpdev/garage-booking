@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Info } from "lucide-react"
 import { cn, formatInTimeZone, FULL_FORMAT } from "@/lib/utils"
@@ -35,11 +35,17 @@ const ActiveBookingAlert = ({ className }: BookingActiveAlertProps) => {
 }
 
 const AlertContent = ({ expiryDate, onExpire }: { expiryDate: Date; onExpire: () => void }) => {
-  const { seconds, minutes, hours, days } = useTimer({
+  const { seconds, minutes, hours, days, isRunning, restart } = useTimer({
     expiryTimestamp: expiryDate,
     onExpire,
     autoStart: true
   })
+
+  useEffect(() => {
+    if (isRunning) {
+      restart(expiryDate, true)
+    }
+  }, [expiryDate, isRunning, restart])
 
   return (
     <div>
