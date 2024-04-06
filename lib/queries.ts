@@ -61,7 +61,6 @@ export async function getActiveBooking(
   startDate: Date = new Date(),
   endDate: Date = new Date()
 ): Promise<ActiveBooking> {
-  await clearActiveBookings()
   try {
     return (await prisma.booking.findFirst({
       select: {
@@ -69,15 +68,7 @@ export async function getActiveBooking(
         startDate: true,
         endDate: true,
         nickName: true,
-        createdAt: true,
-        owner: {
-          select: {
-            externalId: true,
-            email: true,
-            name: true,
-            avatarUrl: true
-          }
-        }
+        createdAt: true
       },
       where: {
         status: "ACTIVE",
@@ -98,7 +89,7 @@ export async function getActiveBooking(
 
 export async function getScheduledBookings(): Promise<Booking[]> {
   try {
-    return (await prisma.booking.findMany({
+    return ((await prisma.booking.findMany({
       select: {
         id: true,
         startDate: true,
@@ -127,7 +118,7 @@ export async function getScheduledBookings(): Promise<Booking[]> {
         ]
       },
       orderBy: { startDate: "asc" }
-    })) as Booking[]
+    })) ?? []) as Booking[]
   } catch (error) {
     logger.error(`Error getting scheduled bookings: ${error}`)
     throw new Error(error as any)
@@ -151,7 +142,9 @@ export async function clearActiveBookings() {
 
     const deactivatedBookings = data.count
     if (deactivatedBookings > 0) {
-      logger.info(`${deactivatedBookings} Bookings ${deactivatedBookings > 1 ? "were" : "was"} set to INACTIVE`)
+      logger.info(
+        `A total of ${deactivatedBookings} bookings ${deactivatedBookings === 1 ? "was" : "were"} set to INACTIVE`
+      )
     }
 
     return { success: true }
@@ -264,7 +257,7 @@ export async function createSubscription(subscription: SubscriptionDto): Promise
 
 export async function getAllSubscriptions(): Promise<Subscription[]> {
   try {
-    return await prisma.subscription.findMany()
+    return (await prisma.subscription.findMany()) ?? []
   } catch (error) {
     logger.error(`Error getting subscriptions: ${error}`)
     throw new Error(error as any)

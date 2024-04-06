@@ -6,9 +6,9 @@ export default authMiddleware({
   // Allow signed out users to access the specified routes:
   publicRoutes: [
     "/",
-    "/calendar",
     "/manifest(.*)",
     "/api/webhooks(.*)",
+    "/api/bookings/active(.*)",
     "/api/notifications/subscribe(.*)",
     "/.well-known/vercel/flags"
   ]

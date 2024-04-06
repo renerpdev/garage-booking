@@ -1,12 +1,13 @@
 "use client"
 
 import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { cancelBookingById, createBooking, getActiveBooking, getScheduledBookings } from "@/lib/queries"
+import { cancelBookingById, clearActiveBookings, createBooking, getScheduledBookings } from "@/lib/queries"
 import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/lib/utils"
 import { toast } from "@/components/ui/use-toast"
 import { ActiveBooking, Booking, CanceledBooking } from "@/lib/models"
 import { useUser } from "@clerk/nextjs"
 import { isPermissionGranted, notifySubscribers } from "@/lib/notifications"
+import useSWR from "swr"
 
 type ContextType = {
   activeBooking: ActiveBooking | null
@@ -34,6 +35,8 @@ const defaultValue = {
   cancelBooking: (_: CanceledBooking) => Promise.resolve()
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
+
 const BookingContext = createContext<ContextType>(defaultValue)
 
 export function BookingProvider({ children }: PropsWithChildren) {
@@ -42,11 +45,16 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const [isFetching, setIsFetching] = useState<boolean>(false)
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
   const { user } = useUser()
+  const {
+    data: activeBookingData,
+    error: activeBookingError,
+    isLoading: isLoadingActiveBooking
+  } = useSWR("/api/bookings/active", fetcher)
 
   const updateScheduledBookings = useCallback(async () => {
     try {
       setIsFetching(true)
-      const scheduledDates = await getScheduledBookings()
+      const scheduledDates = (await getScheduledBookings()) ?? []
       setScheduledBookings(scheduledDates)
     } catch (e) {
       console.error(e)
@@ -197,46 +205,37 @@ export function BookingProvider({ children }: PropsWithChildren) {
     [activeBooking, updateScheduledBookings]
   )
 
-  const fetchActiveBooking = useCallback(async () => {
-    setIsFetching(true)
-    const _activeBooking: ActiveBooking | null = await getActiveBooking()
-    setActiveBooking(_activeBooking)
-    setIsFetching(false)
-  }, [])
-
   useEffect(() => {
     async function handleActiveBooking() {
-      try {
-        setIsLoading(true)
-        await fetchActiveBooking()
-      } catch (e) {
-        toast({
-          title: "Error",
-          description: "Ocurrió un error al obtener la reserva activa. Por favor, recargue la aplicación nuevamente.",
-          className: "text-red-500 bg-red-50"
-        })
-        throw e
-      } finally {
-        setIsLoading(false)
-      }
+      await clearActiveBookings()
+      await updateScheduledBookings()
     }
 
     handleActiveBooking().catch(console.error)
-    updateScheduledBookings().catch(console.error)
-  }, [fetchActiveBooking, updateScheduledBookings])
+  }, [updateScheduledBookings])
+
+  useEffect(() => {
+    if (activeBookingError) {
+      toast({
+        title: "Error",
+        description: "Ocurrio un error al obtener la reserva activa. Por favor, recargue la aplicación nuevamente.",
+        className: "text-red-50 bg-red-500"
+      })
+      return
+    }
+
+    setActiveBooking(
+      (activeBookingData && {
+        ...activeBookingData,
+        endDate: new Date(activeBookingData.endDate)
+      }) ??
+        null
+    )
+  }, [activeBookingData, activeBookingError])
 
   useEffect(() => {
     const onChange = () => {
-      fetchActiveBooking()
-        .then(() => {
-          setScheduledBookings((prev) => {
-            if (!activeBooking) return prev
-
-            const filteredBookings = prev.filter((booking) => booking.id !== activeBooking?.id)
-            return [...filteredBookings, activeBooking as Booking]
-          })
-        })
-        .catch(console.error)
+      updateScheduledBookings().catch(console.error)
     }
 
     let hidden: string = "hidden"
@@ -254,7 +253,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       document.removeEventListener("webkitvisibilitychange", onChange)
       document.removeEventListener("msvisibilitychange", onChange)
     }
-  }, [activeBooking, fetchActiveBooking])
+  }, [activeBookingData, updateScheduledBookings])
 
   return (
     <BookingContext.Provider
@@ -262,7 +261,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
         activeBooking,
         setActiveBooking,
         isLoading,
-        isFetching,
+        isFetching: isFetching || isLoading || isLoadingActiveBooking,
         disabledDays,
         disabledHours,
         createNewBooking,
