@@ -51,7 +51,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
     isLoading: isLoadingActiveBooking
   } = useSWR("/api/bookings/active", fetcher, {
     revalidateOnFocus: true,
-    revalidateOnReconnect: true
+    revalidateOnReconnect: true,
+    refreshWhenHidden: true
   })
 
   const updateScheduledBookings = useCallback(async () => {
@@ -226,13 +227,13 @@ export function BookingProvider({ children }: PropsWithChildren) {
 
     if (!activeBookingData) {
       setActiveBooking(null)
-      return
+    } else {
+      setActiveBooking({
+        ...activeBookingData,
+        endDate: new Date(activeBookingData.endDate)
+      })
     }
 
-    setActiveBooking({
-      ...activeBookingData,
-      endDate: new Date(activeBookingData.endDate)
-    })
     updateScheduledBookings().catch(console.error)
   }, [activeBookingData, activeBookingError, updateScheduledBookings])
 
