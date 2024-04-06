@@ -49,7 +49,10 @@ export function BookingProvider({ children }: PropsWithChildren) {
     data: activeBookingData,
     error: activeBookingError,
     isLoading: isLoadingActiveBooking
-  } = useSWR("/api/bookings/active", fetcher)
+  } = useSWR("/api/bookings/active", fetcher, {
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true
+  })
 
   const updateScheduledBookings = useCallback(async () => {
     try {
@@ -205,15 +208,12 @@ export function BookingProvider({ children }: PropsWithChildren) {
     [activeBooking, updateScheduledBookings]
   )
 
+  // Clear active bookings when the component mounts
   useEffect(() => {
-    async function handleActiveBooking() {
-      await clearActiveBookings()
-      await updateScheduledBookings()
-    }
-
-    handleActiveBooking().catch(console.error)
+    clearActiveBookings().catch(console.error)
   }, [updateScheduledBookings])
 
+  // Update the active booking and scheduled bookings when it changes
   useEffect(() => {
     if (activeBookingError) {
       toast({
@@ -224,36 +224,17 @@ export function BookingProvider({ children }: PropsWithChildren) {
       return
     }
 
-    setActiveBooking(
-      (activeBookingData && {
-        ...activeBookingData,
-        endDate: new Date(activeBookingData.endDate)
-      }) ??
-        null
-    )
-  }, [activeBookingData, activeBookingError])
-
-  useEffect(() => {
-    const onChange = () => {
-      updateScheduledBookings().catch(console.error)
+    if (!activeBookingData) {
+      setActiveBooking(null)
+      return
     }
 
-    let hidden: string = "hidden"
-    // Standards:
-    if (hidden in document) document.addEventListener("visibilitychange", onChange)
-    else if ((hidden = "mozHidden") in document) document.addEventListener("mozvisibilitychange", onChange)
-    else if ((hidden = "webkitHidden") in document) document.addEventListener("webkitvisibilitychange", onChange)
-    else if ((hidden = "msHidden") in document) document.addEventListener("msvisibilitychange", onChange)
-    // All others:
-    else window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onChange
-
-    return () => {
-      document.removeEventListener("visibilitychange", onChange)
-      document.removeEventListener("mozvisibilitychange", onChange)
-      document.removeEventListener("webkitvisibilitychange", onChange)
-      document.removeEventListener("msvisibilitychange", onChange)
-    }
-  }, [activeBookingData, updateScheduledBookings])
+    setActiveBooking({
+      ...activeBookingData,
+      endDate: new Date(activeBookingData.endDate)
+    })
+    updateScheduledBookings().catch(console.error)
+  }, [activeBookingData, activeBookingError, updateScheduledBookings])
 
   return (
     <BookingContext.Provider
