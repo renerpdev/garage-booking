@@ -3,6 +3,8 @@ import { getActiveBooking } from "@/lib/queries"
 import { logger } from "@/logger"
 import { ActiveBooking } from "@/lib/models"
 
+export const revalidate = 0
+
 export async function GET() {
   try {
     const activeBooking: ActiveBooking = await getActiveBooking()
