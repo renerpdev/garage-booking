@@ -1,0 +1,16 @@
+{
+  "NotFoundPage": {
+    "title": "Page not found",
+    "description": "Please double-check the browser address bar or use the navigation to go to a known page."
+  },
+  "LocaleLayout": {
+    "title": "Garage Booking | Gala Point",
+    "description": "Sitio web para reservar estacionamiento en Gala Point",
+    "openGraph": {
+      "siteName": "Garage Booking | Gala Point",
+      "title": "Garage Booking | Gala Point",
+      "description": "Sitio web para reservar estacionamiento en Gala Point",
+      "imageAlt": "Garage Booking | Gala Point"
+    }
+  }
+}
