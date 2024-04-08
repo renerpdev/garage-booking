@@ -2,6 +2,7 @@ import React from "react"
 import { TimePicker } from "./TimePicker"
 import { Separator } from "@/src/components/ui/separator"
 import { useBookingContext } from "@/src/context/booking-context"
+import { useTranslations } from "next-intl"
 
 export type RangeTimeValue = {
   start: Date
@@ -15,6 +16,7 @@ interface RangeTimeProps {
 }
 export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeTimeProps) => {
   const { activeBooking } = useBookingContext()
+  const t = useTranslations("Components.TimeRangePicker")
   const handleStartTimeChange = (start: Date) => {
     onChange?.({
       start: start,
@@ -34,7 +36,7 @@ export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeT
   return (
     <div className={"flex flex-col sm:flex-row gap-2 mt-2"}>
       <div className={"flex items-center justify-center sm:flex-col gap-2"}>
-        <span className={"text-xs self-center"}>Desde:</span>
+        <span className={"text-xs self-center"}>{t("from")}</span>
         <TimePicker
           value={value?.start}
           onChange={handleStartTimeChange}
@@ -45,7 +47,7 @@ export const RangeTime = ({ onChange, value, disabledDates = new Set() }: RangeT
       <Separator orientation={"horizontal"} className={"sm:hidden self-center"} />
       <Separator orientation={"vertical"} className={"hidden sm:block self-center min-h-14"} />
       <div className={"flex items-center justify-center sm:flex-col gap-2"}>
-        <span className={"text-xs self-center"}>Hasta:</span>
+        <span className={"text-xs self-center"}>{t("to")}</span>
         <TimePicker
           value={value?.end}
           onChange={handleEndTimeChange}

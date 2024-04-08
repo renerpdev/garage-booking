@@ -3,27 +3,28 @@ import React from "react"
 
 import { useCalendar } from "react-aria"
 import { CalendarStateOptions, useCalendarState } from "react-stately"
-import { CalendarDate, createCalendar } from "@internationalized/date"
+import { createCalendar } from "@internationalized/date"
 import { CalendarFooter } from "@/src/components/ui/calendar/BookingCalendarFooter"
 import { CalendarGrid } from "@/src/components/ui/calendar/BookingCalendarGrid"
 import { CalendarHeader } from "@/src/components/ui/calendar/BookingCalendarHeader"
-import { useLocale } from "next-intl"
+import { useLocale, useNow } from "next-intl"
+import { formatToCalendarDate } from "@/src/lib/utils"
 
 // TODO: get more inspiration from https://tailwindui.com/components/application-ui/application-shells/calendar
 
-interface BookingCalendarProps extends Partial<CalendarStateOptions> {
-  currentDate?: Date
-}
-export const BookingCalendar = ({ currentDate = new Date(), ...props }: BookingCalendarProps) => {
-  let locale = useLocale()
-  let state = useCalendarState({
-    minValue: new CalendarDate(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate()),
+type BookingCalendarProps = Partial<CalendarStateOptions>
+
+export const BookingCalendar = ({ ...props }: BookingCalendarProps) => {
+  const locale = useLocale()
+  const now = useNow()
+  const state = useCalendarState({
+    minValue: formatToCalendarDate(now),
     ...props,
     locale,
     createCalendar
   })
 
-  let { calendarProps } = useCalendar(props, state)
+  const { calendarProps } = useCalendar(props, state)
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col rounded-lg bg-gray-50 overflow-hidden shadow-md" {...calendarProps}>

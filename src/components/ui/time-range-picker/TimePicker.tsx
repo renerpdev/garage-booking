@@ -1,5 +1,6 @@
 import React from "react"
 import { TimeSelect } from "./TimeSelect"
+import { useTranslations } from "next-intl"
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i).map((value) => ({
   label: `${value < 10 ? "0" : ""}${value}`,
@@ -19,6 +20,8 @@ interface TimePickerProps {
 }
 
 export const TimePicker = ({ onChange, value, isInvalid, minValue }: TimePickerProps) => {
+  const t = useTranslations("Components.TimeRangePicker")
+
   const handleHourChange = (hour: string) => {
     const date = new Date(value || 0)
     date.setHours(parseInt(hour))
@@ -63,7 +66,7 @@ export const TimePicker = ({ onChange, value, isInvalid, minValue }: TimePickerP
           disabledOptions={disabledMinutes}
         />
       </div>
-      {isInvalidTime && <div className={"text-red-500 text-xs mt-1 text-center"}>Hora inválida</div>}
+      {isInvalidTime && <div className={"text-red-500 text-xs mt-1 text-center"}>{t("invalidTime")}</div>}
     </div>
   )
 }

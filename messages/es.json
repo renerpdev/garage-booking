@@ -1,9 +1,13 @@
 {
   "NotFoundPage": {
-    "title": "Page not found",
-    "description": "Please double-check the browser address bar or use the navigation to go to a known page."
+    "title": "Página no encontrada",
+    "description": "Por favor, compruebe la barra de direcciones o utilice la navegación para ir a una página conocida."
   },
-  "LocaleLayout": {
+  "ErrorPage": {
+    "title": "¡Algo salio mal!",
+    "description": "<p>Se ha producido un error inesperado.</p><p>Inténtelo de <retry>recargar la página</retry> que estaba visitando.</p>"
+  },
+  "Metadata": {
     "title": "Garage Booking | Gala Point",
     "description": "Sitio web para reservar estacionamiento en Gala Point",
     "openGraph": {
@@ -11,6 +15,67 @@
       "title": "Garage Booking | Gala Point",
       "description": "Sitio web para reservar estacionamiento en Gala Point",
       "imageAlt": "Garage Booking | Gala Point"
+    }
+  },
+  "Footer": {
+    "copyright": "Todos los derechos reservados © {year}"
+  },
+  "Components": {
+    "ActiveBookingAlert": {
+      "title": "Reserva activa",
+      "description": "Quedan {days, plural, =0 {} one {<b># día</b>, } other {<b># días</b>, }} {minutes, plural, =0 {<b>0 minutos</b>} one {<b># minuto</b>} other {<b># minutos</b>}} y {seconds, plural, =0 {<b>0 segundos</b>} one {<b># segundo</b>} other {<b># segundos</b>}}.",
+      "info": "Finaliza el {expiryDate, date, ::E dd MMMM hhmm}"
+    },
+    "UnauthenticatedAlert": {
+      "title": "Aviso",
+      "description": "Debes iniciar sesión para reservar estacionamiento."
+    },
+    "Calendar": {
+      "today": "Hoy",
+      "noEvents": "No hay reservas activas para esta fecha",
+      "bookNow": "Reservar",
+      "cancel": "Cancelar",
+      "createdAt": "Creado el {createdAt, date, ::dd MMMM hhmm}",
+      "dateRange": "<from>{startDate, date, ::dd MMM hhmm}</from> - <to>{endDate, date, ::dd MMM hhmm}</to>",
+      "cancelModal": {
+        "title": "¿Estás completamente seguro?",
+        "description": "Esta acción no se puede deshacer. ¿Estás seguro de que deseas cancelar esta reserva?",
+        "cancel": "Volver",
+        "confirm": "Confirmar"
+      }
+    },
+    "BookingModal": {
+      "title": "Reservar Estacionamiento",
+      "description": "Completa los campos para continuar",
+      "form": {
+        "inputs": {
+          "title": {
+            "label": "Título",
+            "placeholder": "Escribe un título para la reserva",
+            "description": "El título se usará para identificar a la reserva."
+          },
+          "duration": {
+            "label": "Duración",
+            "placeholder": "Opciones rápidas",
+            "description": "Para más opciones haga click en el ícono calendario",
+            "amountInMinutes": "{amount} minutos"
+          }
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "submit": "Reservar"
+        }
+      }
+    },
+    "DateRangePicker": {
+      "cancel": "Cancelar",
+      "dateRange": "<from>{startDate, date, ::dd MMM hhmm}</from> - <to>{endDate, date, ::dd MMM hhmm}</to>",
+      "confirm": "Confirmar"
+    },
+    "TimeRangePicker": {
+      "from": "Desde:",
+      "to": "Hasta:",
+      "invalidTime": "Hora inválida"
     }
   }
 }

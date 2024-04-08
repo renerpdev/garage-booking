@@ -14,15 +14,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import React, { useCallback } from "react"
 import { Booking } from "@/src/lib/models"
-import { formatInTimeZone, FULL_FORMAT } from "@/src/lib/utils"
 import { useAuth } from "@clerk/nextjs"
 import { toast } from "@/src/components/ui/use-toast"
 import { useBookingContext } from "@/src/context/booking-context"
+import { useTranslations } from "next-intl"
 
 interface BookingInfoProps extends Booking {}
 const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: BookingInfoProps) => {
   const { userId } = useAuth()
   const { cancelBooking } = useBookingContext()
+  const t = useTranslations("Components.Calendar")
 
   const cancelCurrentBooking = useCallback(async () => {
     try {
@@ -39,10 +40,6 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
       })
     }
   }, [cancelBooking, endDate, id, startDate])
-
-  const start = formatInTimeZone(startDate)
-  const end = formatInTimeZone(endDate)
-  const created = formatInTimeZone(createdAt, FULL_FORMAT)
 
   return (
     <div className="flex gap-4 relative w-full group z-30">
@@ -65,20 +62,18 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
                       type={"button"}
                       className="px-4 py-4 text-sm gap-2 flex items-center hover:text-red-500 text-red-400"
                       role="menuitem">
-                      <StopCircle size={14} /> Cancelar
+                      <StopCircle size={14} /> {t("cancel")}
                     </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta acción no se puede deshacer. ¿Estás seguro de que deseas cancelar esta reserva?
-                      </AlertDialogDescription>
+                      <AlertDialogTitle>{t("cancelModal.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("cancelModal.description")}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Volver</AlertDialogCancel>
+                      <AlertDialogCancel>{t("cancelModal.cancel")}</AlertDialogCancel>
                       <AlertDialogAction className={"bg-red-600 hover:bg-red-700"} onClick={cancelCurrentBooking}>
-                        Cancelar
+                        {t("cancelModal.confirm")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -98,18 +93,28 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
         {owner && <h4 className="text-sm">{owner.name}</h4>}
         <div className="flex items-center gap-1 text-sm text-gray-900 lg:text-nowrap">
           <Clock size={16} />{" "}
-          <time className="font-light" dateTime={start}>
-            {start}
-          </time>
-          <span> - </span>
-          <time className="font-light" dateTime={end}>
-            {end}
-          </time>
+          {t.rich("dateRange", {
+            startDate,
+            endDate,
+            from: (chunks) => (
+              <time className="font-light" dateTime={startDate.toISOString()}>
+                {chunks}
+              </time>
+            ),
+            to: (chunks) => (
+              <time className="font-light" dateTime={endDate.toISOString()}>
+                {chunks}
+              </time>
+            )
+          })}
         </div>
         <div className="flex items-center">
           <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
           <span className="text-xs text-muted-foreground">
-            Creado el <time dateTime={created}>{created}</time>
+            {t.rich("createdAt", {
+              createdAt,
+              time: (chunks) => <time dateTime={createdAt.toISOString()}>{chunks}</time>
+            })}
           </span>
         </div>
       </div>

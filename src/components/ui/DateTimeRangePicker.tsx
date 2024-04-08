@@ -12,8 +12,8 @@ import { RangeCalendar } from "@/src/components/ui/date-range-picker/RangeCalend
 import { DateValue, getLocalTimeZone } from "@internationalized/date"
 import { RangeTime, RangeTimeValue } from "@/src/components/ui/time-range-picker"
 import { RangeValue } from "@react-types/shared"
-import { formatInTimeZone, LONG_FORMAT } from "@/src/lib/utils"
 import { useBookingContext } from "@/src/context/booking-context"
+import { useTranslations } from "next-intl"
 
 interface DateRangePickerProps extends PropsWithChildren {
   isPopoverOpen: boolean
@@ -41,6 +41,7 @@ const DateTimeRangePicker = ({
   const { disabledHours, disabledDays } = useBookingContext()
 
   const isDisabledDate = (date: Date) => disabledHours.has(date.toISOString())
+  const t = useTranslations("Components.DateRangePicker")
 
   return (
     <div>
@@ -72,7 +73,7 @@ const DateTimeRangePicker = ({
           </DialogHeader>
           <DialogFooter className={"flex gap-2 sm:justify-center sm:pt-4 mt-auto"}>
             <Button variant={"outline"} className={"min-w-28"} onClick={onDatePickerCancel}>
-              Cancelar
+              {t("cancel")}
             </Button>
             <Button
               className={"min-w-28"}
@@ -83,7 +84,7 @@ const DateTimeRangePicker = ({
                 startDateTime >= endDateTime ||
                 startDateTime < new Date()
               }>
-              Aplicar
+              {t("confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -93,16 +94,26 @@ const DateTimeRangePicker = ({
 }
 
 export const DateRangeSelected = ({ start, end }: Record<"start" | "end", Date>) => {
-  if (!start || !end) return null
+  const t = useTranslations("Components.DateRangePicker")
 
-  const formattedStartDate = formatInTimeZone(start, LONG_FORMAT)
-  const formattedEndDate = formatInTimeZone(end, LONG_FORMAT)
+  if (!start || !end) return null
 
   return (
     <div className={"flex justify-center items-center text-xs md:text-sm w-full text-gray-600"}>
-      <time dateTime={formattedStartDate}>{formattedStartDate}</time>
-      <span>&nbsp;-&nbsp;</span>
-      <time dateTime={formattedEndDate}>{formattedEndDate}</time>
+      {t.rich("dateRange", {
+        startDate: start,
+        endDate: end,
+        from: (chunks) => (
+          <time className="font-light mx-2" dateTime={start.toISOString()}>
+            {chunks}
+          </time>
+        ),
+        to: (chunks) => (
+          <time className="font-light mx-2" dateTime={end.toISOString()}>
+            {chunks}
+          </time>
+        )
+      })}
     </div>
   )
 }

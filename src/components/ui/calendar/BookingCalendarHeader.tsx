@@ -8,6 +8,7 @@ import { CalendarState, CalendarStateOptions } from "react-stately"
 import { BookingModal } from "@/src/components/core/BookingModal"
 import { useBookingContext } from "@/src/context/booking-context"
 import { useAuth } from "@clerk/nextjs"
+import { useTranslations } from "next-intl"
 
 interface CalendarHeaderProps extends Partial<CalendarStateOptions> {
   state: CalendarState
@@ -16,6 +17,7 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
   let { prevButtonProps, nextButtonProps, title } = useCalendar(props, state)
   const { isLoading, isFetching } = useBookingContext()
   const { isSignedIn } = useAuth()
+  const t = useTranslations("Components.Calendar")
 
   const goToToday = () => {
     const currentDate = new Date()
@@ -45,7 +47,7 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
             <span className="sr-only">Current day</span>
             <Circle size={10} className="md:hidden text-gray-400 group-hover:hover:text-gray-500" fill={""} />
             <span className={"sr-only md:not-sr-only font-semibold text-gray-900 group-hover:hover:text-primary"}>
-              Hoy
+              {t("today")}
             </span>
           </CalendarButton>
           <CalendarButton
@@ -62,7 +64,7 @@ export const CalendarHeader = ({ state, ...props }: CalendarHeaderProps) => {
             <BookingModal>
               <Button className={"ml-4 md:ml-6 flex gap-1 items-center h-8 md:h-auto px-3 md:px-4"}>
                 <CalendarCheck size={16} />
-                <span className={"sr-only md:not-sr-only"}> Reservar</span>
+                <span className={"sr-only ml-2 md:not-sr-only"}>{t("bookNow")}</span>
               </Button>
             </BookingModal>
           </div>

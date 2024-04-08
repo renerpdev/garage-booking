@@ -7,7 +7,7 @@ import { useBookingContext } from "@/src/context/booking-context"
 import { isSameDay } from "date-fns"
 import { Booking } from "@/src/lib/models"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/src/components/ui/hover-card"
-import BookingInfo from "@/src/components/core/BookingInfo"
+import BookingInfo from "@/src/components/ui/calendar/BookingInfo"
 
 interface CalendarCellProps {
   state: CalendarState

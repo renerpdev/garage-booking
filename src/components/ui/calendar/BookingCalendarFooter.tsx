@@ -1,15 +1,17 @@
-import BookingInfo from "@/src/components/core/BookingInfo"
+import BookingInfo from "@/src/components/ui/calendar/BookingInfo"
 import React, { useMemo } from "react"
 import { CalendarState } from "react-stately"
 import { useBookingContext } from "@/src/context/booking-context"
 import { LOCAL_TIME_ZONE } from "@/src/lib/utils"
 import { isSameDay } from "date-fns"
+import { useTranslations } from "next-intl"
 
 interface CalendarFooterProps {
   state: CalendarState
 }
 export const CalendarFooter = ({ state }: CalendarFooterProps) => {
   const { scheduledBookings } = useBookingContext()
+  const t = useTranslations("Components.Calendar")
 
   const events = useMemo(
     () =>
@@ -39,9 +41,7 @@ export const CalendarFooter = ({ state }: CalendarFooterProps) => {
           ))}
         </ul>
       ) : (
-        <p className={"text-sm md:text-base text-center text-muted-foreground"}>
-          No hay reservas activas para esta fecha
-        </p>
+        <p className={"text-sm md:text-base text-center text-muted-foreground"}>{t("noEvents")}</p>
       )}
     </div>
   )

@@ -1,0 +1,81 @@
+{
+  "NotFoundPage": {
+    "title": "Page not found",
+    "description": "Please double-check the browser address bar or use the navigation to go to a known page."
+  },
+  "ErrorPage": {
+    "title": "Something went wrong!",
+    "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>"
+  },
+  "Metadata": {
+    "title": "Garage Booking | Gala Point",
+    "description": "Sitio web para reservar estacionamiento en Gala Point",
+    "openGraph": {
+      "siteName": "Garage Booking | Gala Point",
+      "title": "Garage Booking | Gala Point",
+      "description": "Sitio web para reservar estacionamiento en Gala Point",
+      "imageAlt": "Garage Booking | Gala Point"
+    }
+  },
+  "Footer": {
+    "copyright": "All rights reserved © {year}"
+  },
+  "Components": {
+    "ActiveBookingAlert": {
+      "title": "Active booking",
+      "description": "Still left {days, plural, =0 {} one {<b># day</b>, } other {<b># days</b>, }} {minutes, plural, =0 {<b>0 minutes</b>} one {<b># minute</b>} other {<b># minutes</b>}} and {seconds, plural, =0 {<b>0 seconds</b>} one {<b># second</b>} other {<b># seconds</b>}}.",
+      "info": "Ends on {expiryDate, date, ::E dd MMMM hhmm}"
+    },
+    "UnauthenticatedAlert": {
+      "title": "Warning",
+      "description": "You must be logged in to reserve a parking space."
+    },
+    "Calendar": {
+      "today": "Today",
+      "noEvents": "No active bookings for this day",
+      "bookNow": "Book now",
+      "cancel": "Cancel",
+      "createdAt": "Created at {createdAt, date, ::dd MMMM hhmm}",
+      "dateRange": "{startDate, date, ::dd MMM hhmm} - {endDate, date, ::dd MMM hhmm}",
+      "cancelModal": {
+        "title": "Are you sure?",
+        "description": "This action cannot be undone. Are you sure you want to cancel this booking?",
+        "cancel": "Back",
+        "confirm": "Confirm"
+      }
+    },
+    "BookingModal": {
+      "title": "Reserve Parking Space",
+      "description": "Complete the form to continue",
+      "form": {
+        "inputs": {
+          "title": {
+            "label": "Title",
+            "placeholder": "Write a title for the reservation",
+            "description": "The title is used to identify the reservation."
+          },
+          "duration": {
+            "label": "Duration",
+            "placeholder": "Quick options",
+            "description": "For more options, click on the calendar icon",
+            "amountInMinutes": "{amount} minutes"
+          }
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "submit": "Book"
+        }
+      }
+    },
+    "DateRangePicker": {
+      "cancel": "Cancel",
+      "dateRange": "<from>{startDate, date, ::d MMM hhmm}</from> - <to>{endDate, date, ::d MMM hhmm}</to>",
+      "confirm": "Confirm"
+    },
+    "TimeRangePicker": {
+      "from": "From:",
+      "to": "To:",
+      "invalidTime": "Invalid time"
+    }
+  }
+}

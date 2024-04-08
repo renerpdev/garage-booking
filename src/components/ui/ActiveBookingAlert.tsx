@@ -3,16 +3,19 @@
 import React, { useEffect } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert"
 import { Info } from "lucide-react"
-import { cn, formatInTimeZone, FULL_FORMAT } from "@/src/lib/utils"
+import { cn } from "@/src/lib/utils"
 import { useTimer } from "react-timer-hook"
 import { useBookingContext } from "@/src/context/booking-context"
 import { Booking } from "@/src/lib/models"
+import { useTranslations } from "next-intl"
 
 interface BookingActiveAlertProps {
   className?: string
 }
 const ActiveBookingAlert = ({ className }: BookingActiveAlertProps) => {
   const { activeBooking, setActiveBooking, setScheduledBookings } = useBookingContext()
+
+  const t = useTranslations("Components.ActiveBookingAlert")
 
   const handleOnExpire = () => {
     // @ts-ignore
@@ -26,7 +29,7 @@ const ActiveBookingAlert = ({ className }: BookingActiveAlertProps) => {
   return (
     <Alert className={cn("md:max-w-md mx-auto shadow-md", className)}>
       <Info className="h-4 w-4" />
-      <AlertTitle className={"text-primary font-bold"}>Reserva Activa</AlertTitle>
+      <AlertTitle className={"text-primary font-bold"}>{t("title")}</AlertTitle>
       <AlertDescription>
         <AlertContent expiryDate={activeBooking.endDate} onExpire={handleOnExpire} />
       </AlertDescription>
@@ -40,6 +43,7 @@ const AlertContent = ({ expiryDate, onExpire }: { expiryDate: Date; onExpire: ()
     onExpire,
     autoStart: true
   })
+  const t = useTranslations("Components.ActiveBookingAlert")
 
   useEffect(() => {
     if (isRunning) {
@@ -51,22 +55,14 @@ const AlertContent = ({ expiryDate, onExpire }: { expiryDate: Date; onExpire: ()
     <div>
       <p
         className={`${days === 0 && hours === 0 && minutes < 5 ? "text-orange-500" : ""} ${days === 0 && hours === 0 && minutes < 1 ? "text-red-500" : ""}`}>
-        Quedan{" "}
-        {days > 0 ? (
-          <>
-            <b>{days} días</b>,{" "}
-          </>
-        ) : null}
-        {hours > 0 ? (
-          <>
-            <b>{hours} horas</b>,{" "}
-          </>
-        ) : null}
-        <b>{minutes} minutos</b> y <b>{seconds} segundos</b>.
+        {t.rich("description", {
+          b: (chunks) => <b className="font-semibold">{chunks}</b>,
+          days,
+          minutes,
+          seconds
+        })}
       </p>
-      <p className={"text-xs text-gray-500"}>
-        Finaliza el <span>{formatInTimeZone(expiryDate, FULL_FORMAT)}</span>
-      </p>
+      <p className={"text-xs text-gray-500"}>{t("info", { expiryDate })}</p>
     </div>
   )
 }

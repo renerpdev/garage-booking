@@ -1,15 +1,15 @@
 import { BookingCalendar } from "@/src/components/ui/calendar"
 import React from "react"
+import PageLayout from "@/src/components/layout/PageLayout"
+import { unstable_setRequestLocale } from "next-intl/server"
+import { PropsWithParams } from "@/src/lib/models"
 
-export default function Home() {
-  // // Enable static rendering
-  // unstable_setRequestLocale(locale)
-  //
-  // const t = useTranslations("Index")
+export default function Home({ params: { locale } }: PropsWithParams) {
+  unstable_setRequestLocale(locale)
+
   return (
-    <div className={"h-full w-full"}>
-      <div className={"hidden bg-red-50"}>{/* this element is used for adding tailwind classes */}</div>
+    <PageLayout>
       <BookingCalendar />
-    </div>
+    </PageLayout>
   )
 }

@@ -11,13 +11,15 @@ import Notifications from "@/src/components/core/Notifications"
 import { getFlags } from "@/src/lib/flags"
 import { encrypt, type FlagValuesType } from "@vercel/flags"
 import { FlagValues } from "@vercel/flags/react"
-import UnauthorizedAlert from "@/src/components/ui/UnauthorizedAlert"
-import ActiveBookingAlert from "@/src/components/core/ActiveBookingAlert"
-import Head from "next/head"
+import UnauthenticatedAlert from "@/src/components/ui/UnauthenticatedAlert"
+import ActiveBookingAlert from "@/src/components/ui/ActiveBookingAlert"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { PropsWithParams } from "@/src/lib/models"
-import { getTranslations } from "next-intl/server"
-import { esES } from "@clerk/localizations"
+import { getMessages, getTranslations, unstable_setRequestLocale } from "next-intl/server"
+import { esES, enUS } from "@clerk/localizations"
+import { locales } from "@/src/intl.config"
+import { NextIntlClientProvider } from "next-intl"
+import Head from "next/head"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,7 +27,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false
+  userScalable: false,
+  themeColor: "#B0B3FB"
 }
 
 async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
@@ -33,8 +36,12 @@ async function ConfidentialFlagValues({ values }: { values: FlagValuesType }) {
   return <FlagValues values={encryptedFlagValues} />
 }
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata({ params: { locale } }: PropsWithParams) {
-  const t = await getTranslations({ locale, namespace: "LocaleLayout" })
+  const t = await getTranslations({ locale, namespace: "Metadata" })
 
   return {
     title: t("title"),
@@ -64,35 +71,38 @@ export default async function RootLayout({
   params: { locale }
 }: Readonly<PropsWithChildren & PropsWithParams>) {
   const values = await getFlags()
+  const messages = await getMessages()
+
+  unstable_setRequestLocale(locale)
 
   return (
-    <ClerkProvider localization={esES}>
+    <ClerkProvider localization={locale === "es" ? esES : enUS}>
       <html lang={locale}>
+        <Head>
+          <link rel="shortcut icon" href="/favicon.ico" />
+        </Head>
         <body
           className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gradient-to-r from-violet-300 to-indigo-300`}>
-          <Head>
-            <link rel="shortcut icon" href="/favicon.ico" />
-            <meta name="theme-color" content="#B0B3FB" />
-          </Head>
-
-          <SpeedInsights />
-          <Notifications />
-          <Navbar />
-          <BookingProvider>
-            <main className={"flex-1 flex flex-col p-4 md:px-6 gap-2"}>
-              <UnauthorizedAlert />
-              <ActiveBookingAlert />
-              {children}
-            </main>
-            <Toaster />
-          </BookingProvider>
-          <Footer />
-          <Suspense>
-            <Toolbar />
-          </Suspense>
-          <Suspense fallback={null}>
-            <ConfidentialFlagValues values={values} />
-          </Suspense>
+          <NextIntlClientProvider messages={messages}>
+            <SpeedInsights />
+            <Notifications />
+            <Navbar />
+            <BookingProvider>
+              <main className={"flex-1 flex flex-col p-4 md:px-6 gap-2"}>
+                <UnauthenticatedAlert />
+                <ActiveBookingAlert />
+                {children}
+              </main>
+              <Toaster />
+            </BookingProvider>
+            <Footer />
+            <Suspense>
+              <Toolbar />
+            </Suspense>
+            <Suspense fallback={null}>
+              <ConfidentialFlagValues values={values} />
+            </Suspense>
+          </NextIntlClientProvider>
         </body>
       </html>
     </ClerkProvider>

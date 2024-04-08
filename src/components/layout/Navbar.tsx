@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { getFlags } from "@/src/lib/flags"
 import Link from "@/src/components/ui/NavigationLink"
+import LocaleSwitcher from "@/src/components/ui/LocaleSwitcher"
 
 export function Navbar() {
   const { user } = useUser()
@@ -45,6 +46,7 @@ export function Navbar() {
           </div>
         </NextLink>
         <div className={"flex gap-4 items-center justify-between"}>
+          <LocaleSwitcher />
           {isAdminFeatureEnabled && isAdmin ? (
             <Link
               href={"/admin"}

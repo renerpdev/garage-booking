@@ -36,6 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DateTimeRangePicker, { DateRangeSelected } from "@/src/components/ui/DateTimeRangePicker"
 import { Button } from "@/src/components/ui/button"
 import { Calendar, CalendarCheck, Loader } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 const QUICK_OPTIONS = [15, 30, 45, 60]
 
@@ -58,6 +59,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
     end: formatToCalendarDate(new Date())
   })
   const { createNewBooking } = useBookingContext()
+  const t = useTranslations("Components.BookingModal")
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -153,10 +155,10 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
         className={"flex flex-col items-center p-6 md:py-8 lg:py-10 h-full overflow-y-auto lg:h-auto max-h-[700px]"}>
         <AlertDialogHeader>
           <AlertDialogTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0 self-center"}>
-            Reservar Estacionamiento
+            {t("title")}
           </AlertDialogTitle>
           <AlertDialogDescription className={"space-y-0 md:space-y-1 self-center"}>
-            <span className={"max-w-[34ch]"}>Complete los campos para continuar</span>
+            <span className={"max-w-[34ch]"}>{t("description")}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className={"w-full md:w-auto h-full"}>
@@ -168,10 +170,10 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                   name="nickName"
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Título</FormLabel>
+                      <FormLabel>{t("form.inputs.title.label")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Escribe un título para la reserva"
+                          placeholder={t("form.inputs.title.placeholder")}
                           {...field}
                           onBlur={(e) => {
                             field.onChange(e.target.value.trim())
@@ -180,7 +182,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                       </FormControl>
                       {!fieldState.invalid && (
                         <FormDescription className={"text-xs md:text-sm"}>
-                          El título se usará para identificar a la reserva.
+                          {t("form.inputs.title.description")}
                         </FormDescription>
                       )}
                       <FormMessage className={"text-xs md:text-sm"} />
@@ -190,20 +192,20 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                 <FormField
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Duración</FormLabel>
+                      <FormLabel>{t("form.inputs.duration.label")}</FormLabel>
                       <div className={"flex"}>
                         <Select
                           {...field}
                           onValueChange={(value) => handleQuickOptionsSelectionChange(value, field.onChange)}>
                           <FormControl>
                             <SelectTrigger className="w-full border-r-0 rounded-r-none  pr-0">
-                              <SelectValue placeholder="Opciones rápidas" />
+                              <SelectValue placeholder={t("form.inputs.duration.placeholder")} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {QUICK_OPTIONS.map((option) => (
                               <SelectItem key={option} value={`${option}`}>
-                                {`${option} minutos`}
+                                {t("form.inputs.duration.amountInMinutes", { amount: option })}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -228,7 +230,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                       </div>
                       {!fieldState.invalid && (
                         <FormDescription className={"text-xs md:text-sm"}>
-                          Para más opciones haga click en el ícono calendario
+                          {t("form.inputs.duration.description")}
                         </FormDescription>
                       )}
                       <FormMessage className={"text-xs md:text-sm"} />
@@ -239,7 +241,9 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                 />
                 <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
                 <div className={"flex flex-col md:flex-row gap-0 md:gap-2 !mt-auto pt-6"}>
-                  <AlertDialogCancel className={"w-full md:w-[50%] order-2 md:order-1"}>Cancelar</AlertDialogCancel>
+                  <AlertDialogCancel className={"w-full md:w-[50%] order-2 md:order-1"}>
+                    {t("form.buttons.cancel")}
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     type="submit"
                     className={"md:w-[50%] flex items-center  order-1 md:order-2"}
@@ -247,7 +251,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                     {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
                       <>
                         <CalendarCheck size={16} />
-                        &nbsp;Reservar
+                        &nbsp;{t("form.buttons.submit")}
                       </>
                     )}
                   </AlertDialogAction>

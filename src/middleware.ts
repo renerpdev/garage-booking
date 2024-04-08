@@ -15,6 +15,7 @@ export default authMiddleware({
   // Allow signed out users to access the specified routes:
   publicRoutes: [
     "/",
+    "/:locale",
     "/manifest(.*)",
     "/api/webhooks(.*)",
     "/api/bookings/active(.*)",
@@ -42,15 +43,5 @@ export default authMiddleware({
 export const config = {
   // Matcher entries are linked with a logical "or", therefore
   // if one of them matches, the middleware will be invoked.
-  matcher: [
-    // This entry handles the root of the base
-    // path and should always be included
-    "/",
-    // Match all pathnames except for
-    // - … if they start with `/api`, `/_next` or `/_vercel`
-    // - … the ones containing a dot (e.g. `favicon.ico`)
-    "/((?!api|_next|_vercel|.*\\..*).*)",
-    // However, match all pathnames within `/users`, optionally with a locale prefix
-    "/([\\w-]+)?/users/(.+)"
-  ]
+  matcher: ["/(es|en)/((?!.+\\.[\\w]+$|_next).*)", "/(es|en)?", "/(es|en)/(api|trpc)(.*)"]
 }
