@@ -1,20 +1,19 @@
 import React, { useRef } from "react"
 import { useRangeCalendarState } from "react-stately"
-import { useRangeCalendar } from "react-aria"
+import { useRangeCalendar, useLocale } from "react-aria"
 import { CalendarDate, createCalendar } from "@internationalized/date"
 import { CalendarButton } from "./CalendarButton"
 import { CalendarGrid } from "./CalendarGrid"
 import { ChevronLeftIcon, ChevronRightIcon, Circle } from "lucide-react"
 import { RangeCalendarStateOptions } from "@react-stately/calendar"
-import { useLocale } from "next-intl"
-
-const currentDate = new Date()
+import { useNow } from "next-intl"
 
 export const RangeCalendar = (props: Partial<RangeCalendarStateOptions>) => {
-  let locale = useLocale()
+  let { locale } = useLocale()
+  const now = useNow()
   let state = useRangeCalendarState({
     allowsNonContiguousRanges: false,
-    minValue: new CalendarDate(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate()),
+    minValue: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate()),
     ...props,
     locale,
     createCalendar
@@ -24,7 +23,7 @@ export const RangeCalendar = (props: Partial<RangeCalendarStateOptions>) => {
   let { calendarProps, prevButtonProps, nextButtonProps, title } = useRangeCalendar(props, state, ref)
 
   const goToToday = () => {
-    state.setFocusedDate(new CalendarDate(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()))
+    state.setFocusedDate(new CalendarDate(now.getFullYear(), now.getMonth(), now.getDate()))
   }
 
   return (

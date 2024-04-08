@@ -1,15 +1,14 @@
-import { useCalendarGrid } from "react-aria"
+import { useCalendarGrid, useLocale } from "react-aria"
 import { getWeeksInMonth } from "@internationalized/date"
 import { CalendarCell } from "./CalendarCell"
 import { RangeCalendarState } from "react-stately"
 import { AriaCalendarGridProps } from "@react-aria/calendar"
-import { useLocale } from "next-intl"
 
 interface CalendarGridProps extends AriaCalendarGridProps {
   state: RangeCalendarState
 }
 export const CalendarGrid = ({ state, ...props }: CalendarGridProps) => {
-  const locale = useLocale()
+  const { locale } = useLocale()
   const { gridProps, headerProps, weekDays } = useCalendarGrid(props, state)
 
   // Get the number of weeks in the month so we can render the proper number of rows.
