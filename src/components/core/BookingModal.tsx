@@ -40,15 +40,6 @@ import { useTranslations } from "next-intl"
 
 const QUICK_OPTIONS = [15, 30, 45, 60]
 
-const FormSchema = z.object({
-  nickName: z.string().min(2, {
-    message: "El nombre debe tener al menos 2 caracteres."
-  }),
-  time: z.string().optional(),
-  startDate: z.date(),
-  endDate: z.date()
-})
-
 export const BookingModal = ({ children }: PropsWithChildren) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
@@ -60,6 +51,18 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
   })
   const { createNewBooking } = useBookingContext()
   const t = useTranslations("Components.BookingModal")
+
+  const FormSchema = z.object({
+    nickName: z
+      .string()
+      .min(2, {
+        message: t("form.inputs.title.errors.minLength", { amount: 2 })
+      })
+      .trim(),
+    time: z.string().optional(),
+    startDate: z.date(),
+    endDate: z.date()
+  })
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -82,7 +85,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true)
-    createNewBooking({ ...data, nickName: data.nickName.trim() ?? undefined } as Booking)
+    createNewBooking({ ...data, nickName: data.nickName ?? undefined } as Booking)
       .then(() => {
         resetForm()
       })

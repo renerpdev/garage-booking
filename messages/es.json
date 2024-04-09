@@ -52,7 +52,10 @@
           "title": {
             "label": "Título",
             "placeholder": "Escribe un título para la reserva",
-            "description": "El título se usará para identificar a la reserva."
+            "description": "El título se usará para identificar a la reserva.",
+            "errors": {
+              "minLength": "El título debe tener al menos {amount} caracteres."
+            }
           },
           "duration": {
             "label": "Duración",
@@ -77,5 +80,36 @@
       "to": "Hasta:",
       "invalidTime": "Hora inválida"
     }
+  },
+  "ToastMessages": {
+    "success": {
+      "createBooking": {
+        "title": "Reserva confirmada",
+        "shortDescription": "Tienes estacionamiento reservado hasta las <time>{endDate, time, ::HH:mm}</time> horas.",
+        "description": "Se ha confirmado el estacionamiento desde el <from>{startDate, date, ::dd MMMM hhmm}</from> hasta <to>{endDate, date, ::dd MMMM hhmm}</to>."
+      }
+    },
+    "error": {
+      "missingTitle": {
+        "title": "Campos requeridos",
+        "description": "La reserva debe tener un título. Por favor, complete el campo y vuelva a intentarlo."
+      },
+      "createBooking": {
+        "title": "¡Algo salio mal!",
+        "description": "No se pudo crear la reserva. Por favor, vuelva a intentarlo."
+      },
+      "cancelBooking": {
+        "title": "¡Algo salio mal!",
+        "description": "No se pudo cancelar la reserva. Por favor, vuelva a intentarlo."
+      },
+      "fetchActiveBooking": {
+        "title": "¡Algo salio mal!",
+        "description": "No se pudo obtener la reserva activa. Por favor, vuelva a intentarlo."
+      }
+    }
+  },
+  "Notification": {
+    "title": "Nueva reserva confirmada",
+    "body": "La reserva comienza el {startDate} y termina el {endDate}."
   }
 }

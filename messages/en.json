@@ -52,7 +52,10 @@
           "title": {
             "label": "Title",
             "placeholder": "Write a title for the reservation",
-            "description": "The title is used to identify the reservation."
+            "description": "The title is used to identify the reservation.",
+            "errors": {
+              "minLength": "The title must have at least {amount} characters."
+            }
           },
           "duration": {
             "label": "Duration",
@@ -77,5 +80,36 @@
       "to": "To:",
       "invalidTime": "Invalid time"
     }
+  },
+  "ToastMessages": {
+    "success": {
+      "createBooking": {
+        "title": "Booking confirmed",
+        "shortDescription": "You have a parking space reserved until <time>{endDate, time, ::HH:mm}</time> hours.",
+        "description": "You have reserved parking space from <from>{startDate, date, ::dd MMMM hhmm}</from> until <to>{endDate, date, ::dd MMMM hhmm}</to>."
+      }
+    },
+    "error": {
+      "missingTitle": {
+        "title": "Fields required",
+        "description": "The reservation must have a title. Please provide the required field and try again."
+      },
+      "createBooking": {
+        "title": "Something went wrong!",
+        "description": "We couldn't create the booking. Please try again later."
+      },
+      "cancelBooking": {
+        "title": "Something went wrong!",
+        "description": "We couldn't cancel the booking. Please try again later."
+      },
+      "fetchActiveBooking": {
+        "title": "Something went wrong!",
+        "description": "We couldn't get the active booking. Please try again later."
+      }
+    }
+  },
+  "Notification": {
+    "title": "Nueva reserva confirmada",
+    "body": "La reserva comienza el {startDate} y termina el {endDate}."
   }
 }

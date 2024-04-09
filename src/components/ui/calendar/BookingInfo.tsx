@@ -24,6 +24,7 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
   const { userId } = useAuth()
   const { cancelBooking } = useBookingContext()
   const t = useTranslations("Components.Calendar")
+  const toastT = useTranslations("ToastMessages")
 
   const cancelCurrentBooking = useCallback(async () => {
     try {
@@ -34,12 +35,12 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
       })
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo cancelar la reserva",
+        title: toastT("error.cancelBooking.title"),
+        description: toastT("error.cancelBooking.description"),
         className: "text-red-500"
       })
     }
-  }, [cancelBooking, endDate, id, startDate])
+  }, [cancelBooking, endDate, id, startDate, toastT])
 
   return (
     <div className="flex gap-4 relative w-full group z-30">

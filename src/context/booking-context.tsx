@@ -2,12 +2,13 @@
 
 import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { cancelBookingById, clearActiveBookings, createBooking, getScheduledBookings } from "@/src/lib/queries"
-import { formatInTimeZone, getDisabledDates, LONG_FORMAT, TIME_FORMAT } from "@/src/lib/utils"
+import { formatInTimeZone, getDisabledDates, LONG_FORMAT } from "@/src/lib/utils"
 import { toast } from "@/src/components/ui/use-toast"
 import { ActiveBooking, Booking, CanceledBooking } from "@/src/lib/models"
 import { useUser } from "@clerk/nextjs"
 import { isPermissionGranted, notifySubscribers } from "@/src/lib/notifications"
 import useSWR from "swr"
+import { useTranslations } from "next-intl"
 
 type ContextType = {
   activeBooking: ActiveBooking | null
@@ -44,6 +45,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isFetching, setIsFetching] = useState<boolean>(false)
   const [scheduledBookings, setScheduledBookings] = useState<Booking[]>([])
+  const toastT = useTranslations("ToastMessages")
+  const notifT = useTranslations("Notification")
   const { user } = useUser()
   const {
     data: activeBookingData,
@@ -90,12 +93,11 @@ export function BookingProvider({ children }: PropsWithChildren) {
       const { startDate, endDate, nickName } = booking
       const formattedStartDate = formatInTimeZone(startDate, LONG_FORMAT)
       const formattedEndDate = formatInTimeZone(endDate, LONG_FORMAT)
-      const shortFormattedEndDate = formatInTimeZone(endDate, TIME_FORMAT)
 
       try {
         setIsLoading(true)
         if (!nickName) {
-          throw new Error("La reserva debe tener un nombre.")
+          throw new Error(toastT("error.missingTitle"))
         }
 
         const { error, message, data } = await createBooking(booking)
@@ -128,27 +130,27 @@ export function BookingProvider({ children }: PropsWithChildren) {
         // Display a toast notification if push notifications are disabled
         if (!isPermissionGranted()) {
           toast({
-            title: "Reserva Confirmada",
-            description: isStarted ? (
+            title: toastT("success.createBooking.title"),
+            description: (
               <p>
-                Tienes estacionamiento reservado hasta las{" "}
-                <time dateTime={shortFormattedEndDate}>{shortFormattedEndDate}</time> horas.
-              </p>
-            ) : (
-              <p>
-                Se ha confirmado el estacionamiento desde el{" "}
-                <time dateTime={formattedStartDate}>{formattedStartDate}</time> hasta{" "}
-                <time dateTime={formattedEndDate}>{formattedEndDate}</time>.
+                {toastT.rich(`success.createBooking.${isStarted ? "shortDescription" : "description"}`, {
+                  startDate,
+                  endDate,
+                  time: (chunks) => <time dateTime={endDate.toISOString()}>{chunks}</time>,
+                  from: (chunks) => <time dateTime={startDate.toISOString()}>{chunks}</time>,
+                  to: (chunks) => <time dateTime={endDate.toISOString()}>{chunks}</time>
+                })}
               </p>
             )
           })
         }
       } catch (e: any) {
         toast({
-          title: "Reserva Inválida",
-          description: e.message,
+          title: toastT("error.createBooking.title"),
+          description: toastT("error.createBooking.description"),
           className: "text-red-500 bg-white"
         })
+        console.error(e)
         throw e
       } finally {
         setIsLoading(false)
@@ -157,8 +159,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
       try {
         // Notify subscribers about the new booking
         await notifySubscribers({
-          title: "Nueva Reserva Confirmada",
-          body: `La reserva comienza el ${formattedStartDate} y termina el ${formattedEndDate}.`
+          title: notifT("title"),
+          body: notifT("body", { startDate: formattedStartDate, endDate: formattedEndDate })
         })
       } catch (e: any) {
         console.error(e.message)
@@ -167,7 +169,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       // now update the scheduled bookings with real data
       updateScheduledBookings().catch(console.error)
     },
-    [updateActiveBooking, updateScheduledBookings, user]
+    [notifT, toastT, updateActiveBooking, updateScheduledBookings, user]
   )
 
   const { disabledHours, disabledDays } = useMemo(() => getDisabledDates(scheduledBookings), [scheduledBookings])
@@ -194,8 +196,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
         setScheduledBookings((prev: Booking[]) => prev.filter((booking) => booking.id !== id))
       } catch (e) {
         toast({
-          title: "Error",
-          description: "No se pudo cancelar la reserva. Por favor, intente nuevamente en unos segundos.",
+          title: toastT("error.cancelBooking.title"),
+          description: toastT("error.cancelBooking.description"),
           className: "text-red-500 bg-white"
         })
         throw e
@@ -206,7 +208,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
       // now update the scheduled bookings with real data
       updateScheduledBookings().catch(console.error)
     },
-    [activeBooking, updateScheduledBookings]
+    [activeBooking, toastT, updateScheduledBookings]
   )
 
   // Clear active bookings when the component mounts
@@ -218,8 +220,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (activeBookingError) {
       toast({
-        title: "Error",
-        description: "Ocurrio un error al obtener la reserva activa. Por favor, recargue la aplicación nuevamente.",
+        title: toastT("error.fetchActiveBooking.title"),
+        description: toastT("error.fetchActiveBooking.description"),
         className: "text-red-500 bg-white"
       })
       return
@@ -236,7 +238,7 @@ export function BookingProvider({ children }: PropsWithChildren) {
     }
 
     updateScheduledBookings().catch(console.error)
-  }, [activeBookingData, activeBookingError, updateScheduledBookings])
+  }, [activeBookingData, activeBookingError, toastT, updateScheduledBookings])
 
   return (
     <BookingContext.Provider

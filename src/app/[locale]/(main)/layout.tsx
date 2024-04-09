@@ -96,9 +96,7 @@ export default async function RootLayout({
               <Toaster />
             </BookingProvider>
             <Footer />
-            <Suspense>
-              <Toolbar />
-            </Suspense>
+            <Toolbar />
             <Suspense fallback={null}>
               <ConfidentialFlagValues values={values} />
             </Suspense>
