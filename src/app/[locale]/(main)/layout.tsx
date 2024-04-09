@@ -19,7 +19,6 @@ import { getMessages, getTranslations, unstable_setRequestLocale } from "next-in
 import { esES, enUS } from "@clerk/localizations"
 import { locales } from "@/src/intl.config"
 import { NextIntlClientProvider } from "next-intl"
-import Head from "next/head"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -78,9 +77,6 @@ export default async function RootLayout({
   return (
     <ClerkProvider localization={locale === "es" ? esES : enUS}>
       <html lang={locale}>
-        <Head>
-          <link rel="shortcut icon" href="/favicon.ico" />
-        </Head>
         <body
           className={`${inter.className} flex flex-col min-h-screen w-screen antialiased bg-gradient-to-r from-violet-300 to-indigo-300`}>
           <NextIntlClientProvider messages={messages}>

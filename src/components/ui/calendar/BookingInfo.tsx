@@ -43,7 +43,7 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
   }, [cancelBooking, endDate, id, startDate, toastT])
 
   return (
-    <div className="flex gap-4 relative w-full group z-30">
+    <div className="grid grid-cols-[40px_1fr] gap-x-4 relative w-full group z-30">
       {owner.externalId === userId && (
         <Popover>
           <PopoverTrigger asChild>
@@ -85,13 +85,15 @@ const BookingInfo = ({ nickName, createdAt, endDate, startDate, owner, id }: Boo
         </Popover>
       )}
 
-      <Avatar>
+      <Avatar className={""}>
         {owner && <AvatarImage src={owner.avatarUrl} />}
         <AvatarFallback>{owner.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
-      <div className="space-y-2">
+      <div className="space-y-1">
         <h3 className="text-sm font-semibold">{nickName}</h3>
         {owner && <h4 className="text-sm">{owner.name}</h4>}
+      </div>
+      <div className="mt-2 sm:mt-1 gap-1 flex flex-col col-span-full sm:col-start-2">
         <div className="flex items-center gap-1 text-sm text-gray-900 lg:text-nowrap">
           <Clock size={16} />{" "}
           {t.rich("dateRange", {
