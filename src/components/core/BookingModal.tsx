@@ -152,7 +152,9 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent
-        className={"flex flex-col items-center p-6 md:py-8 lg:py-10 h-full overflow-y-auto lg:h-auto max-h-[700px]"}>
+        className={
+          "flex flex-col items-center py-6 sm:px-10 md:py-8 lg:py-10 h-full max-h-full sm:h-[95vh] overflow-y-auto lg:h-auto sm:max-h-[600px]"
+        }>
         <AlertDialogHeader>
           <AlertDialogTitle className={"text-2xl md:text-3xl 2xl:text-4xl mb-[-5px] md:mb-0 self-center"}>
             {t("title")}
@@ -161,7 +163,7 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
             <span className={"max-w-[34ch]"}>{t("description")}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className={"w-full md:w-auto h-full"}>
+        <AlertDialogFooter className={"w-full lg:max-w-xl h-full"}>
           <div className={"flex flex-col items-center w-full h-full"}>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 h-full flex flex-col">
@@ -240,13 +242,13 @@ export const BookingModal = ({ children }: PropsWithChildren) => {
                   control={form.control}
                 />
                 <DateRangeSelected start={form.getValues("startDate")} end={form.getValues("endDate")} />
-                <div className={"flex flex-col md:flex-row gap-0 md:gap-2 !mt-auto pt-6"}>
+                <div className={"flex flex-col md:flex-row gap-0 sm:gap-2 !mt-auto pt-6"}>
                   <AlertDialogCancel className={"w-full md:w-[50%] order-2 md:order-1"}>
                     {t("form.buttons.cancel")}
                   </AlertDialogCancel>
                   <AlertDialogAction
                     type="submit"
-                    className={"md:w-[50%] flex items-center  order-1 md:order-2"}
+                    className={"md:w-[50%] flex items-center order-1 md:order-2"}
                     disabled={!form.formState.isValid || isSubmitting}>
                     {(isSubmitting && <Loader size={16} className={"animate-spin"} />) || (
                       <>

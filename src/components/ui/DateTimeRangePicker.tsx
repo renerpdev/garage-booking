@@ -47,7 +47,7 @@ const DateTimeRangePicker = ({
     <div>
       <Dialog onOpenChange={onDialogOpen} open={isPopoverOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className={"h-full overflow-y-auto p-6 lg:h-auto max-h-[700px]"}>
+        <DialogContent className={"h-full  max-h-full sm:h-[95vh] overflow-y-auto lg:h-auto sm:max-h-[600px]"}>
           <DialogHeader>
             <DialogDescription asChild>
               <div>
