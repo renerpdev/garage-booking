@@ -55,7 +55,7 @@ export async function generateMetadata({ params: { locale } }: PropsWithParams) 
       description: t("openGraph.description"),
       images: [
         {
-          url: "https://garage-booking.renerp.dev/screenshot.jpeg",
+          url: "https://garage-booking.renerp.dev/screenshot.png",
           width: 800,
           height: 600,
           alt: t("openGraph.imageAlt")
